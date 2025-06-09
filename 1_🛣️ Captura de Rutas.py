@@ -27,11 +27,10 @@ RUTA_DATOS = "datos_generales.csv"
 valores_por_defecto = {
     "Rendimiento Camion": 2.5,
     "Costo Diesel": 24.0,
-    "Rendimiento Termo": 3.0,
     "Bono ISR IMSS": 462.66,
     "Pago x km IMPO": 2.10,
     "Pago x km EXPO": 2.50,
-    "Pago fijo VACIO": 200.00,
+    "Pago fijo VACIO": 100.00,
     "Tipo de cambio USD": 19.5,
     "Tipo de cambio MXN": 1.0
 }
@@ -94,13 +93,11 @@ with st.form("captura_ruta"):
     with col2:
         moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"])
         costo_cruce = st.number_input("Costo Cruce", min_value=0.0)        
-        horas_termo = st.number_input("Horas Termo", min_value=0.0)
-        lavado_termo = st.number_input("Lavado Termo", min_value=0.0)
         movimiento_local = st.number_input("Movimiento Local", min_value=0.0)
         puntualidad = st.number_input("Puntualidad", min_value=0.0)
         pension = st.number_input("Pensión", min_value=0.0)
         estancia = st.number_input("Estancia", min_value=0.0)
-        fianza_termo = st.number_input("Fianza Termo", min_value=0.0)
+        fianza = st.number_input("Fianza", min_value=0.0)
         renta_termo = st.number_input("Renta Termo", min_value=0.0)
         casetas = st.number_input("Casetas", min_value=0.0)
 
@@ -125,9 +122,9 @@ with st.form("captura_ruta"):
             "km": km, "moneda_ingreso": moneda_ingreso, "ingreso_flete": ingreso_flete,
             "moneda_cruce": moneda_cruce, "ingreso_cruce": ingreso_cruce,
             "moneda_costo_cruce": moneda_costo_cruce, "costo_cruce": costo_cruce,
-            "horas_termo": horas_termo, "lavado_termo": lavado_termo, "movimiento_local": movimiento_local,
+            "movimiento_local": movimiento_local,
             "puntualidad": puntualidad, "pension": pension, "estancia": estancia,
-            "fianza_termo": fianza_termo, "renta_termo": renta_termo, "casetas": casetas,
+            "fianza": fianza, "casetas": casetas,
             "pistas_extra": pistas_extra, "stop": stop, "falso": falso,
             "gatas": gatas, "accesorios": accesorios, "guias": guias
         }
@@ -136,7 +133,6 @@ with st.form("captura_ruta"):
         costo_cruce_convertido = costo_cruce * (valores["Tipo de cambio USD"] if moneda_costo_cruce == "USD" else 1)
 
         costo_diesel_camion = (km / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
-        costo_diesel_termo = horas_termo * valores["Rendimiento Termo"] * valores["Costo Diesel"]
 
         factor = 2 if Modo_de_Viaje == "Team" else 1
 
@@ -154,9 +150,9 @@ with st.form("captura_ruta"):
             bono = 0.0
 
         puntualidad_val = puntualidad * factor
-        extras = sum(map(safe_number, [lavado_termo, movimiento_local, puntualidad_val, pension, estancia, fianza_termo, renta_termo, pistas_extra, stop, falso, gatas, accesorios, guias]))
+        extras = sum(map(safe_number, [movimiento_local, puntualidad_val, pension, estancia, fianza, renta_termo, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
-        costo_total = costo_diesel_camion + costo_diesel_termo + sueldo + bono + casetas + extras + costo_cruce_convertido
+        costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
 
         utilidad_bruta = ingreso_total - costo_total
         costos_indirectos = ingreso_total * 0.35
@@ -192,7 +188,6 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido
 
     costo_diesel_camion = (d["km"] / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
-    costo_diesel_termo = d["horas_termo"] * valores["Rendimiento Termo"] * valores["Costo Diesel"]
 
     factor = 2 if d["Modo de Viaje"] == "Team" else 1
 
@@ -211,14 +206,14 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
 
     puntualidad = d["puntualidad"] * factor
     extras = sum([
-        safe_number(d["lavado_termo"]), safe_number(d["movimiento_local"]), safe_number(puntualidad),
+        safe_number(d["movimiento_local"]), safe_number(puntualidad),
         safe_number(d["pension"]), safe_number(d["estancia"]),
-        safe_number(d["fianza_termo"]), safe_number(d["renta_termo"]),
+        safe_number(d["fianza"]), safe_number(d["renta_termo"]),
         safe_number(d["pistas_extra"]), safe_number(d["stop"]), safe_number(d["falso"]),
         safe_number(d["gatas"]), safe_number(d["accesorios"]), safe_number(d["guias"])
     ])
 
-    costo_total = costo_diesel_camion + costo_diesel_termo + sueldo + bono + d["casetas"] + extras + costo_cruce_convertido
+    costo_total = costo_diesel_camion + sueldo + bono + d["casetas"] + extras + costo_cruce_convertido
 
     nueva_ruta = {
         "ID_Ruta": generar_nuevo_id(),
@@ -230,13 +225,13 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         "Costo Cruce Convertido": costo_cruce_convertido,
         "Ingreso Total": ingreso_total,
         "Pago por KM": pago_km, "Sueldo_Operador": sueldo, "Bono": bono,
-        "Casetas": d["casetas"], "Horas_Termo": d["horas_termo"], "Lavado_Termo": d["lavado_termo"],
+        "Casetas": d["casetas"],
         "Movimiento_Local": d["movimiento_local"], "Puntualidad": puntualidad, "Pension": d["pension"],
-        "Estancia": d["estancia"], "Fianza_Termo": d["fianza_termo"], "Renta_Termo": d["renta_termo"],
+        "Estancia": d["estancia"], "Fianza": d["fianza"],
         "Pistas_Extra": d["pistas_extra"], "Stop": d["stop"], "Falso": d["falso"],
         "Gatas": d["gatas"], "Accesorios": d["accesorios"], "Guias": d["guias"],
-        "Costo_Diesel_Camion": costo_diesel_camion, "Costo_Diesel_Termo": costo_diesel_termo,
-        "Costo_Extras": extras, "Costo_Total_Ruta": costo_total, "Costo Diesel": valores["Costo Diesel"], "Rendimiento Camion": valores["Rendimiento Camion"], "Rendimiento Termo": valores["Rendimiento Termo"]
+        "Costo_Diesel_Camion": costo_diesel_camion,
+        "Costo_Extras": extras, "Costo_Total_Ruta": costo_total, "Costo Diesel": valores["Costo Diesel"], "Rendimiento Camion": valores["Rendimiento Camion"],
     }
 
     # Generar nuevo ID y verificar duplicado
