@@ -154,8 +154,7 @@ with st.form("captura_ruta"):
             bono_team = valores.get("Bono Modo Team", 650)
             sueldo += bono_team
 
-        puntualidad_val = puntualidad * factor
-        extras = sum(map(safe_number, [movimiento_local, puntualidad_val, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
+        extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
         costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
 
@@ -215,7 +214,6 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         bono_team = valores.get("Bono Modo Team", 650)
         sueldo += bono_team
 
-    puntualidad = d["puntualidad"] * factor
     extras = sum([
         safe_number(d["movimiento_local"]), safe_number(puntualidad),
         safe_number(d["pension"]), safe_number(d["estancia"]),
