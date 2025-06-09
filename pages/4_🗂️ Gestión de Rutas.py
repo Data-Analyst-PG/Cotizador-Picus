@@ -141,7 +141,6 @@ if respuesta.data:
                  bono_team = valores.get("Bono Modo Team", 650)
                  sueldo += bono_team
 
-             puntualidad = puntualidad * factor
              extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
              costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
