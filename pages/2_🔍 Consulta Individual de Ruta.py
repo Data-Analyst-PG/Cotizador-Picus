@@ -110,11 +110,9 @@ if st.button("🔁 Simular"):
 if st.session_state.get("simular", False):
     ingreso_total = safe_number(ruta["Ingreso Total"])
     costo_diesel_camion = (safe_number(ruta["KM"]) / rendimiento_input) * costo_diesel_input
-    costo_diesel_termo = safe_number(ruta["Horas_Termo"]) * float(valores.get("Rendimiento Termo", 3.0)) * costo_diesel_input
 
     costo_total = (
         costo_diesel_camion +
-        costo_diesel_termo +
         safe_number(ruta["Sueldo_Operador"]) +
         safe_number(ruta["Bono"]) +
         safe_number(ruta["Casetas"]) +
@@ -183,24 +181,17 @@ with col2:
         st.write(f"Diesel Camión (Simulado): ${costo_diesel_camion:,.2f}")
     else:
         st.write(f"Diesel Camión: ${safe_number(ruta['Costo_Diesel_Camion']):,.2f}")
-    if st.session_state.get("simular", False):
-        costo_diesel_termo = safe_number(ruta["Horas_Termo"]) * safe_number(ruta["KM"]) * costo_diesel_input
-        st.write(f"Diesel Termo (Simulado): ${costo_diesel_termo:,.2f}")
-    else:
-        st.write(f"Diesel Termo: ${safe_number(ruta['Costo_Diesel_Termo']):,.2f}")
     st.write(f"Sueldo Operador: ${safe_number(ruta['Sueldo_Operador']):,.2f}")
     st.write(f"Bono: ${safe_number(ruta['Bono']):,.2f}")
     st.write(f"Casetas: ${safe_number(ruta['Casetas']):,.2f}")
         
 with col3:
     st.write("**Extras:**")
-    st.write(f"- Lavado Termo: ${safe_number(ruta['Lavado_Termo']):,.2f}")
     st.write(f"- Movimiento Local: ${safe_number(ruta['Movimiento_Local']):,.2f}")
     st.write(f"- Puntualidad: ${safe_number(ruta['Puntualidad']):,.2f}")
     st.write(f"- Pensión: ${safe_number(ruta['Pension']):,.2f}")
     st.write(f"- Estancia: ${safe_number(ruta['Estancia']):,.2f}")
-    st.write(f"- Fianza Termo: ${safe_number(ruta['Fianza_Termo']):,.2f}")
-    st.write(f"- Renta Termo: ${safe_number(ruta['Renta_Termo']):,.2f}")
+    st.write(f"- Fianza: ${safe_number(ruta['Fianza']):,.2f}")
     st.write(f"- Pistas Extra: ${safe_number(ruta.get('Pistas_Extra', 0)):,.2f}")
     st.write(f"- Stop: ${safe_number(ruta.get('Stop', 0)):,.2f}")
     st.write(f"- Falso: ${safe_number(ruta.get('Falso', 0)):,.2f}")
