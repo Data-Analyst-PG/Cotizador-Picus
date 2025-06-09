@@ -49,7 +49,7 @@ with st.sidebar:
     st.markdown(f"👤 **{st.session_state.usuario['Nombre']}** ({st.session_state.usuario['Rol']})")
     if st.button("Cerrar sesión"):
         del st.session_state["usuario"]
-        st.experimental_rerun()
+        st.rerun()
 
 # =========================
 # ✅ ENCABEZADO Y MENÚ
