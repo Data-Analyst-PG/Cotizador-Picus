@@ -120,25 +120,31 @@ if respuesta.data:
              costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
              costo_diesel_termo = horas_termo * rendimiento_termo * costo_diesel
 
-             factor = 2 if Modo_de_Viaje == "Team" else 1
+             # Pago por KM general
+             pago_km = valores.get("Pago x KM (General)", 1.5)
+             bono = 0.0
 
-             if tipo == "IMPO":
-                pago_km = valores.get("Pago x km IMPO", 2.1)
-                sueldo = km * pago_km * factor
-                bono = valores.get("Bono ISR IMSS", 0) * factor
-             elif tipo == "EXPO":
-                pago_km = valores.get("Pago x km EXPO", 2.5)
-                sueldo = km * pago_km * factor
-                bono = valores.get("Bono ISR IMSS", 0) * factor
-             else:
-                pago_km = 0.0
-                sueldo = valores.get("Pago fijo VACIO", 200.0) * factor
-                bono = 0.0
+             if tipo in ["IMPO", "EXPO"]:
+                 sueldo = km * pago_km
+                 bono_isr = valores.get("Bono ISR IMSS", 0)
+                 bono_rendimiento = valores.get("Bono Rendimiento", 0)
+                 bono = bono_isr + bono_rendimiento
+             elif tipo == "VACIO":
+                 if km <= 100:
+                     sueldo = 100.0  # Pago fijo VACÍO corto
+                 else:
+                     sueldo = km * pago_km
+                 bono = 0.0  # No aplica ISR/IMSS ni bono rendimiento
+
+             # Bono adicional por ser Team (solo sobre sueldo)
+             if Modo_de_Viaje == "Team":
+                 bono_team = valores.get("Bono Modo Team", 650)
+                 sueldo += bono_team
 
              puntualidad = puntualidad * factor
-             extras = sum(map(safe_number, [lavado_termo, movimiento_local, puntualidad, pension, estancia, fianza_termo, renta_termo, pistas_extra, stop, falso, gatas, accesorios, guias]))
+             extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
-             costo_total = costo_diesel_camion + costo_diesel_termo + sueldo + bono + casetas + extras + costo_cruce_convertido
+             costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
 
              ruta_actualizada = {
                  "Modo de Viaje": Modo_de_Viaje,
@@ -164,14 +170,11 @@ if respuesta.data:
                  "Sueldo_Operador": sueldo,
                  "Bono": bono,
                  "Casetas": casetas,
-                 "Horas_Termo": horas_termo,
-                 "Lavado_Termo": lavado_termo,
                  "Movimiento_Local": movimiento_local,
                  "Puntualidad": puntualidad,
                  "Pension": pension,
                  "Estancia": estancia,
-                 "Fianza_Termo": fianza_termo,
-                 "Renta_Termo": renta_termo,
+                 "Fianza": fianza,
                  "Pistas_Extra": pistas_extra,
                  "Stop": stop,
                  "Falso": falso,
@@ -184,7 +187,6 @@ if respuesta.data:
                  "Costo_Total_Ruta": costo_total,
                  "Costo Diesel": costo_diesel,
                  "Rendimiento Camion": rendimiento_camion,
-                 "Rendimiento Termo": rendimiento_termo
              }
 
              try:
