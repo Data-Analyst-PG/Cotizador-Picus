@@ -56,8 +56,8 @@ with st.sidebar:
 # =========================
 
 # Ruta al logo
-LOGO_CLARO = "Igloo Original.png"
-LOGO_OSCURO = "Igloo White.png"
+LOGO_CLARO = "Picus BG.png"
+LOGO_OSCURO = "PICUS W.png"
 
 @st.cache_data
 def image_to_base64(img_path):
