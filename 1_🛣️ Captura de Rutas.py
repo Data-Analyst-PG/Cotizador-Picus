@@ -30,6 +30,7 @@ valores_por_defecto = {
     "Pago x KM (General)": 1.50,
     "Bono ISR IMSS": 462.66,
     "Bono Rendimiento": 250.0,
+    "Bono Modo Team": 650.0,
     "Tipo de cambio USD": 17.5,
     "Tipo de cambio MXN": 1.0
 }
@@ -132,20 +133,19 @@ with st.form("captura_ruta"):
 
         costo_diesel_camion = (km / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
 
-        factor = 2 if Modo_de_Viaje == "Team" else 1
+        pago_km = valores.get("Pago x KM (General)", 1.5)
+        sueldo = km * pago_km
 
-        if tipo == "IMPO":
-            pago_km = valores["Pago x km IMPO"]
-            sueldo = km * pago_km * factor
-            bono = valores["Bono ISR IMSS"] * factor
-        elif tipo == "EXPO":
-            pago_km = valores["Pago x km EXPO"]
-            sueldo = km * pago_km * factor
-            bono = valores["Bono ISR IMSS"] * factor
+        # Bono ISR/IMSS aplica solo a IMPO y EXPO
+        if tipo in ["IMPO", "EXPO"]:
+            bono = valores.get("Bono ISR IMSS", 0)
         else:
-            pago_km = 0.0
-            sueldo = valores["Pago fijo VACIO"] * factor
             bono = 0.0
+
+        # Bono adicional si es modo Team
+        if Modo_de_Viaje == "Team":
+            bono_team = valores.get("Bono Modo Team", 650)
+            sueldo += bono_team  # Se suma al sueldo directamente
 
         puntualidad_val = puntualidad * factor
         extras = sum(map(safe_number, [movimiento_local, puntualidad_val, pension, estancia, fianza, renta_termo, pistas_extra, stop, falso, gatas, accesorios, guias]))
