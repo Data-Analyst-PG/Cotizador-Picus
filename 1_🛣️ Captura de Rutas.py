@@ -139,7 +139,9 @@ with st.form("captura_ruta"):
 
         if tipo in ["IMPO", "EXPO"]:
             sueldo = km * pago_km
-            bono = valores.get("Bono ISR IMSS", 0)
+            bono_isr = valores.get("Bono ISR IMSS", 0)
+            bono_rendimiento = valores.get("Bono Rendimiento", 0)
+            bono = bono_isr + bono_rendimiento
         elif tipo == "VACIO":
             if km <= 100:
                 sueldo = 100.0  # Pago fijo VACÍO corto
@@ -198,7 +200,9 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
 
     if tipo in ["IMPO", "EXPO"]:
         sueldo = km * pago_km
-        bono = valores.get("Bono ISR IMSS", 0)
+        bono_isr = valores.get("Bono ISR IMSS", 0)
+        bono_rendimiento = valores.get("Bono Rendimiento", 0)
+        bono = bono_isr + bono_rendimiento
     elif tipo == "VACIO":
         if km <= 100:
             sueldo = 100.0  # Pago fijo VACÍO corto
