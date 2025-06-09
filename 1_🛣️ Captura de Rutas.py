@@ -49,7 +49,7 @@ def guardar_datos_generales(valores):
 def safe_number(x):
     return 0 if (x is None or (isinstance(x, float) and pd.isna(x))) else x
 
-# Generador de ID tipo IG000001
+# Generador de ID tipo PIC000001
 
 def generar_nuevo_id():
     respuesta = supabase.table("Rutas").select("ID_Ruta").order("ID_Ruta", desc=True).limit(1).execute()
@@ -58,7 +58,7 @@ def generar_nuevo_id():
         numero = int(ultimo[2:]) + 1
     else:
         numero = 1
-    return f"IG{numero:06d}"
+    return f"PIC{numero:06d}"
 
 valores = cargar_datos_generales()
 
