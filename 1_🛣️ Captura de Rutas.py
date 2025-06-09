@@ -148,7 +148,7 @@ with st.form("captura_ruta"):
             sueldo += bono_team  # Se suma al sueldo directamente
 
         puntualidad_val = puntualidad * factor
-        extras = sum(map(safe_number, [movimiento_local, puntualidad_val, pension, estancia, fianza, renta_termo, pistas_extra, stop, falso, gatas, accesorios, guias]))
+        extras = sum(map(safe_number, [movimiento_local, puntualidad_val, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
         costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
 
@@ -187,20 +187,19 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
 
     costo_diesel_camion = (d["km"] / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
 
-    factor = 2 if d["Modo de Viaje"] == "Team" else 1
+    pago_km = valores.get("Pago x KM (General)", 1.5)
+    sueldo = km * pago_km
 
-    if d["tipo"] == "IMPO":
-        pago_km = valores["Pago x km IMPO"]
-        sueldo = d["km"] * pago_km * factor
-        bono = valores["Bono ISR IMSS"] * factor
-    elif d["tipo"] == "EXPO":
-        pago_km = valores["Pago x km EXPO"]
-        sueldo = d["km"] * pago_km * factor
-        bono = valores["Bono ISR IMSS"] * factor
+    # Bono ISR/IMSS aplica solo a IMPO y EXPO
+    if tipo in ["IMPO", "EXPO"]:
+        bono = valores.get("Bono ISR IMSS", 0)
     else:
-        pago_km = 0.0
-        sueldo = valores["Pago fijo VACIO"] * factor
         bono = 0.0
+
+    # Bono adicional si es modo Team
+    if Modo_de_Viaje == "Team":
+        bono_team = valores.get("Bono Modo Team", 650)
+        sueldo += bono_team  # Se suma al sueldo directamente
 
     puntualidad = d["puntualidad"] * factor
     extras = sum([
