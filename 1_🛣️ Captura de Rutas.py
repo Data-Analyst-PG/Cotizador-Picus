@@ -27,11 +27,10 @@ RUTA_DATOS = "datos_generales.csv"
 valores_por_defecto = {
     "Rendimiento Camion": 2.5,
     "Costo Diesel": 24.0,
+    "Pago x KM (General)": 1.50,
     "Bono ISR IMSS": 462.66,
-    "Pago x km IMPO": 2.10,
-    "Pago x km EXPO": 2.50,
-    "Pago fijo VACIO": 100.00,
-    "Tipo de cambio USD": 19.5,
+    "Bono Rendimiento": 250.0,
+    "Tipo de cambio USD": 17.5,
     "Tipo de cambio MXN": 1.0
 }
 
@@ -98,7 +97,6 @@ with st.form("captura_ruta"):
         pension = st.number_input("Pensión", min_value=0.0)
         estancia = st.number_input("Estancia", min_value=0.0)
         fianza = st.number_input("Fianza", min_value=0.0)
-        renta_termo = st.number_input("Renta Termo", min_value=0.0)
         casetas = st.number_input("Casetas", min_value=0.0)
 
     st.markdown("---")
