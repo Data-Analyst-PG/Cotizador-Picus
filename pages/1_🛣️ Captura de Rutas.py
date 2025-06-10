@@ -49,13 +49,16 @@ def safe_number(x):
     return 0 if (x is None or (isinstance(x, float) and pd.isna(x))) else x
 
 # Generador de ID tipo PIC000001
-
 def generar_nuevo_id():
-    respuesta = supabase.table("Rutas").select("ID_Ruta").order("ID_Ruta", desc=True).limit(1).execute()
-    if respuesta.data:
-        ultimo = respuesta.data[0]["ID_Ruta"]
-        numero = int(ultimo[2:]) + 1
-    else:
+    try:
+        respuesta = supabase.table("Rutas").select("ID_Ruta").order("ID_Ruta", desc=True).limit(1).execute()
+        if respuesta.data and respuesta.data[0].get("ID_Ruta"):
+            ultimo = respuesta.data[0]["ID_Ruta"]
+            numero = int(ultimo[3:]) + 1  # Asumiendo formato 'PIC000001'
+        else:
+            numero = 1
+    except Exception as e:
+        st.warning(f"⚠️ No se pudo generar el ID automáticamente: {e}")
         numero = 1
     return f"PIC{numero:06d}"
 
