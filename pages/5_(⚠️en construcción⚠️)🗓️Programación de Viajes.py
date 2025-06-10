@@ -1,8 +1,7 @@
-
 import streamlit as st
 import pandas as pd
+from supabase import create_client
 import os
-from datetime import datetime
 
 # ✅ Verificación de sesión y rol
 if "usuario" not in st.session_state:
@@ -10,12 +9,40 @@ if "usuario" not in st.session_state:
     st.stop()
 
 rol = st.session_state.usuario.get("Rol", "").lower()
-if rol not in ["admin", "gerente", "ejecutivo"]:
+if rol not in ["admin", "gerente", "ejecutivo", "visitante"]:
     st.error("🚫 No tienes permiso para acceder a este módulo.")
     st.stop()
 
-RUTA_RUTAS = "rutas_guardadas.csv"
-RUTA_PROG = "viajes_programados.csv"
+# ✅ Conexión a Supabase
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase = create_client(url, key)
+
+# ✅ Valores por defecto
+valores_por_defecto = {
+    "Rendimiento Camion": 2.5,
+    "Costo Diesel": 24.0,
+}
+
+# ✅ Ruta para valores locales
+RUTA_DATOS = "datos_generales.csv"
+
+# ✅ Cargar valores desde CSV o usar los por defecto
+if os.path.exists(RUTA_DATOS):
+    df_datos = pd.read_csv(RUTA_DATOS).set_index("Parametro")["Valor"].to_dict()
+    valores = {**valores_por_defecto, **df_datos}
+else:
+    valores = valores_por_defecto.copy()
+
+# ✅ Cargar rutas desde Supabase
+respuesta = supabase.table("Rutas").select("*").execute()
+df = pd.DataFrame(respuesta.data)
+
+# ✅ Asegurar formato correcto
+if not df.empty:
+    df["Fecha"] = pd.to_datetime(df["Fecha"]).dt.strftime("%Y-%m-%d")
+    df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0)
+    df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0)
 
 st.title("🛣️ Programación de Viajes Detallada")
 
