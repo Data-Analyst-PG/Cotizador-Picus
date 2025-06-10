@@ -49,13 +49,16 @@ st.title("🛣️ Programación de Viajes Detallada")
 def safe(x): return 0 if pd.isna(x) or x is None else x
 
 def cargar_rutas():
-    if not os.path.exists(RUTA_RUTAS):
-        st.error("No se encontró rutas_guardadas.csv")
-        st.stop()
-    df = pd.read_csv(RUTA_RUTAS)
+    respuesta = supabase.table("Rutas").select("*").execute()
+    if not respuesta.data:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(respuesta.data)
+
     df["Utilidad"] = df["Ingreso Total"] - df["Costo_Total_Ruta"]
     df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
     df["Ruta"] = df["Origen"] + " → " + df["Destino"]
+
     return df
 
 def guardar_programacion(df_nueva):
