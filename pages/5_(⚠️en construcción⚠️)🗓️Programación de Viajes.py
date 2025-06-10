@@ -161,7 +161,7 @@ if os.path.exists(RUTA_PROG):
 st.markdown("---")
 st.title("🔁 Completar y Simular Tráfico Detallado")
 
-if not os.path.exists(RUTA_PROG) or not os.path.exists(RUTA_RUTAS):
+if not os.path.exists(RUTA_PROG):
     st.error("❌ Faltan archivos necesarios para continuar.")
     st.stop()
 
