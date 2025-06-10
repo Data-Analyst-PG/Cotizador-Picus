@@ -78,14 +78,11 @@ if respuesta.data:
         with col2:
             moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda Costo Cruce"]))
             costo_cruce = st.number_input("Costo Cruce", min_value=0.0, value=float(ruta["Costo Cruce"]))
-            horas_termo = st.number_input("Horas Termo", min_value=0.0, value=float(ruta["Horas_Termo"]))
-            lavado_termo = st.number_input("Lavado Termo", min_value=0.0, value=float(ruta["Lavado_Termo"]))
             movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=float(ruta["Movimiento_Local"]))
             puntualidad = st.number_input("Puntualidad", min_value=0.0, value=float(ruta["Puntualidad"]))
             pension = st.number_input("Pensión", min_value=0.0, value=float(ruta["Pension"]))
             estancia = st.number_input("Estancia", min_value=0.0, value=float(ruta["Estancia"]))
-            fianza_termo = st.number_input("Fianza Termo", min_value=0.0, value=float(ruta["Fianza_Termo"]))
-            renta_termo = st.number_input("Renta Termo", min_value=0.0, value=float(ruta["Renta_Termo"]))
+            fianza = st.number_input("Fianza", min_value=0.0, value=float(ruta["Fianza"]))
             casetas = st.number_input("Casetas", min_value=0.0, value=float(ruta["Casetas"]))
             
         st.markdown("---")
@@ -116,9 +113,7 @@ if respuesta.data:
 
              rendimiento_camion = valores.get("Rendimiento Camion", 1)
              costo_diesel = valores.get("Costo Diesel", 1)
-             rendimiento_termo = valores.get("Rendimiento Termo", 1)
              costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
-             costo_diesel_termo = horas_termo * rendimiento_termo * costo_diesel
 
              # Pago por KM general
              pago_km = valores.get("Pago x KM (General)", 1.5)
@@ -181,7 +176,6 @@ if respuesta.data:
                  "Accesorios": accesorios,
                  "Guias": guias,
                  "Costo_Diesel_Camion": costo_diesel_camion,
-                 "Costo_Diesel_Termo": costo_diesel_termo,
                  "Costo_Extras": extras,
                  "Costo_Total_Ruta": costo_total,
                  "Costo Diesel": costo_diesel,
