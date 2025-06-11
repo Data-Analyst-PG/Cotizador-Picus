@@ -74,6 +74,7 @@ with st.form("registro_trafico"):
     trafico = st.text_input("Número de Tráfico")
     unidad = st.text_input("Unidad")
     operador = st.text_input("Operador")
+    modo_viaje = st.selectbox("Modo de viaje", ["Operador", "Team"])
     submit = st.form_submit_button("📅 Registrar Tráfico")
 
     if submit:
@@ -86,6 +87,7 @@ with st.form("registro_trafico"):
             datos["Número_Trafico"] = trafico
             datos["Unidad"] = unidad
             datos["Operador"] = operador
+            datos["Modo_Viaje"] = modo_viaje
             datos["Tramo"] = "IDA"
             datos["ID_Programacion"] = f"{trafico}_{fecha_str}"
             guardar_programacion(pd.DataFrame([datos]))
@@ -121,15 +123,48 @@ if os.path.exists(RUTA_PROG):
             with st.form("editar_trafico"):
                 nueva_unidad = st.text_input("Editar Unidad", value=tramo_ida["Unidad"])
                 nuevo_operador = st.text_input("Editar Operador", value=tramo_ida["Operador"])
-                editar_btn = st.form_submit_button("💾 Guardar cambios")
+                col1, col2 = st.columns(2)
+                with col1:
+                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local", 0)))
+                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad", 0)))
+                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension", 0)))
+                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia", 0)))
+                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra", 0)))
+                with col2:
+                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop", 0)))
+                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso", 0)))
+                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas", 0)))
+                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios", 0)))
+                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías", 0)))
+                actualizar = st.form_submit_button("💾 Guardar cambios")
 
-                if editar_btn:
-                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Unidad"] = nueva_unidad
-                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Operador"] = nuevo_operador
+                if actualizar:
+                    columnas = {
+                        "Unidad": nueva_unidad,
+                        "Operador": nuevo_operador,
+                        "Movimiento_Local": movimiento_local,
+                        "Puntualidad": puntualidad,
+                        "Pension": pension,
+                        "Estancia": estancia,
+                        "Pistas Extra": pistas_extra,
+                        "Stop": stop,
+                        "Falso": falso,
+                        "Gatas": gatas,
+                        "Accesorios": accesorios,
+                        "Guías": guias
+                    }
+                    for col, val in columnas.items():
+                        df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), col] = val
+
+                    # Recalcular costo total
+                    extras = sum([safe(x) for x in columnas.values() if isinstance(x, (int, float))])
+                    base = tramo_ida.get("Costo_Total_Ruta", 0) - tramo_ida.get("Costo_Extras", 0)
+                    total = base + extras
+                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Extras"] = extras
+                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Total_Ruta"] = total
+
                     df_prog.to_csv(RUTA_PROG, index=False)
-                    st.success("✅ Cambios guardados exitosamente.")
-        else:
-            st.warning("⚠️ No se encontró tramo IDA en este tráfico. No es posible editar Unidad u Operador.")
+                    st.success("✅ Cambios guardados correctamente.")
 
 
 # =====================================
