@@ -20,6 +20,8 @@ url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 supabase = create_client(url, key)
 
+RUTA_PROG = "viajes_programados.csv"
+
 st.title("🛣️ Programación de Viajes Detallada")
 
 def safe(x): return 0 if pd.isna(x) or x is None else x
