@@ -1,12 +1,9 @@
+
 import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime
 from supabase import create_client
-
-url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_KEY"]
-supabase = create_client(url, key)
 
 # ✅ Verificación de sesión y rol
 if "usuario" not in st.session_state:
@@ -17,6 +14,11 @@ rol = st.session_state.usuario.get("Rol", "").lower()
 if rol not in ["admin", "gerente", "ejecutivo"]:
     st.error("🚫 No tienes permiso para acceder a este módulo.")
     st.stop()
+
+# Conexión a Supabase
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase = create_client(url, key)
 
 RUTA_PROG = "viajes_programados.csv"
 
