@@ -124,7 +124,7 @@ with st.form("captura_ruta"):
     if revisar:
         st.session_state.revisar_ruta = True
         st.session_state.datos_captura = {
-            "fecha": fecha, "tipo": tipo, "ruta_tipo": ruta_tipo "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
+            "fecha": fecha, "tipo": tipo, "ruta_tipo": ruta_tipo, "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
             "km": km, "moneda_ingreso": moneda_ingreso, "ingreso_flete": ingreso_flete,
             "moneda_cruce": moneda_cruce, "ingreso_cruce": ingreso_cruce,
             "moneda_costo_cruce": moneda_costo_cruce, "costo_cruce": costo_cruce,
