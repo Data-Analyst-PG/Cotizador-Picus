@@ -112,25 +112,36 @@ datos = df_despacho[df_despacho["Numero_Trafico"] == viaje_sel].iloc[0]
 with st.form("registro_trafico"):
     st.subheader("📝 Validar y completar datos")
     col1, col2 = st.columns(2)
+
+    # Validación segura y conversión a string
+    cliente_valor = str(datos["Cliente"]) if pd.notna(datos["Cliente"]) else ""
+    origen_valor = str(datos["Origen"]) if pd.notna(datos["Origen"]) else ""
+    destino_valor = str(datos["Destino"]) if pd.notna(datos["Destino"]) else ""
+    operador_valor = str(datos["Operador"]) if pd.notna(datos["Operador"]) else ""
+    unidad_valor = str(datos["Unidad"]) if pd.notna(datos["Unidad"]) else ""
+    tipo_valor = str(datos["Tipo"]).strip().upper() if pd.notna(datos["Tipo"]) else "IMPORTACION"
+    moneda_valor = str(datos["Moneda"]).strip().upper() if pd.notna(datos["Moneda"]) else "MXP"
+
     with col1:
         fecha = st.date_input("Fecha", value=datos["Fecha"])
-        cliente = st.text_input("Cliente", value=datos["Cliente"])
-        origen = st.text_input("Origen", value=datos["Origen"])
-        destino = st.text_input("Destino", value=datos["Destino"])
-        tipo = st.selectbox("Tipo", ["IMPORTACION", "EXPORTACION", "VACIO"], index=["IMPORTACION", "EXPORTACION", "VACIO"].index(datos["Tipo"]))
-        moneda = st.selectbox("Moneda", ["MXP", "USD"], index=["MXP", "USD"].index(datos["Moneda"]))
-        ingreso_original = st.number_input("Ingreso Original", value=datos["Ingreso_Original"], min_value=0.0)
+        cliente = st.text_input("Cliente", value=cliente_valor)
+        origen = st.text_input("Origen", value=origen_valor)
+        destino = st.text_input("Destino", value=destino_valor)
+        tipo = st.selectbox("Tipo", ["IMPORTACION", "EXPORTACION", "VACIO"], index=["IMPORTACION", "EXPORTACION", "VACIO"].index(tipo_valor) if tipo_valor in ["IMPORTACION", "EXPORTACION", "VACIO"] else 0)
+        moneda = st.selectbox("Moneda", ["MXP", "USD"], index=["MXP", "USD"].index(moneda_valor) if moneda_valor in ["MXP", "USD"] else 0)
+        ingreso_original = st.number_input("Ingreso Original", value=safe(datos["Ingreso_Original"]), min_value=0.0)
+
     with col2:
-        unidad = st.text_input("Unidad", value=datos["Unidad"])
-        operador = st.text_input("Operador", value=datos["Operador"])
-        km = st.number_input("KM", value=datos["KM"], min_value=0.0)
+        unidad = st.text_input("Unidad", value=unidad_valor)
+        operador = st.text_input("Operador", value=operador_valor)
+        km = st.number_input("KM", value=safe(datos["KM"]), min_value=0.0)
         rendimiento = st.number_input("Rendimiento Camión", value=2.5)
         costo_diesel = st.number_input("Costo Diesel", value=24.0)
         tipo_cambio = st.number_input("Tipo de cambio USD", value=17.5)
 
     ingreso_total = ingreso_original * (tipo_cambio if moneda == "USD" else 1)
     diesel = (km / rendimiento) * costo_diesel
-    sueldo = st.number_input("Sueldo Operador", value=datos["Sueldo_Operador"], min_value=0.0)
+    sueldo = st.number_input("Sueldo Operador", value=safe(datos["Sueldo_Operador"]), min_value=0.0)
 
     st.markdown(f"💰 **Ingreso Total Convertido:** ${ingreso_total:,.2f}")
     st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
