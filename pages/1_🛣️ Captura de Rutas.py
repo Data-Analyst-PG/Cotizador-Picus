@@ -90,38 +90,38 @@ with st.form("captura_ruta"):
 
     with col1:
         fecha = st.date_input("Fecha", value=datetime.today())
-        tipo = st.selectbox("Tipo de Ruta", ["IMPO", "EXPO", "VACIO"])
+        tipo = st.selectbox("Tipo de Ruta", ["IMPORTACION", "EXPORTACION", "VACIO"])
         ruta_tipo = st.selectbox("Ruta Tipo", ["Ruta Larga", "Tramo"])
         cliente = st.text_input("Nombre Cliente")
         origen = st.text_input("Origen")
         destino = st.text_input("Destino")
         Modo_de_Viaje = st.selectbox("Modo de Viaje", ["Operador", "Team"])
         km = st.number_input("Kilómetros", min_value=0.0)
-        moneda_ingreso = st.selectbox("Moneda Ingreso Flete", ["MXN", "USD"])
+        moneda_ingreso = st.selectbox("Moneda Ingreso Flete", ["MXP", "USD"])
         ingreso_flete = st.number_input("Ingreso Flete", min_value=0.0)
     with col2:
-        moneda_cruce = st.selectbox("Moneda Ingreso Cruce", ["MXN", "USD"])
+        moneda_cruce = st.selectbox("Moneda Ingreso Cruce", ["MXP", "USD"])
         ingreso_cruce = st.number_input("Ingreso Cruce", min_value=0.0)
-        moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"])
+        moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXP", "USD"])
         costo_cruce = st.number_input("Costo Cruce", min_value=0.0)        
         movimiento_local = st.number_input("Movimiento Local (MXN)", min_value=0.0)
         puntualidad = st.number_input("Puntualidad", min_value=0.0)
-        pension = st.number_input("Pensión (MXN)", min_value=0.0)
-        estancia = st.number_input("Estancia (MXN)", min_value=0.0)
-        fianza = st.number_input("Fianza (MXN)", min_value=0.0)
-        casetas = st.number_input("Casetas (MXN)", min_value=0.0)
+        pension = st.number_input("Pensión (MXP)", min_value=0.0)
+        estancia = st.number_input("Estancia (MXP)", min_value=0.0)
+        fianza = st.number_input("Fianza (MXP)", min_value=0.0)
+        casetas = st.number_input("Casetas (MXP)", min_value=0.0)
 
     st.markdown("---")
     st.subheader("🧾 Costos Extras Adicionales")
     col3, col4 = st.columns(2)
     with col3:
-        pistas_extra = st.number_input("Pistas Extra (MXN)", min_value=0.0)
-        stop = st.number_input("Stop (MXN)", min_value=0.0)
-        falso = st.number_input("Falso (MXN)", min_value=0.0)
+        pistas_extra = st.number_input("Pistas Extra (MXP)", min_value=0.0)
+        stop = st.number_input("Stop (MXP)", min_value=0.0)
+        falso = st.number_input("Falso (MXP)", min_value=0.0)
     with col4:
-        gatas = st.number_input("Gatas (MXN)", min_value=0.0)
-        accesorios = st.number_input("Accesorios (MXN)", min_value=0.0)
-        guias = st.number_input("Guías (MXN)", min_value=0.0)
+        gatas = st.number_input("Gatas (MXP)", min_value=0.0)
+        accesorios = st.number_input("Accesorios (MXP)", min_value=0.0)
+        guias = st.number_input("Guías (MXP)", min_value=0.0)
 
     revisar = st.form_submit_button("🔍 Revisar Ruta")
 
@@ -199,9 +199,9 @@ with st.form("captura_ruta"):
 if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     d = st.session_state.datos_captura
 
-    tipo_cambio_flete = valores["Tipo de cambio USD"] if d["moneda_ingreso"] == "USD" else valores["Tipo de cambio MXN"]
-    tipo_cambio_cruce = valores["Tipo de cambio USD"] if d["moneda_cruce"] == "USD" else valores["Tipo de cambio MXN"]
-    tipo_cambio_costo_cruce = valores["Tipo de cambio USD"] if d["moneda_costo_cruce"] == "USD" else valores["Tipo de cambio MXN"]
+    tipo_cambio_flete = valores["Tipo de cambio USD"] if d["moneda_ingreso"] == "USD" else valores["Tipo de cambio MXP"]
+    tipo_cambio_cruce = valores["Tipo de cambio USD"] if d["moneda_cruce"] == "USD" else valores["Tipo de cambio MXP"]
+    tipo_cambio_costo_cruce = valores["Tipo de cambio USD"] if d["moneda_costo_cruce"] == "USD" else valores["Tipo de cambio MXP"]
 
     ingreso_flete_convertido = d["ingreso_flete"] * tipo_cambio_flete
     ingreso_cruce_convertido = d["ingreso_cruce"] * tipo_cambio_cruce
@@ -220,7 +220,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         bono = valores.get("Bono ISR IMSS Tramo", 185.06)
         Modo_de_Viaje = "Operador"  # Forzar
         costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
-    elif tipo in ["IMPO", "EXPO"]:
+    elif tipo in ["IMPORTACION", "EXPORTACION"]:
         sueldo = km * pago_km
         bono_isr = valores.get("Bono ISR IMSS RL", 0)
         bono_rendimiento = valores.get("Bono Rendimiento", 0)
