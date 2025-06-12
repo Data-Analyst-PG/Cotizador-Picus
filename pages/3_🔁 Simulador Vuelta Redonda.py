@@ -35,6 +35,8 @@ df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
 
 # Paso 1: Selección ruta principal
 st.subheader("📌 Ruta Principal")
+ruta_tipo_sel = st.selectbox("Ruta Larga o Tramo", df["Ruta_Tipo"].unique())
+df = df[df["Ruta_Tipo"] == ruta_tipo_sel]
 tipos_disponibles = df["Tipo"].unique().tolist()
 tipo_ruta_1 = st.selectbox("Selecciona tipo de ruta principal", tipos_disponibles)
 
