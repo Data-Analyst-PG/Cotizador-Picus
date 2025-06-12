@@ -35,6 +35,19 @@ st.title("🗂️ Gestión de Rutas Guardadas")
 # Cargar rutas desde Supabase
 respuesta = supabase.table("Rutas").select("*").execute()
 valores = cargar_datos_generales()
+valores_por_defecto = {
+    "Rendimiento Camion": 2.5,
+    "Costo Diesel": 24.0,
+    "Pago x KM (General)": 1.50,
+    "Bono ISR IMSS RL": 462.66,
+    "Bono ISR IMSS Tramo": 185.06,
+    "Pago Vacio": 100.0,
+    "Pago Tramo": 300.0,
+    "Bono Rendimiento": 250.0,
+    "Bono Modo Team": 650.0,
+    "Tipo de cambio USD": 17.5,
+    "Tipo de cambio MXN": 1.0
+}
 
 if respuesta.data:
     df = pd.DataFrame(respuesta.data)
