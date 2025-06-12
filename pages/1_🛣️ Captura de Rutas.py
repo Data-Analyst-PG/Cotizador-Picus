@@ -84,6 +84,7 @@ with st.form("captura_ruta"):
     with col1:
         fecha = st.date_input("Fecha", value=datetime.today())
         tipo = st.selectbox("Tipo de Ruta", ["IMPO", "EXPO", "VACIO"])
+        ruta = st.selectbox("Ruta", ["Ruta Larga", "Tramo"])
         cliente = st.text_input("Nombre Cliente")
         origen = st.text_input("Origen")
         destino = st.text_input("Destino")
@@ -91,9 +92,9 @@ with st.form("captura_ruta"):
         km = st.number_input("Kilómetros", min_value=0.0)
         moneda_ingreso = st.selectbox("Moneda Ingreso Flete", ["MXN", "USD"])
         ingreso_flete = st.number_input("Ingreso Flete", min_value=0.0)
+    with col2:
         moneda_cruce = st.selectbox("Moneda Ingreso Cruce", ["MXN", "USD"])
         ingreso_cruce = st.number_input("Ingreso Cruce", min_value=0.0)
-    with col2:
         moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"])
         costo_cruce = st.number_input("Costo Cruce", min_value=0.0)        
         movimiento_local = st.number_input("Movimiento Local", min_value=0.0)
@@ -120,7 +121,7 @@ with st.form("captura_ruta"):
     if revisar:
         st.session_state.revisar_ruta = True
         st.session_state.datos_captura = {
-            "fecha": fecha, "tipo": tipo, "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
+            "fecha": fecha, "tipo": tipo, "ruta": ruta, "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
             "km": km, "moneda_ingreso": moneda_ingreso, "ingreso_flete": ingreso_flete,
             "moneda_cruce": moneda_cruce, "ingreso_cruce": ingreso_cruce,
             "moneda_costo_cruce": moneda_costo_cruce, "costo_cruce": costo_cruce,
@@ -229,7 +230,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
 
     nueva_ruta = {
         "ID_Ruta": generar_nuevo_id(),
-        "Fecha": str(d["fecha"]), "Tipo": d["tipo"], "Cliente": d["cliente"], "Origen": d["origen"], "Destino": d["destino"], "Modo de Viaje": d["Modo de Viaje"], "KM": d["km"],
+        "Fecha": str(d["fecha"]), "Tipo": d["tipo"], "Ruta": d["ruta"], "Cliente": d["cliente"], "Origen": d["origen"], "Destino": d["destino"], "Modo de Viaje": d["Modo de Viaje"], "KM": d["km"],
         "Moneda": d["moneda_ingreso"], "Ingreso_Original": d["ingreso_flete"], "Tipo de cambio": tipo_cambio_flete,
         "Ingreso Flete": ingreso_flete_convertido, "Moneda_Cruce": d["moneda_cruce"], "Cruce_Original": d["ingreso_cruce"],
         "Tipo cambio Cruce": tipo_cambio_cruce, "Ingreso Cruce": ingreso_cruce_convertido,
