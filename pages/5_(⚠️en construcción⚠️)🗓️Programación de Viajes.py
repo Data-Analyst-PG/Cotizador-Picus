@@ -65,7 +65,7 @@ if archivo_excel is not None:
         "Tarifa": "Ingreso_Original",
         "Moneda": "Moneda",
         "Clasificación": "Ruta_Tipo",
-        "Caja": "Unidad",
+        "Unidad": "Unidad",
         "Operador": "Operador"
     })
 
@@ -117,8 +117,8 @@ with st.form("registro_trafico"):
         cliente = st.text_input("Cliente", value=datos["Cliente"])
         origen = st.text_input("Origen", value=datos["Origen"])
         destino = st.text_input("Destino", value=datos["Destino"])
-        tipo = st.selectbox("Tipo", ["IMPO", "EXPO", "VACIO"], index=["IMPO", "EXPO", "VACIO"].index(datos["Tipo"]))
-        moneda = st.selectbox("Moneda", ["MXN", "USD"], index=["MXN", "USD"].index(datos["Moneda"]))
+        tipo = st.selectbox("Tipo", ["IMPORTACION", "EXPORTACION", "VACIO"], index=["IMPORTACION", "EXPORTACION", "VACIO"].index(datos["Tipo"]))
+        moneda = st.selectbox("Moneda", ["MXP", "USD"], index=["MXP", "USD"].index(datos["Moneda"]))
         ingreso_original = st.number_input("Ingreso Original", value=datos["Ingreso_Original"], min_value=0.0)
     with col2:
         unidad = st.text_input("Unidad", value=datos["Unidad"])
@@ -262,7 +262,7 @@ if not incompletos.empty:
     destino_ida = ida["Destino"]
     tipo_ida = ida["Tipo"]
 
-    tipo_regreso = "EXPO" if tipo_ida == "IMPO" else "IMPO"
+    tipo_regreso = "EXPORTACION" if tipo_ida == "IMPORTACION" else "IMPORTACION"
     directas = df_rutas[(df_rutas["Tipo"] == tipo_regreso) & (df_rutas["Origen"] == destino_ida)].copy()
 
     if not directas.empty:
@@ -276,20 +276,20 @@ if not incompletos.empty:
         mejor_utilidad = -999999
 
         for _, vacio in vacios.iterrows():
-            origen_expo = vacio["Destino"]
-            expo = df_rutas[(df_rutas["Tipo"] == tipo_regreso) & (df_rutas["Origen"] == origen_expo)]
-            if not expo.empty:
-                expo = expo.sort_values(by="% Utilidad", ascending=False).iloc[0]
-                ingreso_total = safe(ida["Ingreso Total"]) + safe(expo["Ingreso Total"])
-                costo_total = safe(ida["Costo_Total_Ruta"]) + safe(vacio["Costo_Total_Ruta"]) + safe(expo["Costo_Total_Ruta"])
+            origen_exportacion = vacio["Destino"]
+            exportacion = df_rutas[(df_rutas["Tipo"] == tipo_regreso) & (df_rutas["Origen"] == origen_exportacion)]
+            if not exportacion.empty:
+                exportacion = exportacion.sort_values(by="% Utilidad", ascending=False).iloc[0]
+                ingreso_total = safe(ida["Ingreso Total"]) + safe(exportacion["Ingreso Total"])
+                costo_total = safe(ida["Costo_Total_Ruta"]) + safe(vacio["Costo_Total_Ruta"]) + safe(exportacion["Costo_Total_Ruta"])
                 utilidad = ingreso_total - costo_total
                 if utilidad > mejor_utilidad:
                     mejor_utilidad = utilidad
-                    mejor_combo = (vacio, expo)
+                    mejor_combo = (vacio, exportacion)
 
         if mejor_combo:
-            vacio, expo = mejor_combo
-            rutas = [ida, vacio, expo]
+            vacio, exportacion = mejor_combo
+            rutas = [ida, vacio, exportacion]
         else:
             st.warning("No se encontraron rutas de regreso disponibles.")
             st.stop()
