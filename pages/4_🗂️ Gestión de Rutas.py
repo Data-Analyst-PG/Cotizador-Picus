@@ -73,18 +73,22 @@ if respuesta.data:
 
     id_editar = st.selectbox("Selecciona el ID de Ruta a editar", ids_disponibles)
     ruta = df[df["ID_Ruta"] == id_editar].iloc[0]
-    
-    with st.form("editar_ruta"):
-         with st.expander("⚙️ Configurar Datos Generales"):
-             col1, col2 = st.columns(2)
-             for i, key in enumerate(valores_por_defecto.keys()):
-                 col = col1 if i % 2 == 0 else col2
-                 valores[key] = col.number_input(f"{key} (Editar)", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
 
-         if st.button("Guardar Datos Generales"):
-         guardar_datos_generales(valores)
-         st.success("✅ Datos Generales actualizados.")
-         st.markdown("---")
+    # Datos Generales (fuera del formulario)
+    st.markdown("### ⚙️ Configurar Datos Generales")
+    with st.expander("Ver / Editar Parámetros Globales"):
+        col1, col2 = st.columns(2)
+        for i, key in enumerate(valores_por_defecto.keys()):
+            col = col1 if i % 2 == 0 else col2
+            valores[key] = col.number_input(f"{key}", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
+
+    if st.button("Guardar Datos Generales"):
+        guardar_datos_generales(valores)
+        st.success("✅ Datos Generales actualizados correctamente.")
+
+    st.markdown("---")
+
+    with st.form("editar_ruta"):
         col1, col2 = st.columns(2)
         with col1:
             fecha = st.date_input("Fecha", ruta["Fecha"])
