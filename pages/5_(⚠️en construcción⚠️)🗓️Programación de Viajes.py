@@ -46,53 +46,99 @@ def guardar_programacion(df_nueva):
         df_total = df_nueva
     df_total.to_csv(RUTA_PROG, index=False)
 
+# Cargar datos de despacho
+df_despacho = pd.read_excel("Despacho unidades.xlsx")
+
+# Limpieza y mapeo
+df_despacho = df_despacho.rename(columns={
+    "Fecha Guía": "Fecha",
+    "Pago al operador": "Sueldo_Operador",
+    "Viaje": "Numero_Trafico",
+    "Operación": "Tipo",
+    "Tarifa": "Ingreso_Original",
+    "Moneda": "Moneda",
+    "Clasificación": "Ruta_Tipo",
+    "Caja": "Unidad",
+    "Operador": "Operador"
+})
+
+df_despacho["Ruta_Tipo"] = df_despacho["Ruta_Tipo"].apply(lambda x: "Ruta Larga" if str(x).upper() == "PROPIA" else "Tramo")
+df_despacho["Tipo"] = df_despacho["Tipo"].str.upper()
+df_despacho["Fecha"] = pd.to_datetime(df_despacho["Fecha"]).dt.date
+df_despacho["KM"] = pd.to_numeric(df_despacho["KM"], errors='coerce')
+df_despacho["Ingreso_Original"] = pd.to_numeric(df_despacho["Ingreso_Original"], errors='coerce')
+df_despacho["Sueldo_Operador"] = pd.to_numeric(df_despacho["Sueldo_Operador"], errors='coerce')
+
 # =====================================
 # 1. REGISTRO
 # =====================================
-st.header("🚛 Registro de Tráfico - Persona 1")
+st.header("🚛 Carga de Tráfico Desde Reporte")
 
 rutas_df = cargar_rutas()
-tipo = st.selectbox("Tipo de ruta (ida)", ["IMPO", "EXPO"])
-rutas_tipo = rutas_df[rutas_df["Tipo"] == tipo].copy()
+st.header("📦 Registro de tráfico desde despacho")
 
-if rutas_tipo.empty:
-    st.info("No hay rutas registradas de este tipo.")
-    st.stop()
+viajes_disponibles = df_despacho["Numero_Trafico"].dropna().unique()
+viaje_sel = st.selectbox("Selecciona un número de tráfico del despacho", viajes_disponibles)
 
-ruta_sel = st.selectbox("Selecciona una ruta (Origen → Destino)", rutas_tipo["Ruta"].unique())
-rutas_filtradas = rutas_tipo[rutas_tipo["Ruta"] == ruta_sel].copy()
-rutas_filtradas = rutas_filtradas.sort_values(by="% Utilidad", ascending=False)
-
-st.markdown("### Selecciona Cliente (ordenado por % utilidad)")
-cliente_idx = st.selectbox("Cliente", rutas_filtradas.index,
-    format_func=lambda x: f"{rutas_filtradas.loc[x, 'Cliente']} ({rutas_filtradas.loc[x, '% Utilidad']:.2f}%)")
-ruta_ida = rutas_filtradas.loc[cliente_idx]
+datos = df_despacho[df_despacho["Numero_Trafico"] == viaje_sel].iloc[0]
 
 with st.form("registro_trafico"):
-    st.subheader("📝 Datos del tráfico")
-    fecha = st.date_input("Fecha de tráfico", value=datetime.today())
-    trafico = st.text_input("Número de Tráfico")
-    unidad = st.text_input("Unidad")
-    operador = st.text_input("Operador")
-    modo_viaje = st.selectbox("Modo de viaje", ["Operador", "Team"])
-    submit = st.form_submit_button("📅 Registrar Tráfico")
+    st.subheader("📝 Validar y completar datos")
+    col1, col2 = st.columns(2)
+    with col1:
+        fecha = st.date_input("Fecha", value=datos["Fecha"])
+        cliente = st.text_input("Cliente", value=datos["Cliente"])
+        origen = st.text_input("Origen", value=datos["Origen"])
+        destino = st.text_input("Destino", value=datos["Destino"])
+        tipo = st.selectbox("Tipo", ["IMPO", "EXPO", "VACIO"], index=["IMPO", "EXPO", "VACIO"].index(datos["Tipo"]))
+        moneda = st.selectbox("Moneda", ["MXN", "USD"], index=["MXN", "USD"].index(datos["Moneda"]))
+        ingreso_original = st.number_input("Ingreso Original", value=datos["Ingreso_Original"], min_value=0.0)
+    with col2:
+        unidad = st.text_input("Unidad", value=datos["Unidad"])
+        operador = st.text_input("Operador", value=datos["Operador"])
+        km = st.number_input("KM", value=datos["KM"], min_value=0.0)
+        rendimiento = st.number_input("Rendimiento Camión", value=2.5)
+        costo_diesel = st.number_input("Costo Diesel", value=24.0)
+        tipo_cambio = st.number_input("Tipo de cambio USD", value=17.5)
 
-    if submit:
-        if not trafico or not unidad or not operador:
-            st.error("❌ Todos los campos son obligatorios para registrar un tráfico.")
-        else:
-            fecha_str = fecha.strftime("%Y-%m-%d")
-            datos = ruta_ida.copy()
-            datos["Fecha"] = fecha_str
-            datos["Número_Trafico"] = trafico
-            datos["Unidad"] = unidad
-            datos["Operador"] = operador
-            datos["Modo_Viaje"] = modo_viaje
-            datos["Tramo"] = "IDA"
-            datos["ID_Programacion"] = f"{trafico}_{fecha_str}"
-            guardar_programacion(pd.DataFrame([datos]))
-            st.success("✅ Tráfico registrado exitosamente.")
+    ingreso_total = ingreso_original * (tipo_cambio if moneda == "USD" else 1)
+    diesel = (km / rendimiento) * costo_diesel
+    sueldo = st.number_input("Sueldo Operador", value=datos["Sueldo_Operador"], min_value=0.0)
 
+    st.markdown(f"💰 **Ingreso Total Convertido:** ${ingreso_total:,.2f}")
+    st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
+
+    submit = st.form_submit_button("📅 Registrar tráfico desde despacho")
+    if not operador or not unidad:
+        st.error("❌ Operador y Unidad son obligatorios.")
+    else:
+        fecha_str = fecha.strftime("%Y-%m-%d")
+        df_nuevo = pd.DataFrame([{
+            "ID_Programacion": f"{viaje_sel}_{fecha_str}",
+            "Fecha": fecha_str,
+            "Cliente": cliente,
+            "Origen": origen,
+            "Destino": destino,
+            "Tipo": tipo,
+            "Moneda": moneda,
+            "Ingreso_Original": ingreso_original,
+            "Ingreso Total": ingreso_total,
+            "KM": km,
+            "Costo Diesel": costo_diesel,
+            "Rendimiento Camion": rendimiento,
+            "Costo_Diesel_Camion": diesel,
+            "Sueldo_Operador": sueldo,
+            "Unidad": unidad,
+            "Operador": operador,
+            "Modo_Viaje": "Operador",  # por defecto
+            "Ruta_Tipo": datos["Ruta_Tipo"],
+            "Tramo": "IDA",
+            "Número_Trafico": viaje_sel,
+            "Costo_Total_Ruta": diesel + sueldo,
+            "Costo_Extras": 0.0
+        }])
+        guardar_programacion(df_nuevo)
+        st.success("✅ Tráfico registrado exitosamente desde despacho.")
 
 # =====================================
 # 2. VER, EDITAR Y ELIMINAR PROGRAMACIONES
