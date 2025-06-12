@@ -66,7 +66,7 @@ if respuesta.data:
         with col1:
             fecha = st.date_input("Fecha", ruta["Fecha"])
             tipo = st.selectbox("Tipo", ["IMPO", "EXPO", "VACIO"], index=["IMPO", "EXPO", "VACIO"].index(ruta["Tipo"]))
-            ruta = st.selectbox("Ruta", ["Ruta Larga", "Tramo"])
+            ruta_tipo = st.selectbox("Ruta Tipo", ["Ruta Larga", "Tramo"])
             cliente = st.text_input("Cliente", value=ruta["Cliente"])
             origen = st.text_input("Origen", value=ruta["Origen"])
             destino = st.text_input("Destino", value=ruta["Destino"])
@@ -121,7 +121,7 @@ if respuesta.data:
              bono = 0.0
 
              # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
-             if ruta == "Tramo":
+             if ruta_tipo == "Tramo":
                  sueldo = valores.get("Pago Tramo", 300.0)
                  bono = valores.get("Bono ISR IMSS Tramo", 185.06)
                  Modo_de_Viaje = "Operador"  # Forzar
@@ -146,7 +146,7 @@ if respuesta.data:
                  "Modo de Viaje": Modo_de_Viaje,
                  "Fecha": fecha,
                  "Tipo": tipo,
-                 "Ruta": ruta,
+                 "Ruta_Tipo": ruta_tipo,
                  "Cliente": cliente,
                  "Origen": origen,
                  "Destino": destino,
