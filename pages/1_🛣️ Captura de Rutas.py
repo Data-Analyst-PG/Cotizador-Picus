@@ -30,8 +30,8 @@ valores_por_defecto = {
     "Pago x KM (General)": 1.50,
     "Bono ISR IMSS RL": 462.66,
     "Bono ISR IMSS Tramo": 185.06,
-    "Pago Vacio": 100.0
-    "Pago Tramo": 300.0
+    "Pago Vacio": 100.0,
+    "Pago Tramo": 300.0,
     "Bono Rendimiento": 250.0,
     "Bono Modo Team": 650.0,
     "Tipo de cambio USD": 17.5,
