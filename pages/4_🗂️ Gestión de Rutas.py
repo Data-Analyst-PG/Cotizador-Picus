@@ -66,6 +66,7 @@ if respuesta.data:
         with col1:
             fecha = st.date_input("Fecha", ruta["Fecha"])
             tipo = st.selectbox("Tipo", ["IMPO", "EXPO", "VACIO"], index=["IMPO", "EXPO", "VACIO"].index(ruta["Tipo"]))
+            ruta = st.selectbox("Ruta", ["Ruta Larga", "Tramo"])
             cliente = st.text_input("Cliente", value=ruta["Cliente"])
             origen = st.text_input("Origen", value=ruta["Origen"])
             destino = st.text_input("Destino", value=ruta["Destino"])
@@ -73,9 +74,9 @@ if respuesta.data:
             km = st.number_input("Kilómetros", min_value=0.0, value=float(ruta["KM"]))
             moneda_ingreso = st.selectbox("Moneda Flete", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda"]))
             ingreso_original = st.number_input("Ingreso Flete Original", min_value=0.0, value=float(ruta["Ingreso_Original"]))
+        with col2:
             moneda_cruce = st.selectbox("Moneda Cruce", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda_Cruce"]))
             ingreso_cruce = st.number_input("Ingreso Cruce Original", min_value=0.0, value=float(ruta["Cruce_Original"]))
-        with col2:
             moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda Costo Cruce"]))
             costo_cruce = st.number_input("Costo Cruce", min_value=0.0, value=float(ruta["Costo Cruce"]))
             movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=float(ruta["Movimiento_Local"]))
@@ -144,6 +145,7 @@ if respuesta.data:
                  "Modo de Viaje": Modo_de_Viaje,
                  "Fecha": fecha,
                  "Tipo": tipo,
+                 "Ruta": ruta,
                  "Cliente": cliente,
                  "Origen": origen,
                  "Destino": destino,
