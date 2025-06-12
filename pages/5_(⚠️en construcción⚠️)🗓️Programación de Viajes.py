@@ -46,8 +46,40 @@ def guardar_programacion(df_nueva):
         df_total = df_nueva
     df_total.to_csv(RUTA_PROG, index=False)
 
+# =====================================
+# 1. REGISTRO
+# =====================================
+st.header("🚛 Carga de Tráfico Desde Reporte")
 # Cargar datos de despacho
-df_despacho = pd.read_excel("Despacho unidades.xlsx")
+archivo_excel = st.file_uploader("📤 Sube el archivo de despacho (Excel)", type=["xlsx"])
+
+if archivo_excel is not None:
+    df_despacho = pd.read_excel(archivo_excel)
+    
+    # Resto del preprocesamiento...
+    df_despacho = df_despacho.rename(columns={
+        "Fecha Guía": "Fecha",
+        "Pago al operador": "Sueldo_Operador",
+        "Viaje": "Numero_Trafico",
+        "Operación": "Tipo",
+        "Tarifa": "Ingreso_Original",
+        "Moneda": "Moneda",
+        "Clasificación": "Ruta_Tipo",
+        "Caja": "Unidad",
+        "Operador": "Operador"
+    })
+
+    df_despacho["Ruta_Tipo"] = df_despacho["Ruta_Tipo"].apply(lambda x: "Ruta Larga" if str(x).upper() == "PROPIA" else "Tramo")
+    df_despacho["Tipo"] = df_despacho["Tipo"].str.upper()
+    df_despacho["Fecha"] = pd.to_datetime(df_despacho["Fecha"]).dt.date
+    df_despacho["KM"] = pd.to_numeric(df_despacho["KM"], errors='coerce')
+    df_despacho["Ingreso_Original"] = pd.to_numeric(df_despacho["Ingreso_Original"], errors='coerce')
+    df_despacho["Sueldo_Operador"] = pd.to_numeric(df_despacho["Sueldo_Operador"], errors='coerce')
+
+    # Continuar con el registro de tráfico...
+else:
+    st.warning("⚠️ Por favor, sube un archivo Excel válido para comenzar.")
+    st.stop()
 
 # Limpieza y mapeo
 df_despacho = df_despacho.rename(columns={
@@ -68,11 +100,6 @@ df_despacho["Fecha"] = pd.to_datetime(df_despacho["Fecha"]).dt.date
 df_despacho["KM"] = pd.to_numeric(df_despacho["KM"], errors='coerce')
 df_despacho["Ingreso_Original"] = pd.to_numeric(df_despacho["Ingreso_Original"], errors='coerce')
 df_despacho["Sueldo_Operador"] = pd.to_numeric(df_despacho["Sueldo_Operador"], errors='coerce')
-
-# =====================================
-# 1. REGISTRO
-# =====================================
-st.header("🚛 Carga de Tráfico Desde Reporte")
 
 rutas_df = cargar_rutas()
 st.header("📦 Registro de tráfico desde despacho")
