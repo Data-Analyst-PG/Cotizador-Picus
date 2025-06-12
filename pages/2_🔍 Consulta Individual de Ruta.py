@@ -70,7 +70,7 @@ if df.empty:
     st.stop()
 
 st.subheader("📌 Selecciona Tipo de Ruta")
-tipo_ruta_especifica = st.selectbox("Ruta Larga o Tramo", df["Ruta"].unique())
+tipo_ruta_especifica = st.selectbox("Ruta Larga o Tramo", df["Ruta_Tipo"].unique())
 df_ruta_tipo = df[df["Ruta"] == tipo_ruta_especifica]
 
 tipo_sel = st.selectbox("Tipo (IMPO / EXPO / VACIO)", df_ruta_tipo["Tipo"].unique())
