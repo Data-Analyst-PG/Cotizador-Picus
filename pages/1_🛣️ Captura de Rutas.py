@@ -87,7 +87,7 @@ with st.form("captura_ruta"):
     with col1:
         fecha = st.date_input("Fecha", value=datetime.today())
         tipo = st.selectbox("Tipo de Ruta", ["IMPO", "EXPO", "VACIO"])
-        ruta = st.selectbox("Ruta", ["Ruta Larga", "Tramo"])
+        ruta_tipo = st.selectbox("Ruta Tipo", ["Ruta Larga", "Tramo"])
         cliente = st.text_input("Nombre Cliente")
         origen = st.text_input("Origen")
         destino = st.text_input("Destino")
@@ -124,7 +124,7 @@ with st.form("captura_ruta"):
     if revisar:
         st.session_state.revisar_ruta = True
         st.session_state.datos_captura = {
-            "fecha": fecha, "tipo": tipo, "ruta": ruta, "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
+            "fecha": fecha, "tipo": tipo, "ruta_tipo": ruta_tipo "cliente": cliente, "origen": origen, "destino": destino, "Modo de Viaje": Modo_de_Viaje,
             "km": km, "moneda_ingreso": moneda_ingreso, "ingreso_flete": ingreso_flete,
             "moneda_cruce": moneda_cruce, "ingreso_cruce": ingreso_cruce,
             "moneda_costo_cruce": moneda_costo_cruce, "costo_cruce": costo_cruce,
@@ -145,7 +145,7 @@ with st.form("captura_ruta"):
         bono = 0.0
 
         # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
-        if ruta == "Tramo":
+        if ruta_tipo == "Tramo":
             sueldo = valores.get("Pago Tramo", 300.0)
             bono = valores.get("Bono ISR IMSS Tramo", 185.06)
             Modo_de_Viaje = "Operador"  # Forzar
@@ -163,7 +163,7 @@ with st.form("captura_ruta"):
             bono = 0.0
 
         # Bono Team (solo si no es Tramo)
-        if ruta != "Tramo" and Modo_de_Viaje == "Team":
+        if ruta_tipo != "Tramo" and Modo_de_Viaje == "Team":
             bono_team = valores.get("Bono Modo Team", 650)
             sueldo += bono_team
 
@@ -211,7 +211,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     bono = 0.0
 
     # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
-    if ruta == "Tramo":
+    if ruta_tipo == "Tramo":
         sueldo = valores.get("Pago Tramo", 300.0)
         bono = valores.get("Bono ISR IMSS Tramo", 185.06)
         Modo_de_Viaje = "Operador"  # Forzar
@@ -245,7 +245,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
 
     nueva_ruta = {
         "ID_Ruta": generar_nuevo_id(),
-        "Fecha": str(d["fecha"]), "Tipo": d["tipo"], "Ruta": d["ruta"], "Cliente": d["cliente"], "Origen": d["origen"], "Destino": d["destino"], "Modo de Viaje": d["Modo de Viaje"], "KM": d["km"],
+        "Fecha": str(d["fecha"]), "Tipo": d["tipo"], "Ruta_Tipo": d["ruta_tipo"], "Cliente": d["cliente"], "Origen": d["origen"], "Destino": d["destino"], "Modo de Viaje": d["Modo de Viaje"], "KM": d["km"],
         "Moneda": d["moneda_ingreso"], "Ingreso_Original": d["ingreso_flete"], "Tipo de cambio": tipo_cambio_flete,
         "Ingreso Flete": ingreso_flete_convertido, "Moneda_Cruce": d["moneda_cruce"], "Cruce_Original": d["ingreso_cruce"],
         "Tipo cambio Cruce": tipo_cambio_cruce, "Ingreso Cruce": ingreso_cruce_convertido,
