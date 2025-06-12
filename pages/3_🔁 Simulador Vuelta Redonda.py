@@ -54,7 +54,7 @@ candidatas_1 = rutas_tipo_1[
 ].sort_values(by="% Utilidad", ascending=False).reset_index(drop=True)
 
 # Filtrado según tipo
-if tipo_ruta_1 in ["IMPO", "EXPO"]:
+if tipo_ruta_1 in ["IMPORTACION", "EXPORTACION"]:
     if candidatas_1["Cliente"].dropna().empty:
         st.error("⚠️ No hay clientes disponibles para esta ruta.")
         st.stop()
@@ -79,7 +79,7 @@ st.markdown("---")
 st.subheader("🔁 Rutas sugeridas (combinaciones con o sin vacío)")
 
 tipo_principal = ruta_1["Tipo"]
-tipo_regreso = "EXPO" if tipo_principal == "IMPO" else "IMPO"
+tipo_regreso = "EXPO" if tipo_principal == "IMPORTACION" else "IMPORTACION"
 destino_origen = ruta_1["Destino"]  # puede ser usado para directas o para buscar vacíos
 
 sugerencias = []
@@ -117,7 +117,7 @@ for _, vacio in vacios.iterrows():
 # Si la ruta principal es VACÍO, solo buscar desde su destino
 if tipo_principal == "VACIO":
     origen_vacio = ruta_1["Destino"]
-    candidatos = df[(df["Tipo"].isin(["IMPO", "EXPO"])) & (df["Origen"] == origen_vacio)].copy()
+    candidatos = df[(df["Tipo"].isin(["IMPORTACION", "EXPORTACION"])) & (df["Origen"] == origen_vacio)].copy()
     for _, final in candidatos.iterrows():
         ingreso_total = safe_number(ruta_1["Ingreso Total"]) + safe_number(final["Ingreso Total"])
         costo_total = safe_number(ruta_1["Costo_Total_Ruta"]) + safe_number(final["Costo_Total_Ruta"])
@@ -203,7 +203,7 @@ if st.button("🚛 Simular Vuelta Redonda"):
     st.markdown("---")
     st.subheader("📋 Resumen de Rutas")
 
-    tipos = ["IMPO", "VACIO", "EXPO"]
+    tipos = ["IMPORTACION", "VACIO", "EXPORTACION"]
     cols = st.columns(3)
 
     def resumen_ruta(r):
