@@ -70,8 +70,12 @@ valores = cargar_datos_generales()
 st.title("🚛 Captura de Rutas + Datos Generales")
 
 with st.expander("⚙️ Configurar Datos Generales"):
-    for key in valores_por_defecto:
-        valores[key] = st.number_input(key, value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
+    col1, col2 = st.columns(2)
+    claves = list(valores_por_defecto.keys())
+
+    for i, key in enumerate(claves):
+        col = col1 if i % 2 == 0 else col2
+        valores[key] = col.number_input(key, value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
     if st.button("Guardar Datos Generales"):
         guardar_datos_generales(valores)
         st.success("✅ Datos Generales guardados correctamente.")
@@ -100,24 +104,24 @@ with st.form("captura_ruta"):
         ingreso_cruce = st.number_input("Ingreso Cruce", min_value=0.0)
         moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"])
         costo_cruce = st.number_input("Costo Cruce", min_value=0.0)        
-        movimiento_local = st.number_input("Movimiento Local", min_value=0.0)
+        movimiento_local = st.number_input("Movimiento Local (MXN)", min_value=0.0)
         puntualidad = st.number_input("Puntualidad", min_value=0.0)
-        pension = st.number_input("Pensión", min_value=0.0)
-        estancia = st.number_input("Estancia", min_value=0.0)
-        fianza = st.number_input("Fianza", min_value=0.0)
-        casetas = st.number_input("Casetas", min_value=0.0)
+        pension = st.number_input("Pensión (MXN)", min_value=0.0)
+        estancia = st.number_input("Estancia (MXN)", min_value=0.0)
+        fianza = st.number_input("Fianza (MXN)", min_value=0.0)
+        casetas = st.number_input("Casetas (MXN)", min_value=0.0)
 
     st.markdown("---")
     st.subheader("🧾 Costos Extras Adicionales")
     col3, col4 = st.columns(2)
     with col3:
-        pistas_extra = st.number_input("Pistas Extra", min_value=0.0)
-        stop = st.number_input("Stop", min_value=0.0)
-        falso = st.number_input("Falso", min_value=0.0)
+        pistas_extra = st.number_input("Pistas Extra (MXN)", min_value=0.0)
+        stop = st.number_input("Stop (MXN)", min_value=0.0)
+        falso = st.number_input("Falso (MXN)", min_value=0.0)
     with col4:
-        gatas = st.number_input("Gatas", min_value=0.0)
-        accesorios = st.number_input("Accesorios", min_value=0.0)
-        guias = st.number_input("Guías", min_value=0.0)
+        gatas = st.number_input("Gatas (MXN)", min_value=0.0)
+        accesorios = st.number_input("Accesorios (MXN)", min_value=0.0)
+        guias = st.number_input("Guías (MXN)", min_value=0.0)
 
     revisar = st.form_submit_button("🔍 Revisar Ruta")
 
