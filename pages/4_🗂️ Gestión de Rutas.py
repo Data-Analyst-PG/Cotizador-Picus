@@ -122,26 +122,21 @@ if respuesta.data:
 
              # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
              if ruta == "Tramo":
-                 sueldo = 300.0
-                 bono = 185.06
+                 sueldo = valores.get("Pago Tramo", 300.0)
+                 bono = valores.get("Bono ISR IMSS Tramo", 185.06)
                  Modo_de_Viaje = "Operador"  # Forzar
                  costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
              elif tipo in ["IMPO", "EXPO"]:
                  sueldo = km * pago_km
-                 bono_isr = valores.get("Bono ISR IMSS", 0)
+                 bono_isr = valores.get("Bono ISR IMSS RL", 0)
                  bono_rendimiento = valores.get("Bono Rendimiento", 0)
                  bono = bono_isr + bono_rendimiento
              elif tipo == "VACIO":
                  if km <= 100:
-                     sueldo = 100.0
+                     sueldo = valores.get("Pago Vacio", 100.0)
                  else:
                      sueldo = km * pago_km
                  bono = 0.0
-
-             # Bono Team (solo si no es Tramo)
-             if ruta != "Tramo" and Modo_de_Viaje == "Team":
-                 bono_team = valores.get("Bono Modo Team", 650)
-                 sueldo += bono_team
 
              extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
