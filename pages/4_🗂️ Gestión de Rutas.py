@@ -76,7 +76,7 @@ if respuesta.data:
 
     # Datos Generales (fuera del formulario)
     st.markdown("### ⚙️ Configurar Datos Generales")
-    with st.expander("Ver / Editar Parámetros Globales"):
+    with st.expander("Editar Datos Generales"):
         col1, col2 = st.columns(2)
         for i, key in enumerate(valores_por_defecto.keys()):
             col = col1 if i % 2 == 0 else col2
