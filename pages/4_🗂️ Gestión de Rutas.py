@@ -81,9 +81,9 @@ if respuesta.data:
                 col = col1 if i % 2 == 0 else col2
                 valores[key] = col.number_input(f"{key} (Editar)", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
 
-            if st.button("Guardar Datos Generales"):
-                guardar_datos_generales(valores)
-                st.success("✅ Datos Generales actualizados.")
+    if st.button("Guardar Datos Generales"):
+        guardar_datos_generales(valores)
+        st.success("✅ Datos Generales actualizados.")
         st.markdown("---")
         col1, col2 = st.columns(2)
         with col1:
