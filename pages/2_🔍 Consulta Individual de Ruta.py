@@ -37,6 +37,12 @@ else:
 # ✅ Cargar rutas desde Supabase
 respuesta = supabase.table("Rutas").select("*").execute()
 df = pd.DataFrame(respuesta.data)
+try:
+    respuesta = supabase.table("Rutas").select("*").execute()
+    st.write(respuesta.data)
+except Exception as e:
+    st.error("❌ Error al consultar Supabase")
+    st.exception(e)
 
 # ✅ Asegurar formato correcto
 if not df.empty:
