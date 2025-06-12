@@ -92,47 +92,47 @@ if respuesta.data:
         col1, col2 = st.columns(2)
         with col1:
             fecha = st.date_input("Fecha", ruta["Fecha"])
-            tipo = st.selectbox("Tipo", ["IMPO", "EXPO", "VACIO"], index=["IMPO", "EXPO", "VACIO"].index(ruta["Tipo"]))
+            tipo = st.selectbox("Tipo", ["IMPORTACION", "EXPORTACION", "VACIO"], index=["IMPORTACION", "EXPORTACION", "VACIO"].index(ruta["Tipo"]))
             ruta_tipo = st.selectbox("Ruta Tipo", ["Ruta Larga", "Tramo"])
             cliente = st.text_input("Cliente", value=ruta["Cliente"])
             origen = st.text_input("Origen", value=ruta["Origen"])
             destino = st.text_input("Destino", value=ruta["Destino"])
             Modo_de_Viaje = st.selectbox("Modo de Viaje", ["Operador", "Team"], index=["Operador", "Team"].index(ruta["Modo de Viaje"]))
             km = st.number_input("Kilómetros", min_value=0.0, value=float(ruta["KM"]))
-            moneda_ingreso = st.selectbox("Moneda Flete", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda"]))
+            moneda_ingreso = st.selectbox("Moneda Flete", ["MXP", "USD"], index=["MXN", "USD"].index(ruta["Moneda"]))
             ingreso_original = st.number_input("Ingreso Flete Original", min_value=0.0, value=float(ruta["Ingreso_Original"]))
         with col2:
-            moneda_cruce = st.selectbox("Moneda Cruce", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda_Cruce"]))
+            moneda_cruce = st.selectbox("Moneda Cruce", ["MXP", "USD"], index=["MXP", "USD"].index(ruta["Moneda_Cruce"]))
             ingreso_cruce = st.number_input("Ingreso Cruce Original", min_value=0.0, value=float(ruta["Cruce_Original"]))
-            moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXN", "USD"], index=["MXN", "USD"].index(ruta["Moneda Costo Cruce"]))
+            moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXP", "USD"], index=["MXP", "USD"].index(ruta["Moneda Costo Cruce"]))
             costo_cruce = st.number_input("Costo Cruce", min_value=0.0, value=float(ruta["Costo Cruce"]))
-            movimiento_local = st.number_input("Movimiento Local (MXN)", min_value=0.0, value=float(ruta["Movimiento_Local"]))
-            puntualidad = st.number_input("Puntualidad (MXN)", min_value=0.0, value=float(ruta["Puntualidad"]))
-            pension = st.number_input("Pensión (MXN)", min_value=0.0, value=float(ruta["Pension"]))
-            estancia = st.number_input("Estancia (MXN)", min_value=0.0, value=float(ruta["Estancia"]))
-            fianza = st.number_input("Fianza (MXN)", min_value=0.0, value=float(ruta["Fianza"]))
-            casetas = st.number_input("Casetas (MXN)", min_value=0.0, value=float(ruta["Casetas"]))
+            movimiento_local = st.number_input("Movimiento Local (MXP)", min_value=0.0, value=float(ruta["Movimiento_Local"]))
+            puntualidad = st.number_input("Puntualidad (MXP)", min_value=0.0, value=float(ruta["Puntualidad"]))
+            pension = st.number_input("Pensión (MXP)", min_value=0.0, value=float(ruta["Pension"]))
+            estancia = st.number_input("Estancia (MXP)", min_value=0.0, value=float(ruta["Estancia"]))
+            fianza = st.number_input("Fianza (MXP)", min_value=0.0, value=float(ruta["Fianza"]))
+            casetas = st.number_input("Casetas (MXP)", min_value=0.0, value=float(ruta["Casetas"]))
             
         st.markdown("---")
         st.subheader("🧾 Costos Extras Adicionales")
         col3, col4 = st.columns(2)
         with col3:
-            pistas_extra = st.number_input("Pistas Extra (MXN)", min_value=0.0, value=float(ruta["Pistas_Extra"]))
-            stop = st.number_input("Stop (MXN)", min_value=0.0, value=float(ruta["Stop"]))
-            falso = st.number_input("Falso (MXN)", min_value=0.0, value=float(ruta["Falso"]))
+            pistas_extra = st.number_input("Pistas Extra (MXP)", min_value=0.0, value=float(ruta["Pistas_Extra"]))
+            stop = st.number_input("Stop (MXP)", min_value=0.0, value=float(ruta["Stop"]))
+            falso = st.number_input("Falso (MXP)", min_value=0.0, value=float(ruta["Falso"]))
         with col4:
-            gatas = st.number_input("Gatas (MXN)", min_value=0.0, value=float(ruta["Gatas"]))
-            accesorios = st.number_input("Accesorios (MXN)", min_value=0.0, value=float(ruta["Accesorios"]))
-            guias = st.number_input("Guías (MXN)", min_value=0.0, value=float(ruta["Guias"]))
+            gatas = st.number_input("Gatas (MXP)", min_value=0.0, value=float(ruta["Gatas"]))
+            accesorios = st.number_input("Accesorios (MXP)", min_value=0.0, value=float(ruta["Accesorios"]))
+            guias = st.number_input("Guías (MXP)", min_value=0.0, value=float(ruta["Guias"]))
 
         guardar = st.form_submit_button("💾 Guardar cambios")
 
         if guardar:
              tc_usd = valores.get("Tipo de cambio USD", 17.5)
-             tc_mxn = valores.get("Tipo de cambio MXN", 1.0)
-             tipo_cambio_flete = tc_usd if moneda_ingreso == "USD" else tc_mxn
-             tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxn
-             tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxn
+             tc_mxn = valores.get("Tipo de cambio MXP", 1.0)
+             tipo_cambio_flete = tc_usd if moneda_ingreso == "USD" else tc_mxp
+             tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxp
+             tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxp
 
              ingreso_flete_convertido = ingreso_original * tipo_cambio_flete
              ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
@@ -153,7 +153,7 @@ if respuesta.data:
                  bono = valores.get("Bono ISR IMSS Tramo", 185.06)
                  Modo_de_Viaje = "Operador"  # Forzar
                  costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
-             elif tipo in ["IMPO", "EXPO"]:
+             elif tipo in ["IMPORTACION", "EXPORTACION"]:
                  sueldo = km * pago_km
                  bono_isr = valores.get("Bono ISR IMSS RL", 0)
                  bono_rendimiento = valores.get("Bono Rendimiento", 0)
