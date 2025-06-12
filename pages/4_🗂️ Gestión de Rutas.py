@@ -75,16 +75,16 @@ if respuesta.data:
     ruta = df[df["ID_Ruta"] == id_editar].iloc[0]
     
     with st.form("editar_ruta"):
-        with st.expander("⚙️ Configurar Datos Generales"):
-            col1, col2 = st.columns(2)
-            for i, key in enumerate(valores_por_defecto.keys()):
-                col = col1 if i % 2 == 0 else col2
-                valores[key] = col.number_input(f"{key} (Editar)", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
+         with st.expander("⚙️ Configurar Datos Generales"):
+             col1, col2 = st.columns(2)
+             for i, key in enumerate(valores_por_defecto.keys()):
+                 col = col1 if i % 2 == 0 else col2
+                 valores[key] = col.number_input(f"{key} (Editar)", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
 
-        if st.button("Guardar Datos Generales"):
-        guardar_datos_generales(valores)
-        st.success("✅ Datos Generales actualizados.")
-        st.markdown("---")
+         if st.button("Guardar Datos Generales"):
+         guardar_datos_generales(valores)
+         st.success("✅ Datos Generales actualizados.")
+         st.markdown("---")
         col1, col2 = st.columns(2)
         with col1:
             fecha = st.date_input("Fecha", ruta["Fecha"])
