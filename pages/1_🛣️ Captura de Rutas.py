@@ -229,7 +229,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         bono = 0.0
 
     # Bono Team (solo si no es Tramo)
-    if ruta != "Tramo" and Modo_de_Viaje == "Team":
+    if ruta_tipo != "Tramo" and Modo_de_Viaje == "Team":
         bono_team = valores.get("Bono Modo Team", 650)
         sueldo += bono_team
 
