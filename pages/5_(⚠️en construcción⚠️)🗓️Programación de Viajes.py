@@ -178,8 +178,21 @@ with st.form("registro_trafico"):
 st.markdown("---")
 st.header("🛠️ Gestión de Tráficos Programados")
 
+# Función segura y forzada a float
+def safe(x):
+    return float(0.0 if pd.isna(x) or x is None else x)
+
 if os.path.exists(RUTA_PROG):
     df_prog = pd.read_csv(RUTA_PROG)
+
+    # Asegurar columnas numéricas como float
+    columnas_numericas = [
+        "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
+        "Pistas Extra", "Stop", "Falso", "Gatas", "Accesorios", "Guías",
+        "Costo_Extras", "Costo_Total_Ruta"
+    ]
+    for col in columnas_numericas:
+        df_prog[col] = pd.to_numeric(df_prog.get(col, 0), errors="coerce").fillna(0.0)
 
     if "ID_Programacion" in df_prog.columns:
         ids = df_prog["ID_Programacion"].dropna().unique()
@@ -199,21 +212,23 @@ if os.path.exists(RUTA_PROG):
         if not df_ida.empty:
             tramo_ida = df_ida.iloc[0]
             with st.form("editar_trafico"):
-                nueva_unidad = st.text_input("Editar Unidad", value=tramo_ida["Unidad"])
-                nuevo_operador = st.text_input("Editar Operador", value=tramo_ida["Operador"])
+                nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida["Unidad"]))
+                nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida["Operador"]))
+
                 col1, col2 = st.columns(2)
                 with col1:
-                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local", 0)))
-                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad", 0)))
-                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension", 0)))
-                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia", 0)))
-                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra", 0)))
+                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local", 0)), key="mov_local_edit")
+                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad", 0)), key="puntualidad_edit")
+                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension", 0)), key="pension_edit")
+                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia", 0)), key="estancia_edit")
+                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra", 0)), key="pistas_extra_edit")
                 with col2:
-                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop", 0)))
-                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso", 0)))
-                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas", 0)))
-                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios", 0)))
-                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías", 0)))
+                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop", 0)), key="stop_edit")
+                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso", 0)), key="falso_edit")
+                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas", 0)), key="gatas_edit")
+                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios", 0)), key="accesorios_edit")
+                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías", 0)), key="guias_edit")
+
                 actualizar = st.form_submit_button("💾 Guardar cambios")
 
                 if actualizar:
@@ -231,6 +246,7 @@ if os.path.exists(RUTA_PROG):
                         "Accesorios": accesorios,
                         "Guías": guias
                     }
+
                     for col, val in columnas.items():
                         df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), col] = val
 
@@ -238,12 +254,12 @@ if os.path.exists(RUTA_PROG):
                     extras = sum([safe(x) for x in columnas.values() if isinstance(x, (int, float))])
                     base = tramo_ida.get("Costo_Total_Ruta", 0) - tramo_ida.get("Costo_Extras", 0)
                     total = base + extras
+
                     df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Extras"] = extras
                     df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Total_Ruta"] = total
 
                     df_prog.to_csv(RUTA_PROG, index=False)
                     st.success("✅ Cambios guardados correctamente.")
-
 
 # =====================================
 # 3. COMPLETAR Y SIMULAR TRÁFICO DETALLADO
