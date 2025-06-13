@@ -50,38 +50,17 @@ def guardar_programacion(df_nueva):
 # 1. REGISTRO
 # =====================================
 st.header("🚛 Carga de Tráfico Desde Reporte")
-# Cargar datos de despacho
+
+# 📤 Subida del archivo
 archivo_excel = st.file_uploader("📤 Sube el archivo de despacho (Excel)", type=["xlsx"])
 
-if archivo_excel is not None:
-    df_despacho = pd.read_excel(archivo_excel)
-    
-    # Resto del preprocesamiento...
-    df_despacho = df_despacho.rename(columns={
-        "Fecha Guía": "Fecha",
-        "Pago al operador": "Sueldo_Operador",
-        "Viaje": "Numero_Trafico",
-        "Operación": "Tipo",
-        "Tarifa": "Ingreso_Original",
-        "Moneda": "Moneda",
-        "Clasificación": "Ruta_Tipo",
-        "Unidad": "Unidad",
-        "Operador": "Operador"
-    })
-
-    df_despacho["Ruta_Tipo"] = df_despacho["Ruta_Tipo"].apply(lambda x: "Ruta Larga" if str(x).upper() == "PROPIA" else "Tramo")
-    df_despacho["Tipo"] = df_despacho["Tipo"].str.upper()
-    df_despacho["Fecha"] = pd.to_datetime(df_despacho["Fecha"]).dt.date
-    df_despacho["KM"] = pd.to_numeric(df_despacho["KM"], errors='coerce')
-    df_despacho["Ingreso_Original"] = pd.to_numeric(df_despacho["Ingreso_Original"], errors='coerce')
-    df_despacho["Sueldo_Operador"] = pd.to_numeric(df_despacho["Sueldo_Operador"], errors='coerce')
-
-    # Continuar con el registro de tráfico...
-else:
+if archivo_excel is None:
     st.warning("⚠️ Por favor, sube un archivo Excel válido para comenzar.")
     st.stop()
 
-# Limpieza y mapeo
+# ✅ Cargar y limpiar datos
+df_despacho = pd.read_excel(archivo_excel)
+
 df_despacho = df_despacho.rename(columns={
     "Fecha Guía": "Fecha",
     "Pago al operador": "Sueldo_Operador",
@@ -101,6 +80,7 @@ df_despacho["KM"] = pd.to_numeric(df_despacho["KM"], errors='coerce')
 df_despacho["Ingreso_Original"] = pd.to_numeric(df_despacho["Ingreso_Original"], errors='coerce')
 df_despacho["Sueldo_Operador"] = pd.to_numeric(df_despacho["Sueldo_Operador"], errors='coerce')
 
+# ✅ Selección del tráfico
 rutas_df = cargar_rutas()
 st.header("📦 Registro de tráfico desde despacho")
 
@@ -114,13 +94,13 @@ with st.form("registro_trafico"):
     col1, col2 = st.columns(2)
 
     # Validación segura y conversión a string
-    cliente_valor = str(datos["Cliente"]) if pd.notna(datos["Cliente"]) else ""
-    origen_valor = str(datos["Origen"]) if pd.notna(datos["Origen"]) else ""
-    destino_valor = str(datos["Destino"]) if pd.notna(datos["Destino"]) else ""
-    operador_valor = str(datos["Operador"]) if pd.notna(datos["Operador"]) else ""
-    unidad_valor = str(datos["Unidad"]) if pd.notna(datos["Unidad"]) else ""
-    tipo_valor = str(datos["Tipo"]).strip().upper() if pd.notna(datos["Tipo"]) else "IMPORTACION"
-    moneda_valor = str(datos["Moneda"]).strip().upper() if pd.notna(datos["Moneda"]) else "MXP"
+    cliente_valor = str(datos.get("Cliente", ""))
+    origen_valor = str(datos.get("Origen", ""))
+    destino_valor = str(datos.get("Destino", ""))
+    operador_valor = str(datos.get("Operador", ""))
+    unidad_valor = str(datos.get("Unidad", ""))
+    tipo_valor = str(datos.get("Tipo", "IMPORTACION")).strip().upper()
+    moneda_valor = str(datos.get("Moneda", "MXP")).strip().upper()
 
     with col1:
         fecha = st.date_input("Fecha", value=datos["Fecha"])
@@ -147,36 +127,38 @@ with st.form("registro_trafico"):
     st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
 
     submit = st.form_submit_button("📅 Registrar tráfico desde despacho")
-    if not operador or not unidad:
-        st.error("❌ Operador y Unidad son obligatorios.")
-    else:
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        df_nuevo = pd.DataFrame([{
-            "ID_Programacion": f"{viaje_sel}_{fecha_str}",
-            "Fecha": fecha_str,
-            "Cliente": cliente,
-            "Origen": origen,
-            "Destino": destino,
-            "Tipo": tipo,
-            "Moneda": moneda,
-            "Ingreso_Original": ingreso_original,
-            "Ingreso Total": ingreso_total,
-            "KM": km,
-            "Costo Diesel": costo_diesel,
-            "Rendimiento Camion": rendimiento,
-            "Costo_Diesel_Camion": diesel,
-            "Sueldo_Operador": sueldo,
-            "Unidad": unidad,
-            "Operador": operador,
-            "Modo_Viaje": "Operador",  # por defecto
-            "Ruta_Tipo": datos["Ruta_Tipo"],
-            "Tramo": "IDA",
-            "Número_Trafico": viaje_sel,
-            "Costo_Total_Ruta": diesel + sueldo,
-            "Costo_Extras": 0.0
-        }])
-        guardar_programacion(df_nuevo)
-        st.success("✅ Tráfico registrado exitosamente desde despacho.")
+
+    if submit:
+        if not operador or not unidad:
+            st.error("❌ Operador y Unidad son obligatorios.")
+        else:
+            fecha_str = fecha.strftime("%Y-%m-%d")
+            df_nuevo = pd.DataFrame([{
+                "ID_Programacion": f"{viaje_sel}_{fecha_str}",
+                "Fecha": fecha_str,
+                "Cliente": cliente,
+                "Origen": origen,
+                "Destino": destino,
+                "Tipo": tipo,
+                "Moneda": moneda,
+                "Ingreso_Original": ingreso_original,
+                "Ingreso Total": ingreso_total,
+                "KM": km,
+                "Costo Diesel": costo_diesel,
+                "Rendimiento Camion": rendimiento,
+                "Costo_Diesel_Camion": diesel,
+                "Sueldo_Operador": sueldo,
+                "Unidad": unidad,
+                "Operador": operador,
+                "Modo_Viaje": "Operador",
+                "Ruta_Tipo": datos["Ruta_Tipo"],
+                "Tramo": "IDA",
+                "Número_Trafico": viaje_sel,
+                "Costo_Total_Ruta": diesel + sueldo,
+                "Costo_Extras": 0.0
+            }])
+            guardar_programacion(df_nuevo)
+            st.success("✅ Tráfico registrado exitosamente desde despacho.")
 
 # =====================================
 # 2. VER, EDITAR Y ELIMINAR PROGRAMACIONES
