@@ -58,7 +58,7 @@ if archivo_excel is not None:
     mostrar_registro = True
 else:
     mostrar_registro = False
-    st.info("ℹ️ No se ha cargado un archivo. Solo se mostrará la gestión de tráficos existentes.")
+    st.info("ℹ️ No se ha cargado un archivo. Solo se mostrará la gestión de tráficos existentes, puedes seguir gestionando los tráficos ya cargados, aunque no subas un nuevo archivo.")
 
 if mostrar_registro:
     # ✅ Cargar y limpiar datos
@@ -174,8 +174,6 @@ if mostrar_registro:
                 }])
                 guardar_programacion(df_nuevo)
                 st.success("✅ Tráfico registrado exitosamente desde despacho.")
-else:
-    st.info("Puedes seguir gestionando los tráficos ya cargados, aunque no subas un nuevo archivo.")
 
 # =====================================
 # 2. VER, EDITAR Y ELIMINAR PROGRAMACIONES
