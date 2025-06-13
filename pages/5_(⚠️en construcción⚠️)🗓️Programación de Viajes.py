@@ -183,26 +183,32 @@ else:
 st.markdown("---")
 st.header("🛠️ Gestión de Tráficos Programados")
 
-# Función segura y forzada a float
+# Función segura forzada a float
 def safe(x):
-    return float(0.0 if pd.isna(x) or x is None else x)
+    try:
+        return float(0.0 if pd.isna(x) or x is None else x)
+    except:
+        return 0.0
 
 if os.path.exists(RUTA_PROG):
     df_prog = pd.read_csv(RUTA_PROG)
 
-    # Asegurar columnas numéricas como float
+    # Asegurar columnas numéricas como float para evitar errores de tipo
     columnas_numericas = [
         "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
         "Pistas Extra", "Stop", "Falso", "Gatas", "Accesorios", "Guías",
         "Costo_Extras", "Costo_Total_Ruta"
     ]
     for col in columnas_numericas:
-        df_prog[col] = pd.to_numeric(df_prog.get(col, 0), errors="coerce").fillna(0.0)
+        if col not in df_prog.columns:
+            df_prog[col] = 0.0  # aseguramos que exista
+        df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
 
-    if "ID_Programacion" in df_prog.columns:
+    if "ID_Programacion" in df_prog.columns and not df_prog.empty:
         ids = df_prog["ID_Programacion"].dropna().unique()
         id_edit = st.selectbox("Selecciona un tráfico para editar o eliminar", ids)
-        df_filtrado = df_prog[df_prog["ID_Programacion"] == id_edit].reset_index()
+        df_filtrado = df_prog[df_prog["ID_Programacion"] == id_edit].reset_index(drop=True)
+
         st.write("**Vista previa del tráfico seleccionado:**")
         st.dataframe(df_filtrado)
 
@@ -217,22 +223,22 @@ if os.path.exists(RUTA_PROG):
         if not df_ida.empty:
             tramo_ida = df_ida.iloc[0]
             with st.form("editar_trafico"):
-                nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida["Unidad"]))
-                nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida["Operador"]))
+                nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida.get("Unidad", "")))
+                nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida.get("Operador", "")))
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local", 0)), key="mov_local_edit")
-                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad", 0)), key="puntualidad_edit")
-                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension", 0)), key="pension_edit")
-                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia", 0)), key="estancia_edit")
-                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra", 0)), key="pistas_extra_edit")
+                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local")), key="mov_local_edit")
+                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad")), key="puntualidad_edit")
+                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension")), key="pension_edit")
+                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia")), key="estancia_edit")
+                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra")), key="pistas_extra_edit")
                 with col2:
-                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop", 0)), key="stop_edit")
-                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso", 0)), key="falso_edit")
-                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas", 0)), key="gatas_edit")
-                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios", 0)), key="accesorios_edit")
-                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías", 0)), key="guias_edit")
+                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop")), key="stop_edit")
+                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso")), key="falso_edit")
+                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas")), key="gatas_edit")
+                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios")), key="accesorios_edit")
+                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías")), key="guias_edit")
 
                 actualizar = st.form_submit_button("💾 Guardar cambios")
 
@@ -256,8 +262,8 @@ if os.path.exists(RUTA_PROG):
                         df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), col] = val
 
                     # Recalcular costo total
-                    extras = sum([safe(x) for x in columnas.values() if isinstance(x, (int, float))])
-                    base = tramo_ida.get("Costo_Total_Ruta", 0) - tramo_ida.get("Costo_Extras", 0)
+                    extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float, float)) and k not in ["Unidad", "Operador"]])
+                    base = safe(tramo_ida.get("Costo_Total_Ruta")) - safe(tramo_ida.get("Costo_Extras"))
                     total = base + extras
 
                     df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Extras"] = extras
@@ -265,6 +271,10 @@ if os.path.exists(RUTA_PROG):
 
                     df_prog.to_csv(RUTA_PROG, index=False)
                     st.success("✅ Cambios guardados correctamente.")
+    else:
+        st.warning("⚠️ No hay programaciones válidas disponibles para editar.")
+else:
+    st.info("ℹ️ Aún no hay archivo de programación generado.")
 
 # =====================================
 # 3. COMPLETAR Y SIMULAR TRÁFICO DETALLADO
