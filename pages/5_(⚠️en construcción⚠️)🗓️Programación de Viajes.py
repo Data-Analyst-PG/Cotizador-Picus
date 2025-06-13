@@ -90,7 +90,7 @@ df_despacho = df_despacho.rename(columns={
     "Tarifa": "Ingreso_Original",
     "Moneda": "Moneda",
     "Clasificación": "Ruta_Tipo",
-    "Caja": "Unidad",
+    "Unidad": "Unidad",
     "Operador": "Operador"
 })
 
