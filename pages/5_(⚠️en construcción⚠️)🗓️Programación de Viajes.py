@@ -114,14 +114,14 @@ with st.form("registro_trafico"):
     with col2:
         unidad = st.text_input("Unidad", value=unidad_valor)
         operador = st.text_input("Operador", value=operador_valor)
-        km = st.number_input("KM", value=safe(datos["KM"]), min_value=0.0)
+        km = st.number_input("KM", value=float(safe(datos["KM"])), min_value=0.0)
         rendimiento = st.number_input("Rendimiento Camión", value=2.5)
         costo_diesel = st.number_input("Costo Diesel", value=24.0)
         tipo_cambio = st.number_input("Tipo de cambio USD", value=17.5)
 
-    ingreso_total = ingreso_original * (tipo_cambio if moneda == "USD" else 1)
+    ingreso_original = st.number_input("Ingreso Original", value=float(safe(datos["Ingreso_Original"])), min_value=0.0)
     diesel = (km / rendimiento) * costo_diesel
-    sueldo = st.number_input("Sueldo Operador", value=safe(datos["Sueldo_Operador"]), min_value=0.0)
+    sueldo = st.number_input("Sueldo Operador", value=float(safe(datos["Sueldo_Operador"])), min_value=0.0)
 
     st.markdown(f"💰 **Ingreso Total Convertido:** ${ingreso_total:,.2f}")
     st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
