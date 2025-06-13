@@ -51,13 +51,16 @@ def guardar_programacion(df_nueva):
 # =====================================
 st.header("🚛 Carga de Tráfico Desde Reporte")
 
-# 📤 Subida del archivo
 archivo_excel = st.file_uploader("📤 Sube el archivo de despacho (Excel)", type=["xlsx"])
 
-if archivo_excel is None:
-    st.warning("⚠️ Por favor, sube un archivo Excel válido para comenzar.")
-    st.stop()
+if archivo_excel is not None:
+    st.success("✅ Archivo de despacho cargado correctamente.")
+    mostrar_registro = True
+else:
+    mostrar_registro = False
+    st.info("ℹ️ No se ha cargado un archivo. Solo se mostrará la gestión de tráficos existentes.")
 
+if mostrar_registro:
     # ✅ Cargar y limpiar datos
     df_despacho = pd.read_excel(archivo_excel)
 
@@ -112,13 +115,13 @@ if archivo_excel is None:
                                 if tipo_valor in ["IMPORTACION", "EXPORTACION", "VACIO"] else 0,
                                 key="tipo_select")
             moneda = st.selectbox("Moneda", ["MXP", "USD"],
-                                  index=["MXP", "USD"].index(moneda_valor)
-                                  if moneda_valor in ["MXP", "USD"] else 0,
-                                  key="moneda_select")
+                                    index=["MXP", "USD"].index(moneda_valor)
+                                    if moneda_valor in ["MXP", "USD"] else 0,
+                                    key="moneda_select")
             ingreso_original = st.number_input("Ingreso Original",
-                                               value=float(safe(datos["Ingreso_Original"])),
-                                               min_value=0.0,
-                                               key="ingreso_original_input")
+                                                value=float(safe(datos["Ingreso_Original"])),
+                                                min_value=0.0,
+                                                key="ingreso_original_input")
 
         with col2:
             unidad = st.text_input("Unidad", value=unidad_valor, key="unidad_input")
@@ -131,9 +134,9 @@ if archivo_excel is None:
         ingreso_total = ingreso_original * (tipo_cambio if moneda == "USD" else 1)
         diesel = (km / rendimiento) * costo_diesel
         sueldo = st.number_input("Sueldo Operador",
-                                 value=float(safe(datos["Sueldo_Operador"])),
-                                 min_value=0.0,
-                                 key="sueldo_input")
+                                value=float(safe(datos["Sueldo_Operador"])),
+                                min_value=0.0,
+                                key="sueldo_input")
 
         st.markdown(f"💰 **Ingreso Total Convertido:** ${ingreso_total:,.2f}")
         st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
