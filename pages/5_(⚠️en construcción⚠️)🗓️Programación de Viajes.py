@@ -85,7 +85,7 @@ if mostrar_registro:
 
     # ✅ Selección del tráfico
     rutas_df = cargar_rutas()
-    st.header("📦 Registro de tráfico desde despacho")
+    st.header("📝 Registro de tráfico desde despacho")
 
     viajes_disponibles = df_despacho["Numero_Trafico"].dropna().unique()
     viaje_sel = st.selectbox("Selecciona un número de tráfico del despacho", viajes_disponibles)
@@ -287,6 +287,17 @@ if not os.path.exists(RUTA_PROG):
 df_prog = pd.read_csv(RUTA_PROG)
 df_rutas = cargar_rutas()
 
+# Validación de columnas numéricas por seguridad
+for col in ["Ingreso Total", "Costo_Total_Ruta"]:
+    if col not in df_prog.columns:
+        df_prog[col] = 0.0
+    df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
+
+for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
+    if col not in df_rutas.columns:
+        df_rutas[col] = 0.0
+    df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
+
 incompletos = df_prog.groupby("ID_Programacion").size().reset_index(name="count")
 incompletos = incompletos[incompletos["count"] == 1]["ID_Programacion"]
 
@@ -301,8 +312,11 @@ if not incompletos.empty:
 
     if not directas.empty:
         directas = directas.sort_values(by="% Utilidad", ascending=False)
-        idx = st.selectbox("Cliente sugerido (por utilidad)", directas.index,
-            format_func=lambda x: f"{directas.loc[x, 'Cliente']} - {directas.loc[x, 'Ruta']} ({directas.loc[x, '% Utilidad']:.2f}%)")
+        idx = st.selectbox(
+            "Cliente sugerido (por utilidad)",
+            directas.index,
+            format_func=lambda x: f"{directas.loc[x, 'Cliente']} - {directas.loc[x, 'Ruta']} ({directas.loc[x, '% Utilidad']:.2f}%)"
+        )
         rutas = [ida, directas.loc[idx]]
     else:
         vacios = df_rutas[(df_rutas["Tipo"] == "VACIO") & (df_rutas["Origen"] == destino_ida)].copy()
@@ -361,6 +375,9 @@ if not incompletos.empty:
 else:
     st.info("No hay tráficos pendientes.")
 
+# =====================================
+# 4. FILTRO Y RESUMEN DE VIAJES CONCLUIDOS
+# =====================================
 st.title("✅ Tráficos Concluidos con Filtro de Fechas")
 
 if not os.path.exists(RUTA_PROG):
@@ -368,8 +385,8 @@ if not os.path.exists(RUTA_PROG):
     st.stop()
 
 df = pd.read_csv(RUTA_PROG)
+df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
 
-# Verificamos que haya tráfico cerrado (IDA + VUELTA o más)
 programaciones = df.groupby("ID_Programacion").size().reset_index(name="Tramos")
 concluidos = programaciones[programaciones["Tramos"] >= 2]["ID_Programacion"]
 
@@ -377,7 +394,6 @@ if concluidos.empty:
     st.info("Aún no hay tráficos concluidos.")
 else:
     df_concluidos = df[df["ID_Programacion"].isin(concluidos)].copy()
-    df_concluidos["Fecha"] = pd.to_datetime(df_concluidos["Fecha"])
 
     st.subheader("📅 Filtro por Fecha")
     fecha_inicio = st.date_input("Fecha inicio", value=df_concluidos["Fecha"].min().date())
