@@ -45,17 +45,14 @@ def cargar_rutas():
     df["Ruta"] = df["Origen"] + " → " + df["Destino"]
     return df
 
-def cargar_programaciones(filtrar_abiertas=True):
-    query = supabase.table("Traficos").select("*")
-    if filtrar_abiertas:
-        query = query.is_("Fecha_Cierre", None)
-    data = query.execute()
+def cargar_programaciones_pendientes():
+    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
     df = pd.DataFrame(data.data)
     if not df.empty:
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-        df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre", pd.NaT), errors="coerce")
+        df["Fecha"] = pd.to_datetime(df.get("Fecha"), errors="coerce")
+        df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre"), errors="coerce")
     return df
-
+    
 def guardar_programacion(nuevo_registro):
     columnas_base_data = supabase.table("Traficos").select("*").limit(1).execute().data
     columnas_base = columnas_base_data[0].keys() if columnas_base_data else nuevo_registro.columns
