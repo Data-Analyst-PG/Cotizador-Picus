@@ -45,8 +45,11 @@ def cargar_rutas():
     df["Ruta"] = df["Origen"] + " → " + df["Destino"]
     return df
 
-def cargar_programaciones():
-    data = supabase.table("Traficos").select("*").execute()
+def cargar_programaciones(filtrar_abiertas=True):
+    query = supabase.table("Traficos").select("*")
+    if filtrar_abiertas:
+        query = query.is_("Fecha_Cierre", None)
+    data = query.execute()
     df = pd.DataFrame(data.data)
     if not df.empty:
         df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
@@ -208,13 +211,7 @@ if mostrar_registro:
 st.markdown("---")
 st.header("🛠️ Gestión de Tráficos Programados")
 
-# Función segura forzada a float
-def safe(x):
-    try:
-        return float(0.0 if pd.isna(x) or x is None else x)
-    except:
-        return 0.0
-
+# Función para cargar solo tráficos abiertos (sin Fecha_Cierre)
 def cargar_programaciones_abiertas():
     data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
     df = pd.DataFrame(data.data)
@@ -303,7 +300,7 @@ else:
                 supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
                 st.success("✅ Cambios guardados correctamente.")
     else:
-        st.warning("⚠️ No hay programaciones válidas disponibles para editar.")
+        st.warning("⚠️ No hay tramo IDA para editar.")
 else:
     st.info("ℹ️ Aún no hay archivo de programación generado.")
 
@@ -322,23 +319,17 @@ def cargar_programaciones_pendientes():
 df_prog = cargar_programaciones_pendientes()
 df_rutas = cargar_rutas()
 
-# Validación de columnas numéricas por seguridad
 for col in ["Ingreso Total", "Costo_Total_Ruta"]:
-    if col not in df_prog.columns:
-        df_prog[col] = 0.0
-    df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
+    df_prog[col] = pd.to_numeric(df_prog.get(col, 0), errors="coerce").fillna(0.0)
 
 for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
-    if col not in df_rutas.columns:
-        df_rutas[col] = 0.0
-    df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
+    df_rutas[col] = pd.to_numeric(df_rutas.get(col, 0), errors="coerce").fillna(0.0)
 
-pendientes = df_prog.copy()
-ids_pendientes = pendientes["ID_Programacion"].unique()
+ids_pendientes = df_prog["ID_Programacion"].unique()
 
 if len(ids_pendientes) > 0:
     id_sel = st.selectbox("Selecciona un tráfico pendiente", ids_pendientes)
-    ida = pendientes[(pendientes["ID_Programacion"] == id_sel) & (pendientes["Tramo"] == "IDA")].iloc[0]
+    ida = df_prog[(df_prog["ID_Programacion"] == id_sel) & (df_prog["Tramo"] == "IDA")].iloc[0]
     destino_ida = ida["Destino"]
     tipo_ida = ida["Tipo"]
 
@@ -397,7 +388,7 @@ if len(ids_pendientes) > 0:
     if st.button("💾 Guardar y cerrar tráfico"):
         fecha_cierre = date.today()
         nuevos_tramos = []
-        
+
         for tramo in rutas[1:]:
             datos = tramo.copy()
             datos["Fecha"] = fecha_cierre
@@ -422,6 +413,7 @@ else:
 # =====================================
 # 4. FILTRO Y RESUMEN DE VIAJES CONCLUIDOS
 # =====================================
+st.markdown("---")
 st.title("✅ Tráficos Concluidos con Filtro de Fechas")
 
 # Cargar todos los tráficos con Fecha_Cierre registrada
