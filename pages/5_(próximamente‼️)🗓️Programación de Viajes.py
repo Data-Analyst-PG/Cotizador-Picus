@@ -53,7 +53,7 @@ def cargar_programaciones():
         df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre", pd.NaT), errors="coerce")
     return df
 
-def guardar_programacion(nuevo_registro):
+def guardar_programacion(df_nueva):
     registros = df_nueva.to_dict(orient="records")
     for fila in registros:
         id_programacion = fila.get("ID_Programacion")
@@ -251,57 +251,57 @@ else:
         st.success("✅ Tráfico eliminado exitosamente.")
         st.experimental_rerun()
 
-        df_ida = df_filtrado[df_filtrado["Tramo"] == "IDA"]
+    df_ida = df_filtrado[df_filtrado["Tramo"] == "IDA"]
 
-        if not df_ida.empty:
-            tramo_ida = df_ida.iloc[0]
-            with st.form("editar_trafico"):
-                nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida.get("Unidad", "")))
-                nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida.get("Operador", "")))
+    if not df_ida.empty:
+        tramo_ida = df_ida.iloc[0]
+        with st.form("editar_trafico"):
+            nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida.get("Unidad", "")))
+            nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida.get("Operador", "")))
 
-                col1, col2 = st.columns(2)
-                with col1:
-                    movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local")), key="mov_local_edit")
-                    puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad")), key="puntualidad_edit")
-                    pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension")), key="pension_edit")
-                    estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia")), key="estancia_edit")
-                    pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra")), key="pistas_extra_edit")
-                with col2:
-                    stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop")), key="stop_edit")
-                    falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso")), key="falso_edit")
-                    gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas")), key="gatas_edit")
-                    accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios")), key="accesorios_edit")
-                    guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías")), key="guias_edit")
+            col1, col2 = st.columns(2)
+            with col1:
+                movimiento_local = st.number_input("Movimiento Local", min_value=0.0, value=safe(tramo_ida.get("Movimiento_Local")), key="mov_local_edit")
+                puntualidad = st.number_input("Puntualidad", min_value=0.0, value=safe(tramo_ida.get("Puntualidad")), key="puntualidad_edit")
+                pension = st.number_input("Pensión", min_value=0.0, value=safe(tramo_ida.get("Pension")), key="pension_edit")
+                estancia = st.number_input("Estancia", min_value=0.0, value=safe(tramo_ida.get("Estancia")), key="estancia_edit")
+                pistas_extra = st.number_input("Pistas Extra", min_value=0.0, value=safe(tramo_ida.get("Pistas Extra")), key="pistas_extra_edit")
+            with col2:
+                stop = st.number_input("Stop", min_value=0.0, value=safe(tramo_ida.get("Stop")), key="stop_edit")
+                falso = st.number_input("Falso", min_value=0.0, value=safe(tramo_ida.get("Falso")), key="falso_edit")
+                gatas = st.number_input("Gatas", min_value=0.0, value=safe(tramo_ida.get("Gatas")), key="gatas_edit")
+                accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios")), key="accesorios_edit")
+                guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías")), key="guias_edit")
 
-                actualizar = st.form_submit_button("💾 Guardar cambios")
+            actualizar = st.form_submit_button("💾 Guardar cambios")
 
-                if actualizar:
-                    columnas = {
-                        "Unidad": nueva_unidad,
-                        "Operador": nuevo_operador,
-                        "Movimiento_Local": movimiento_local,
-                        "Puntualidad": puntualidad,
-                        "Pension": pension,
-                        "Estancia": estancia,
-                        "Pistas Extra": pistas_extra,
-                        "Stop": stop,
-                        "Falso": falso,
-                        "Gatas": gatas,
-                        "Accesorios": accesorios,
-                        "Guías": guias
-                    }
+            if actualizar:
+                columnas = {
+                    "Unidad": nueva_unidad,
+                    "Operador": nuevo_operador,
+                    "Movimiento_Local": movimiento_local,
+                    "Puntualidad": puntualidad,
+                    "Pension": pension,
+                    "Estancia": estancia,
+                    "Pistas Extra": pistas_extra,
+                    "Stop": stop,
+                    "Falso": falso,
+                    "Gatas": gatas,
+                    "Accesorios": accesorios,
+                    "Guías": guias
+                }
 
-                    extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float)) and k not in ["Unidad", "Operador"]])
-                    base = safe(tramo_ida.get("Costo_Total_Ruta")) - safe(tramo_ida.get("Costo_Extras"))
-                    total = base + extras
+                extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float)) and k not in ["Unidad", "Operador"]])
+                base = safe(tramo_ida.get("Costo_Total_Ruta")) - safe(tramo_ida.get("Costo_Extras"))
+                total = base + extras
 
-                    columnas.update({
-                        "Costo_Extras": extras,
-                        "Costo_Total_Ruta": total
-                    })
+                columnas.update({
+                    "Costo_Extras": extras,
+                    "Costo_Total_Ruta": total
+                })
 
-                    supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
-                    st.success("✅ Cambios guardados correctamente.")
+                supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
+                st.success("✅ Cambios guardados correctamente.")
     else:
         st.warning("⚠️ No hay programaciones válidas disponibles para editar.")
 else:
