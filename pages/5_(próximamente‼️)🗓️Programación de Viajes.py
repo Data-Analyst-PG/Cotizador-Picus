@@ -57,6 +57,11 @@ def cargar_programaciones(filtrar_abiertas=True):
     return df
 
 def guardar_programacion(df_nueva):
+    columnas_base = supabase.table("Traficos").select("*").limit(1).execute().data
+    columnas_base = columnas_base[0].keys() if columnas_base else df_nueva.columns
+
+    df_nueva = df_nueva.reindex(columns=columnas_base, fill_value=None)  # Asegura orden y columnas correctas
+
     registros = df_nueva.to_dict(orient="records")
     for fila in registros:
         id_programacion = fila.get("ID_Programacion")
@@ -155,11 +160,11 @@ if mostrar_registro:
             tipo_cambio = st.number_input("Tipo de cambio USD", value=17.5, key="tc_input")
 
         ingreso_total = ingreso_original * (tipo_cambio if moneda == "USD" else 1)
-        diesel = (km / rendimiento) * costo_diesel
+        diesel = (km / rendimiento) * costo_diesel if rendimiento > 0 else 0
         sueldo = st.number_input("Sueldo Operador",
-                                value=float(safe(datos["Sueldo_Operador"])),
-                                min_value=0.0,
-                                key="sueldo_input")
+                                 value=float(safe(datos["Sueldo_Operador"])),
+                                 min_value=0.0,
+                                 key="sueldo_input")
 
         st.markdown(f"💰 **Ingreso Total Convertido:** ${ingreso_total:,.2f}")
         st.markdown(f"⛽ **Costo Diesel Calculado:** ${diesel:,.2f}")
@@ -202,8 +207,8 @@ if mostrar_registro:
                         "Costo_Total_Ruta": diesel + sueldo,
                         "Costo_Extras": 0.0
                     }])
-                guardar_programacion(nuevo_registro)
-                st.success("✅ Tráfico registrado exitosamente desde despacho.")
+                    guardar_programacion(nuevo_registro)
+                    st.success("✅ Tráfico registrado exitosamente desde despacho.")
 
 # =====================================
 # 2. VER, EDITAR Y ELIMINAR PROGRAMACIONES
@@ -246,7 +251,7 @@ else:
     if st.button("🗑️ Eliminar tráfico completo"):
         supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
         st.success("✅ Tráfico eliminado exitosamente.")
-        st.experimental_rerun()
+        st.rerun()
 
     df_ida = df_filtrado[df_filtrado["Tramo"] == "IDA"]
 
@@ -313,18 +318,25 @@ st.title("🔁 Completar y Simular Tráfico Detallado")
 def cargar_programaciones_pendientes():
     data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
     df = pd.DataFrame(data.data)
-    df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+    if not df.empty:
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
 df_prog = cargar_programaciones_pendientes()
 df_rutas = cargar_rutas()
 
+# Validación de columnas numéricas por seguridad
 for col in ["Ingreso Total", "Costo_Total_Ruta"]:
-    df_prog[col] = pd.to_numeric(df_prog.get(col, 0), errors="coerce").fillna(0.0)
+    if col not in df_prog.columns:
+        df_prog[col] = 0.0
+    df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
 
 for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
-    df_rutas[col] = pd.to_numeric(df_rutas.get(col, 0), errors="coerce").fillna(0.0)
+    if col not in df_rutas.columns:
+        df_rutas[col] = 0.0
+    df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
 
+pendientes = df_prog.copy()
 ids_pendientes = df_prog["ID_Programacion"].unique()
 
 if len(ids_pendientes) > 0:
@@ -400,10 +412,7 @@ if len(ids_pendientes) > 0:
             datos["Tramo"] = "VUELTA"
             nuevos_tramos.append(datos)
 
-        # Insertar tramos de regreso
         guardar_programacion(pd.DataFrame(nuevos_tramos))
-
-        # Actualizar IDA con fecha de cierre
         supabase.table("Traficos").update({"Fecha_Cierre": fecha_cierre}).eq("ID_Programacion", ida["ID_Programacion"]).eq("Tramo", "IDA").execute()
 
         st.success("✅ Tráfico cerrado exitosamente.")
