@@ -53,7 +53,7 @@ def cargar_programaciones():
         df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre", pd.NaT), errors="coerce")
     return df
 
-def guardar_programacion(df_nueva):
+def guardar_programacion(nuevo_registro):
     registros = df_nueva.to_dict(orient="records")
     for fila in registros:
         id_programacion = fila.get("ID_Programacion")
@@ -199,7 +199,7 @@ if mostrar_registro:
                         "Costo_Total_Ruta": diesel + sueldo,
                         "Costo_Extras": 0.0
                     }])
-                guardar_programacion(df_nuevo)
+                guardar_programacion(nuevo_registro)
                 st.success("✅ Tráfico registrado exitosamente desde despacho.")
 
 # =====================================
@@ -245,17 +245,11 @@ else:
     st.write("**Vista previa del tráfico seleccionado:**")
     st.dataframe(df_filtrado)
 
+
     if st.button("🗑️ Eliminar tráfico completo"):
-        for row_id in df_filtrado["ID_Programacion"].unique():
-            supabase.table("Traficos").delete().eq("ID_Programacion", row_id).execute
-
-        st.write("**Vista previa del tráfico seleccionado:**")
-        st.dataframe(df_filtrado)
-
-        if st.button("🗑️ Eliminar tráfico completo"):
-            supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
-            st.success("✅ Tráfico eliminado exitosamente.")
-            st.experimental_rerun()
+        supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
+        st.success("✅ Tráfico eliminado exitosamente.")
+        st.experimental_rerun()
 
         df_ida = df_filtrado[df_filtrado["Tramo"] == "IDA"]
 
@@ -325,7 +319,7 @@ def cargar_programaciones_pendientes():
     df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
     return df
 
-df_prog = cargar_programaciones()
+df_prog = cargar_programaciones_pendientes()
 df_rutas = cargar_rutas()
 
 # Validación de columnas numéricas por seguridad
@@ -339,6 +333,7 @@ for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
         df_rutas[col] = 0.0
     df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
 
+pendientes = df_prog.copy()
 ids_pendientes = pendientes["ID_Programacion"].unique()
 
 if len(ids_pendientes) > 0:
