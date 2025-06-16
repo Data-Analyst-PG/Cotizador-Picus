@@ -56,7 +56,7 @@ def cargar_programaciones(filtrar_abiertas=True):
         df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre", pd.NaT), errors="coerce")
     return df
 
-def guardar_programacion(df_nueva):
+def guardar_programacion(nuevo_registro):
     columnas_base = supabase.table("Traficos").select("*").limit(1).execute().data
     columnas_base = columnas_base[0].keys() if columnas_base else df_nueva.columns
 
@@ -427,7 +427,9 @@ st.title("✅ Tráficos Concluidos con Filtro de Fechas")
 
 # Cargar todos los tráficos con Fecha_Cierre registrada
 def cargar_concluidos():
-    data = supabase.table("Traficos").select("*").not_.is_("Fecha_Cierre", None).execute()
+    data = supabase.table("Traficos").select("*").execute()
+    df = pd.DataFrame(data.data)
+    df = df[df["Fecha_Cierre"].notna()]
     df = pd.DataFrame(data.data)
     if not df.empty:
         df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
