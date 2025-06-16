@@ -1,10 +1,14 @@
 import streamlit as st
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, date
 from supabase import create_client
 
-# ✅ Verificación de sesión y rol
+# =====================================
+# CONFIGURACIÓN GENERAL Y UTILIDADES
+# =====================================
+
+# Verificación de sesión y rol
 if "usuario" not in st.session_state:
     st.error("⚠️ No has iniciado sesión.")
     st.stop()
@@ -19,11 +23,14 @@ url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 supabase = create_client(url, key)
 
-RUTA_PROG = "viajes_programados.csv"
-
 st.title("🛣️ Programación de Viajes Detallada")
 
-def safe(x): return 0 if pd.isna(x) or x is None else x
+# Funciones auxiliares
+def safe(x):
+    try:
+        return float(0.0 if pd.isna(x) or x is None else x)
+    except:
+        return 0.0
 
 def cargar_rutas():
     respuesta = supabase.table("Rutas").select("*").execute()
@@ -38,13 +45,23 @@ def cargar_rutas():
     df["Ruta"] = df["Origen"] + " → " + df["Destino"]
     return df
 
+def cargar_programaciones():
+    data = supabase.table("Traficos").select("*").execute()
+    df = pd.DataFrame(data.data)
+    if not df.empty:
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+        df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre", pd.NaT), errors="coerce")
+    return df
+
 def guardar_programacion(df_nueva):
-    if os.path.exists(RUTA_PROG):
-        df_prog = pd.read_csv(RUTA_PROG)
-        df_total = pd.concat([df_prog, df_nueva], ignore_index=True)
-    else:
-        df_total = df_nueva
-    df_total.to_csv(RUTA_PROG, index=False)
+    registros = df_nueva.to_dict(orient="records")
+    for fila in registros:
+        id_programacion = fila.get("ID_Programacion")
+        existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
+        if not existe.data:
+            supabase.table("Traficos").insert(fila).execute()
+        else:
+            st.warning(f"⚠️ El tráfico con ID {id_programacion} ya fue registrado previamente.")
 
 # =====================================
 # 1. REGISTRO
@@ -86,6 +103,9 @@ if mostrar_registro:
     # ✅ Selección del tráfico
     rutas_df = cargar_rutas()
     st.header("📝 Registro de tráfico desde despacho")
+
+    registros_existentes = supabase.table("Traficos").select("ID_Programacion").execute().data
+    traficos_registrados = {r["ID_Programacion"] for r in registros_existentes}
 
     viajes_disponibles = df_despacho["Numero_Trafico"].dropna().unique()
     viaje_sel = st.selectbox("Selecciona un número de tráfico del despacho", viajes_disponibles)
@@ -148,30 +168,37 @@ if mostrar_registro:
                 st.error("❌ Operador y Unidad son obligatorios.")
             else:
                 fecha_str = fecha.strftime("%Y-%m-%d")
-                df_nuevo = pd.DataFrame([{
-                    "ID_Programacion": f"{viaje_sel}_{fecha_str}",
-                    "Fecha": fecha_str,
-                    "Cliente": cliente,
-                    "Origen": origen,
-                    "Destino": destino,
-                    "Tipo": tipo,
-                    "Moneda": moneda,
-                    "Ingreso_Original": ingreso_original,
-                    "Ingreso Total": ingreso_total,
-                    "KM": km,
-                    "Costo Diesel": costo_diesel,
-                    "Rendimiento Camion": rendimiento,
-                    "Costo_Diesel_Camion": diesel,
-                    "Sueldo_Operador": sueldo,
-                    "Unidad": unidad,
-                    "Operador": operador,
-                    "Modo_Viaje": "Operador",
-                    "Ruta_Tipo": datos["Ruta_Tipo"],
-                    "Tramo": "IDA",
-                    "Número_Trafico": viaje_sel,
-                    "Costo_Total_Ruta": diesel + sueldo,
-                    "Costo_Extras": 0.0
-                }])
+                id_programacion = f"{viaje_sel}_{fecha_str}"
+
+                # Verificar si ya existe
+                existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
+                if existe.data:
+                    st.warning("⚠️ Este tráfico ya está registrado.")
+                else:
+                    nuevo_registro = pd.DataFrame([{
+                        "ID_Programacion": f"{viaje_sel}_{fecha_str}",
+                        "Fecha": fecha_str,
+                        "Cliente": cliente,
+                        "Origen": origen,
+                        "Destino": destino,
+                        "Tipo": tipo,
+                        "Moneda": moneda,
+                        "Ingreso_Original": ingreso_original,
+                        "Ingreso Total": ingreso_total,
+                        "KM": km,
+                        "Costo Diesel": costo_diesel,
+                        "Rendimiento Camion": rendimiento,
+                        "Costo_Diesel_Camion": diesel,
+                        "Sueldo_Operador": sueldo,
+                        "Unidad": unidad,
+                        "Operador": operador,
+                        "Modo_Viaje": "Operador",
+                        "Ruta_Tipo": datos["Ruta_Tipo"],
+                        "Tramo": "IDA",
+                        "Número_Trafico": viaje_sel,
+                        "Costo_Total_Ruta": diesel + sueldo,
+                        "Costo_Extras": 0.0
+                    }])
                 guardar_programacion(df_nuevo)
                 st.success("✅ Tráfico registrado exitosamente desde despacho.")
 
@@ -188,9 +215,18 @@ def safe(x):
     except:
         return 0.0
 
-if os.path.exists(RUTA_PROG):
-    df_prog = pd.read_csv(RUTA_PROG)
+def cargar_programaciones_abiertas():
+    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+    df = pd.DataFrame(data.data)
+    if not df.empty:
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+    return df
 
+df_prog = cargar_programaciones_abiertas()
+
+if df_prog.empty:
+    st.info("ℹ️ No hay tráficos abiertos para editar.")
+else:
     # Asegurar columnas numéricas como float para evitar errores de tipo
     columnas_numericas = [
         "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
@@ -202,17 +238,22 @@ if os.path.exists(RUTA_PROG):
             df_prog[col] = 0.0  # aseguramos que exista
         df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
 
-    if "ID_Programacion" in df_prog.columns and not df_prog.empty:
-        ids = df_prog["ID_Programacion"].dropna().unique()
-        id_edit = st.selectbox("Selecciona un tráfico para editar o eliminar", ids)
-        df_filtrado = df_prog[df_prog["ID_Programacion"] == id_edit].reset_index(drop=True)
+    ids = df_prog["ID_Programacion"].dropna().unique()
+    id_edit = st.selectbox("Selecciona un tráfico para editar o eliminar", ids)
+
+    df_filtrado = df_prog[df_prog["ID_Programacion"] == id_edit].reset_index(drop=True)
+    st.write("**Vista previa del tráfico seleccionado:**")
+    st.dataframe(df_filtrado)
+
+    if st.button("🗑️ Eliminar tráfico completo"):
+        for row_id in df_filtrado["ID_Programacion"].unique():
+            supabase.table("Traficos").delete().eq("ID_Programacion", row_id).execute
 
         st.write("**Vista previa del tráfico seleccionado:**")
         st.dataframe(df_filtrado)
 
         if st.button("🗑️ Eliminar tráfico completo"):
-            df_prog = df_prog[df_prog["ID_Programacion"] != id_edit]
-            df_prog.to_csv(RUTA_PROG, index=False)
+            supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
             st.success("✅ Tráfico eliminado exitosamente.")
             st.experimental_rerun()
 
@@ -256,18 +297,16 @@ if os.path.exists(RUTA_PROG):
                         "Guías": guias
                     }
 
-                    for col, val in columnas.items():
-                        df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), col] = val
-
-                    # Recalcular costo total
-                    extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float, float)) and k not in ["Unidad", "Operador"]])
+                    extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float)) and k not in ["Unidad", "Operador"]])
                     base = safe(tramo_ida.get("Costo_Total_Ruta")) - safe(tramo_ida.get("Costo_Extras"))
                     total = base + extras
 
-                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Extras"] = extras
-                    df_prog.loc[(df_prog["ID_Programacion"] == id_edit) & (df_prog["Tramo"] == "IDA"), "Costo_Total_Ruta"] = total
+                    columnas.update({
+                        "Costo_Extras": extras,
+                        "Costo_Total_Ruta": total
+                    })
 
-                    df_prog.to_csv(RUTA_PROG, index=False)
+                    supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
                     st.success("✅ Cambios guardados correctamente.")
     else:
         st.warning("⚠️ No hay programaciones válidas disponibles para editar.")
@@ -280,11 +319,13 @@ else:
 st.markdown("---")
 st.title("🔁 Completar y Simular Tráfico Detallado")
 
-if not os.path.exists(RUTA_PROG):
-    st.error("❌ Faltan archivos necesarios para continuar.")
-    st.stop()
+def cargar_programaciones_pendientes():
+    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+    df = pd.DataFrame(data.data)
+    df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+    return df
 
-df_prog = pd.read_csv(RUTA_PROG)
+df_prog = cargar_programaciones()
 df_rutas = cargar_rutas()
 
 # Validación de columnas numéricas por seguridad
@@ -298,12 +339,11 @@ for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
         df_rutas[col] = 0.0
     df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
 
-incompletos = df_prog.groupby("ID_Programacion").size().reset_index(name="count")
-incompletos = incompletos[incompletos["count"] == 1]["ID_Programacion"]
+ids_pendientes = pendientes["ID_Programacion"].unique()
 
-if not incompletos.empty:
-    id_sel = st.selectbox("Selecciona un tráfico pendiente", incompletos)
-    ida = df_prog[df_prog["ID_Programacion"] == id_sel].iloc[0]
+if len(ids_pendientes) > 0:
+    id_sel = st.selectbox("Selecciona un tráfico pendiente", ids_pendientes)
+    ida = pendientes[(pendientes["ID_Programacion"] == id_sel) & (pendientes["Tramo"] == "IDA")].iloc[0]
     destino_ida = ida["Destino"]
     tipo_ida = ida["Tipo"]
 
@@ -360,17 +400,26 @@ if not incompletos.empty:
     st.metric("Utilidad Neta", f"${utilidad_neta:,.2f} ({(utilidad_neta/ingreso*100):.2f}%)")
 
     if st.button("💾 Guardar y cerrar tráfico"):
+        fecha_cierre = date.today()
         nuevos_tramos = []
+        
         for tramo in rutas[1:]:
             datos = tramo.copy()
-            datos["Fecha"] = ida["Fecha"]
+            datos["Fecha"] = fecha_cierre
+            datos["Fecha_Cierre"] = fecha_cierre
             datos["Número_Trafico"] = ida["Número_Trafico"]
             datos["Unidad"] = ida["Unidad"]
             datos["Operador"] = ida["Operador"]
             datos["ID_Programacion"] = ida["ID_Programacion"]
             datos["Tramo"] = "VUELTA"
             nuevos_tramos.append(datos)
+
+        # Insertar tramos de regreso
         guardar_programacion(pd.DataFrame(nuevos_tramos))
+
+        # Actualizar IDA con fecha de cierre
+        supabase.table("Traficos").update({"Fecha_Cierre": fecha_cierre}).eq("ID_Programacion", ida["ID_Programacion"]).eq("Tramo", "IDA").execute()
+
         st.success("✅ Tráfico cerrado exitosamente.")
 else:
     st.info("No hay tráficos pendientes.")
@@ -380,32 +429,35 @@ else:
 # =====================================
 st.title("✅ Tráficos Concluidos con Filtro de Fechas")
 
-if not os.path.exists(RUTA_PROG):
-    st.error("❌ No se encontró el archivo de viajes programados.")
-    st.stop()
+# Cargar todos los tráficos con Fecha_Cierre registrada
+def cargar_concluidos():
+    data = supabase.table("Traficos").select("*").not_.is_("Fecha_Cierre", None).execute()
+    df = pd.DataFrame(data.data)
+    if not df.empty:
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+        df["Fecha_Cierre"] = pd.to_datetime(df["Fecha_Cierre"], errors="coerce")
+        df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0.0)
+        df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0.0)
+    return df
 
-df = pd.read_csv(RUTA_PROG)
-df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+df_concluidos = cargar_concluidos()
 
-programaciones = df.groupby("ID_Programacion").size().reset_index(name="Tramos")
-concluidos = programaciones[programaciones["Tramos"] >= 2]["ID_Programacion"]
-
-if concluidos.empty:
+if df_concluidos.empty:
     st.info("Aún no hay tráficos concluidos.")
 else:
-    df_concluidos = df[df["ID_Programacion"].isin(concluidos)].copy()
+    st.subheader("📅 Filtro por Fecha de Cierre")
+    fecha_inicio = st.date_input("Fecha inicio", value=df_concluidos["Fecha_Cierre"].min().date())
+    fecha_fin = st.date_input("Fecha fin", value=df_concluidos["Fecha_Cierre"].max().date())
 
-    st.subheader("📅 Filtro por Fecha")
-    fecha_inicio = st.date_input("Fecha inicio", value=df_concluidos["Fecha"].min().date())
-    fecha_fin = st.date_input("Fecha fin", value=df_concluidos["Fecha"].max().date())
+    filtro = (df_concluidos["Fecha_Cierre"] >= pd.to_datetime(fecha_inicio)) & \
+             (df_concluidos["Fecha_Cierre"] <= pd.to_datetime(fecha_fin))
 
-    filtro = (df_concluidos["Fecha"] >= pd.to_datetime(fecha_inicio)) & (df_concluidos["Fecha"] <= pd.to_datetime(fecha_fin))
     df_filtrado = df_concluidos[filtro]
 
     if df_filtrado.empty:
         st.warning("No hay tráficos concluidos en ese rango de fechas.")
     else:
-        resumen = df_filtrado.groupby(["ID_Programacion", "Número_Trafico", "Fecha"]).agg({
+        resumen = df_filtrado.groupby(["ID_Programacion", "Número_Trafico", "Fecha_Cierre"]).agg({
             "Ingreso Total": "sum",
             "Costo_Total_Ruta": "sum"
         }).reset_index()
