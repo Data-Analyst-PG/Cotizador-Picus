@@ -58,11 +58,11 @@ def cargar_programaciones(filtrar_abiertas=True):
 
 def guardar_programacion(nuevo_registro):
     columnas_base = supabase.table("Traficos").select("*").limit(1).execute().data
-    columnas_base = columnas_base[0].keys() if columnas_base else df_nueva.columns
+    columnas_base = columnas_base[0].keys() if columnas_base else df_nuevo_registro.columns
 
-    df_nueva = df_nueva.reindex(columns=columnas_base, fill_value=None)  # Asegura orden y columnas correctas
+    df_nuevo_registro = df_nuevo_registro.reindex(columns=columnas_base, fill_value=None)  # Asegura orden y columnas correctas
 
-    registros = df_nueva.to_dict(orient="records")
+    registros = df_nuevo_registro.to_dict(orient="records")
     for fila in registros:
         id_programacion = fila.get("ID_Programacion")
         existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
