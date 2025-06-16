@@ -312,13 +312,6 @@ else:
 st.markdown("---")
 st.title("🔁 Completar y Simular Tráfico Detallado")
 
-def cargar_programaciones_pendientes():
-    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
-    df = pd.DataFrame(data.data)
-    if not df.empty:
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-    return df
-
 df_prog = cargar_programaciones_pendientes()
 df_rutas = cargar_rutas()
 
