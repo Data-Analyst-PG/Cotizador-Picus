@@ -2,6 +2,6 @@ streamlit
 pandas
 numpy
 Pillow
-supabase-py
+git+https://github.com/supabase-community/supabase-py
 python-dotenv
 openpyxl
