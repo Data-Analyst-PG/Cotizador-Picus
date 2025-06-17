@@ -35,41 +35,51 @@ def safe(x):
 # Confirmación
 st.success("✅ Conexión establecida correctamente con Supabase.")
 
+@st.cache_data
 def cargar_rutas():
-    respuesta = supabase.table("Rutas").select("*").execute()
-    if not respuesta.data:
-        st.error("❌ No se encontraron rutas en Supabase.")
-        st.stop()
-    df = pd.DataFrame(respuesta.data)
-    df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0)
-    df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0)
-    df["Utilidad"] = df["Ingreso Total"] - df["Costo_Total_Ruta"]
-    df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
-    df["Ruta"] = df["Origen"] + " → " + df["Destino"]
-    return df
+    try:
+        respuesta = supabase.table("Rutas").select("*").execute()
+        df = pd.DataFrame(respuesta.data)
+        df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0)
+        df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0)
+        df["Utilidad"] = df["Ingreso Total"] - df["Costo_Total_Ruta"]
+        df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
+        df["Ruta"] = df["Origen"].astype(str) + " → " + df["Destino"].astype(str)
+        return df
+    except Exception as e:
+        st.error(f"❌ Error al cargar rutas: {e}")
+        return pd.DataFrame()
 
+@st.cache_data
 def cargar_programaciones_pendientes():
-    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
-    df = pd.DataFrame(data.data)
-    if not df.empty:
-        df["Fecha"] = pd.to_datetime(df.get("Fecha"), errors="coerce")
-        df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre"), errors="coerce")
-    return df
+    try:
+        data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+        df = pd.DataFrame(data.data)
+        if not df.empty:
+            df["Fecha"] = pd.to_datetime(df.get("Fecha"), errors="coerce")
+            df["Fecha_Cierre"] = pd.to_datetime(df.get("Fecha_Cierre"), errors="coerce")
+        return df
+    except Exception as e:
+        st.error(f"❌ Error al cargar programaciones pendientes: {e}")
+        return pd.DataFrame()
     
 def guardar_programacion(nuevo_registro):
-    columnas_base_data = supabase.table("Traficos").select("*").limit(1).execute().data
-    columnas_base = columnas_base_data[0].keys() if columnas_base_data else nuevo_registro.columns
+    try:
+        columnas_base_data = supabase.table("Traficos").select("*").limit(1).execute().data
+        columnas_base = columnas_base_data[0].keys() if columnas_base_data else nuevo_registro.columns
 
-    nuevo_registro = nuevo_registro.reindex(columns=columnas_base, fill_value=None)
+        nuevo_registro = nuevo_registro.reindex(columns=columnas_base, fill_value=None)
 
-    registros = nuevo_registro.to_dict(orient="records")
-    for fila in registros:
-        id_programacion = fila.get("ID_Programacion")
-        existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
-        if not existe.data:
-            supabase.table("Traficos").insert(fila).execute()
-        else:
-            st.warning(f"⚠️ El tráfico con ID {id_programacion} ya fue registrado previamente.")
+        registros = nuevo_registro.to_dict(orient="records")
+        for fila in registros:
+            id_programacion = fila.get("ID_Programacion")
+            existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
+            if not existe.data:
+                supabase.table("Traficos").insert(fila).execute()
+            else:
+                st.warning(f"⚠️ El tráfico con ID {id_programacion} ya fue registrado previamente.")
+    except Exception as e:
+        st.error(f"❌ Error al guardar programación: {e}")
 
 # =====================================
 # 1. REGISTRO
