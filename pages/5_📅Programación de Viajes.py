@@ -1,14 +1,9 @@
 import streamlit as st
 import pandas as pd
-import os
 from datetime import datetime, date
 from supabase import create_client
 
-# =====================================
-# CONFIGURACIÓN GENERAL Y UTILIDADES
-# =====================================
-
-# Verificación de sesión y rol
+# Validación de sesión y rol
 if "usuario" not in st.session_state:
     st.error("⚠️ No has iniciado sesión.")
     st.stop()
@@ -18,6 +13,11 @@ if rol not in ["admin", "gerente", "ejecutivo"]:
     st.error("🚫 No tienes permiso para acceder a este módulo.")
     st.stop()
 
+# Validación de secretos
+if "SUPABASE_URL" not in st.secrets or "SUPABASE_KEY" not in st.secrets:
+    st.error("❌ Faltan credenciales de Supabase en st.secrets.")
+    st.stop()
+
 # Conexión a Supabase
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
@@ -25,12 +25,15 @@ supabase = create_client(url, key)
 
 st.title("🛣️ Programación de Viajes Detallada")
 
-# Funciones auxiliares
+# Función auxiliar
 def safe(x):
     try:
         return float(0.0 if pd.isna(x) or x is None else x)
     except:
         return 0.0
+
+# Confirmación
+st.success("✅ Conexión establecida correctamente con Supabase.")
 
 def cargar_rutas():
     respuesta = supabase.table("Rutas").select("*").execute()
