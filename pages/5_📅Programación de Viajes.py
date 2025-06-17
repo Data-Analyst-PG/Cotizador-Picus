@@ -21,13 +21,6 @@ supabase = create_client(url, key)
 
 st.title("🛣️ Programación de Viajes Detallada")
 
-# Funciones auxiliares
-def safe(x):
-    try:
-        return float(0.0 if pd.isna(x) or x is None else x)
-    except:
-        return 0.0
-
 def cargar_rutas():
     respuesta = supabase.table("Rutas").select("*").execute()
     if not respuesta.data:
