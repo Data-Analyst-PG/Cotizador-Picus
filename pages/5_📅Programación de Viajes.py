@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from datetime import datetime
+from datetime import datetime, date
 from supabase import create_client
 
 # ✅ Verificación de sesión y rol
