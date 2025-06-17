@@ -4,10 +4,6 @@ import os
 from datetime import datetime, date
 from supabase import create_client
 
-# =====================================
-# CONFIGURACIÓN GENERAL Y UTILIDADES
-# =====================================
-
 # Verificación de sesión y rol
 if "usuario" not in st.session_state:
     st.error("⚠️ No has iniciado sesión.")
