@@ -129,7 +129,7 @@ if respuesta.data:
 
         if guardar:
              tc_usd = valores.get("Tipo de cambio USD", 17.5)
-             tc_mxn = valores.get("Tipo de cambio MXP", 1.0)
+             tc_mxp = valores.get("Tipo de cambio MXP", 1.0)
              tipo_cambio_flete = tc_usd if moneda_ingreso == "USD" else tc_mxp
              tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxp
              tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxp
