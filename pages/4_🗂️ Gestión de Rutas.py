@@ -46,7 +46,7 @@ valores_por_defecto = {
     "Bono Rendimiento": 250.0,
     "Bono Modo Team": 650.0,
     "Tipo de cambio USD": 17.5,
-    "Tipo de cambio MXN": 1.0
+    "Tipo de cambio MXP": 1.0
 }
 
 if respuesta.data:
