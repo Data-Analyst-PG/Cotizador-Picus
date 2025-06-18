@@ -35,7 +35,7 @@ valores_por_defecto = {
     "Bono Rendimiento": 250.0,
     "Bono Modo Team": 650.0,
     "Tipo de cambio USD": 17.5,
-    "Tipo de cambio MXN": 1.0
+    "Tipo de cambio MXP": 1.0
 }
 
 def cargar_datos_generales():
@@ -104,7 +104,7 @@ with st.form("captura_ruta"):
         ingreso_cruce = st.number_input("Ingreso Cruce", min_value=0.0)
         moneda_costo_cruce = st.selectbox("Moneda Costo Cruce", ["MXP", "USD"])
         costo_cruce = st.number_input("Costo Cruce", min_value=0.0)        
-        movimiento_local = st.number_input("Movimiento Local (MXN)", min_value=0.0)
+        movimiento_local = st.number_input("Movimiento Local (MXP)", min_value=0.0)
         puntualidad = st.number_input("Puntualidad", min_value=0.0)
         pension = st.number_input("Pensión (MXP)", min_value=0.0)
         estancia = st.number_input("Estancia (MXP)", min_value=0.0)
