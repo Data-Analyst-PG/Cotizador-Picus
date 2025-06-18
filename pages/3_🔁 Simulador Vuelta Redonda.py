@@ -29,6 +29,9 @@ if not respuesta.data:
     st.stop()
 
 df = pd.DataFrame(respuesta.data)
+df["Origen"] = df["Origen"].str.strip().str.upper()
+df["Destino"] = df["Destino"].str.strip().str.upper()
+df["Cliente"] = df["Cliente"].str.strip().str.upper()
 df["Fecha"] = pd.to_datetime(df["Fecha"]).dt.strftime("%Y-%m-%d")
 df["Utilidad"] = df["Ingreso Total"] - df["Costo_Total_Ruta"]
 df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
@@ -80,7 +83,7 @@ st.subheader("🔁 Rutas sugeridas (combinaciones con o sin vacío)")
 
 tipo_principal = ruta_1["Tipo"]
 tipo_regreso = "EXPO" if tipo_principal == "IMPORTACION" else "IMPORTACION"
-destino_origen = ruta_1["Destino"]  # puede ser usado para directas o para buscar vacíos
+destino_origen = str(ruta_1["Destino"]).strip().upper()
 
 sugerencias = []
 
