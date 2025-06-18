@@ -29,9 +29,9 @@ if not respuesta.data:
     st.stop()
 
 df = pd.DataFrame(respuesta.data)
-df["Origen"] = df["Origen"].str.strip().str.upper()
-df["Destino"] = df["Destino"].str.strip().str.upper()
-df["Cliente"] = df["Cliente"].str.strip().str.upper()
+df["Origen"] = df["Origen"].astype(str).str.strip().str.upper()
+df["Destino"] = df["Destino"].astype(str).str.strip().str.upper()
+df["Cliente"] = df["Cliente"].astype(str).str.strip().str.upper()
 df["Fecha"] = pd.to_datetime(df["Fecha"]).dt.strftime("%Y-%m-%d")
 df["Utilidad"] = df["Ingreso Total"] - df["Costo_Total_Ruta"]
 df["% Utilidad"] = (df["Utilidad"] / df["Ingreso Total"] * 100).round(2)
@@ -82,7 +82,7 @@ st.markdown("---")
 st.subheader("🔁 Rutas sugeridas (combinaciones con o sin vacío)")
 
 tipo_principal = ruta_1["Tipo"]
-tipo_regreso = "EXPO" if tipo_principal == "IMPORTACION" else "IMPORTACION"
+tipo_regreso = "EXPORTACION" if tipo_principal == "IMPORTACION" else "IMPORTACION"
 destino_origen = str(ruta_1["Destino"]).strip().upper()
 
 sugerencias = []
@@ -141,22 +141,14 @@ rutas_seleccionadas = []
 
 # Mostrar selectbox con todas las opciones
 if sugerencias:
-    # Crear un diccionario de mapeo {descripcion: objeto_sugerencia}
     opciones_sugeridas = {s["descripcion"]: s for s in sugerencias}
-
-    # Mostrar las descripciones
     descripcion_seleccionada = st.selectbox(
         "Selecciona una opción de regreso sugerida",
         list(opciones_sugeridas.keys()),
         key="selectbox_regreso"
     )
-
-    # Recuperar el objeto seleccionado
     seleccion = opciones_sugeridas[descripcion_seleccionada]
-    if seleccion is not None and "tramos" in seleccion:
-        rutas_seleccionadas = [ruta_1] + seleccion["tramos"]
-    else:
-        rutas_seleccionadas = [ruta_1]
+    rutas_seleccionadas = [ruta_1] + seleccion.get("tramos", [])
 else:
     st.warning("⚠️ No hay rutas de regreso disponibles.")
     rutas_seleccionadas = [ruta_1]
