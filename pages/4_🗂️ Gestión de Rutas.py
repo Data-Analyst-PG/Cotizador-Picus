@@ -171,7 +171,7 @@ if respuesta.data:
 
              ruta_actualizada = {
                  "Modo de Viaje": Modo_de_Viaje,
-                 "Fecha": fecha,
+                 "Fecha": fecha.isoformat(),
                  "Tipo": tipo,
                  "Ruta_Tipo": ruta_tipo,
                  "Cliente": cliente,
