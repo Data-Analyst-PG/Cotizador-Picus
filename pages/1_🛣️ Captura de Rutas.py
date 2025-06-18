@@ -154,7 +154,7 @@ with st.form("captura_ruta"):
             bono = valores.get("Bono ISR IMSS Tramo", 185.06)
             Modo_de_Viaje = "Operador"  # Forzar
             costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
-        elif tipo in ["IMPO", "EXPO"]:
+        elif tipo in ["IMPORTACION", "EXPORTACION"]:
             sueldo = km * pago_km
             bono_isr = valores.get("Bono ISR IMSS RL", 0)
             bono_rendimiento = valores.get("Bono Rendimiento", 0)
