@@ -350,7 +350,10 @@ for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
         df_rutas[col] = 0.0
     df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
 
-ids_pendientes = df_prog["ID_Programacion"].unique()
+if df_prog.empty or "ID_Programacion" not in df_prog.columns:
+    st.info("ℹ️ No hay tráficos pendientes por completar.")
+else:
+    ids_pendientes = df_prog["ID_Programacion"].unique()
 
 if len(ids_pendientes) > 0:
     id_sel = st.selectbox("Selecciona un tráfico pendiente", ids_pendientes)
