@@ -436,25 +436,27 @@ else:
 # 4. FILTRO Y RESUMEN DE VIAJES CONCLUIDOS
 # =====================================
 st.markdown("---")
-st.title("✅ Tráficos Concluidos con Filtro de Fechas")
+st.header("✅ Tráficos Concluidos con Filtro de Fechas")
 
-# Cargar todos los tráficos con Fecha_Cierre registrada
 def cargar_concluidos():
-    data = supabase.table("Traficos").select("*").execute()
-    df = pd.DataFrame(data.data)
-    df = df[df["Fecha_Cierre"].notna()]
-    df = pd.DataFrame(data.data)
-    if not df.empty:
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-        df["Fecha_Cierre"] = pd.to_datetime(df["Fecha_Cierre"], errors="coerce")
-        df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0.0)
-        df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0.0)
-    return df
+    try:
+        data = supabase.table("Traficos").select("*").execute()
+        df = pd.DataFrame(data.data)
+        df = df[df["Fecha_Cierre"].notna()]
+        if not df.empty:
+            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+            df["Fecha_Cierre"] = pd.to_datetime(df["Fecha_Cierre"], errors="coerce")
+            df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0.0)
+            df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0.0)
+        return df
+    except Exception as e:
+        st.error(f"❌ Error al cargar tráficos concluidos: {e}")
+        return pd.DataFrame()
 
 df_concluidos = cargar_concluidos()
 
 if df_concluidos.empty:
-    st.info("Aún no hay tráficos concluidos.")
+    st.info("ℹ️ Aún no hay tráficos concluidos.")
 else:
     st.subheader("📅 Filtro por Fecha de Cierre")
     fecha_inicio = st.date_input("Fecha inicio", value=df_concluidos["Fecha_Cierre"].min().date())
@@ -466,7 +468,7 @@ else:
     df_filtrado = df_concluidos[filtro]
 
     if df_filtrado.empty:
-        st.warning("No hay tráficos concluidos en ese rango de fechas.")
+        st.warning("⚠️ No hay tráficos concluidos en ese rango de fechas.")
     else:
         resumen = df_filtrado.groupby(["ID_Programacion", "Número_Trafico", "Fecha_Cierre"]).agg({
             "Ingreso Total": "sum",
