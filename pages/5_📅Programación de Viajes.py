@@ -226,20 +226,23 @@ if mostrar_registro:
 st.markdown("---")
 st.header("🛠️ Gestión de Tráficos Programados")
 
-# Función para cargar solo tráficos abiertos (sin Fecha_Cierre)
 def cargar_programaciones_abiertas():
-    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
-    df = pd.DataFrame(data.data)
-    if not df.empty:
-        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-    return df
+    try:
+        data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+        df = pd.DataFrame(data.data)
+        if not df.empty:
+            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+        return df
+    except Exception as e:
+        st.error(f"❌ Error al cargar programaciones abiertas: {e}")
+        return pd.DataFrame()
 
 df_prog = cargar_programaciones_abiertas()
 
 if df_prog.empty:
-    st.info("ℹ️ No hay tráficos abiertos para editar.")
+    st.info("No hay tráficos abiertos para editar.")
 else:
-    # Asegurar columnas numéricas como float para evitar errores de tipo
+    # Asegurar que columnas numéricas existan
     columnas_numericas = [
         "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
         "Pistas Extra", "Stop", "Falso", "Gatas", "Accesorios", "Guías",
@@ -247,20 +250,19 @@ else:
     ]
     for col in columnas_numericas:
         if col not in df_prog.columns:
-            df_prog[col] = 0.0  # aseguramos que exista
+            df_prog[col] = 0.0
         df_prog[col] = pd.to_numeric(df_prog[col], errors="coerce").fillna(0.0)
 
     ids = df_prog["ID_Programacion"].dropna().unique()
     id_edit = st.selectbox("Selecciona un tráfico para editar o eliminar", ids)
 
     df_filtrado = df_prog[df_prog["ID_Programacion"] == id_edit].reset_index(drop=True)
-    st.write("**Vista previa del tráfico seleccionado:**")
+    st.write("Vista previa del tráfico seleccionado:")
     st.dataframe(df_filtrado)
-
 
     if st.button("🗑️ Eliminar tráfico completo"):
         supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
-        st.success("✅ Tráfico eliminado exitosamente.")
+        st.success("Tráfico eliminado exitosamente.")
         st.rerun()
 
     df_ida = df_filtrado[df_filtrado["Tramo"] == "IDA"]
@@ -268,8 +270,8 @@ else:
     if not df_ida.empty:
         tramo_ida = df_ida.iloc[0]
         with st.form("editar_trafico"):
-            nueva_unidad = st.text_input("Editar Unidad", value=str(tramo_ida.get("Unidad", "")))
-            nuevo_operador = st.text_input("Editar Operador", value=str(tramo_ida.get("Operador", "")))
+            nueva_unidad = st.text_input("Unidad", value=str(tramo_ida.get("Unidad", "")))
+            nuevo_operador = st.text_input("Operador", value=str(tramo_ida.get("Operador", "")))
 
             col1, col2 = st.columns(2)
             with col1:
@@ -303,7 +305,11 @@ else:
                     "Guías": guias
                 }
 
-                extras = sum([safe(v) for k, v in columnas.items() if isinstance(v, (int, float)) and k not in ["Unidad", "Operador"]])
+                # Cálculo actualizado de extras y costo total
+                extras = sum([
+                    safe(movimiento_local), safe(puntualidad), safe(pension), safe(estancia),
+                    safe(pistas_extra), safe(stop), safe(falso), safe(gatas), safe(accesorios), safe(guias)
+                ])
                 base = safe(tramo_ida.get("Costo_Total_Ruta")) - safe(tramo_ida.get("Costo_Extras"))
                 total = base + extras
 
@@ -315,9 +321,7 @@ else:
                 supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
                 st.success("✅ Cambios guardados correctamente.")
     else:
-        st.warning("⚠️ No hay tramo IDA para editar.")
-else:
-    st.info("ℹ️ Aún no hay archivo de programación generado.")
+        st.warning("⚠️ No se encontró tramo IDA para editar.")
 
 # =====================================
 # 3. COMPLETAR Y SIMULAR TRÁFICO DETALLADO
