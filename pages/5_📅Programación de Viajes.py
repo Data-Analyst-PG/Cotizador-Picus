@@ -287,7 +287,7 @@ else:
                 accesorios = st.number_input("Accesorios", min_value=0.0, value=safe(tramo_ida.get("Accesorios")), key="accesorios_edit")
                 guias = st.number_input("Guías", min_value=0.0, value=safe(tramo_ida.get("Guías")), key="guias_edit")
 
-            actualizar = st.form_submit_button("💾 Guardar cambios")
+            actualizar = st.form_submit_button("📏 Guardar cambios")
 
             if actualizar:
                 columnas = {
@@ -327,12 +327,19 @@ else:
 # 3. COMPLETAR Y SIMULAR TRÁFICO DETALLADO
 # =====================================
 st.markdown("---")
-st.title("🔁 Completar y Simular Tráfico Detallado")
+st.header("🔁 Completar y Simular Tráfico Detallado")
+
+def cargar_programaciones_pendientes():
+    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+    df = pd.DataFrame(data.data)
+    if not df.empty:
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+    return df
 
 df_prog = cargar_programaciones_pendientes()
 df_rutas = cargar_rutas()
 
-# Validación de columnas numéricas por seguridad
+# Validación de columnas numéricas
 for col in ["Ingreso Total", "Costo_Total_Ruta"]:
     if col not in df_prog.columns:
         df_prog[col] = 0.0
@@ -343,7 +350,6 @@ for col in ["Ingreso Total", "Costo_Total_Ruta", "% Utilidad"]:
         df_rutas[col] = 0.0
     df_rutas[col] = pd.to_numeric(df_rutas[col], errors="coerce").fillna(0.0)
 
-pendientes = df_prog.copy()
 ids_pendientes = df_prog["ID_Programacion"].unique()
 
 if len(ids_pendientes) > 0:
@@ -369,8 +375,8 @@ if len(ids_pendientes) > 0:
         mejor_utilidad = -999999
 
         for _, vacio in vacios.iterrows():
-            origen_exportacion = vacio["Destino"]
-            exportacion = df_rutas[(df_rutas["Tipo"] == tipo_regreso) & (df_rutas["Origen"] == origen_exportacion)]
+            origen_exp = vacio["Destino"]
+            exportacion = df_rutas[(df_rutas["Tipo"] == tipo_regreso) & (df_rutas["Origen"] == origen_exp)]
             if not exportacion.empty:
                 exportacion = exportacion.sort_values(by="% Utilidad", ascending=False).iloc[0]
                 ingreso_total = safe(ida["Ingreso Total"]) + safe(exportacion["Ingreso Total"])
@@ -384,10 +390,10 @@ if len(ids_pendientes) > 0:
             vacio, exportacion = mejor_combo
             rutas = [ida, vacio, exportacion]
         else:
-            st.warning("No se encontraron rutas de regreso disponibles.")
+            st.warning("❌ No se encontraron rutas de regreso disponibles.")
             st.stop()
 
-    st.header("🛤️ Resumen de Tramos Utilizados")
+    st.subheader("🛤️ Resumen de Tramos Utilizados")
     for tramo in rutas:
         st.markdown(f"**{tramo['Tipo']}** | {tramo['Origen']} → {tramo['Destino']} | Cliente: {tramo.get('Cliente', 'Sin cliente')}")
 
@@ -397,7 +403,7 @@ if len(ids_pendientes) > 0:
     indirectos = ingreso * 0.35
     utilidad_neta = utilidad - indirectos
 
-    st.header("📊 Ingresos y Utilidades")
+    st.subheader("📊 Ingresos y Utilidades")
     st.metric("Ingreso Total", f"${ingreso:,.2f}")
     st.metric("Costo Total", f"${costo:,.2f}")
     st.metric("Utilidad Bruta", f"${utilidad:,.2f} ({(utilidad/ingreso*100):.2f}%)")
@@ -424,8 +430,8 @@ if len(ids_pendientes) > 0:
 
         st.success("✅ Tráfico cerrado exitosamente.")
 else:
-    st.info("No hay tráficos pendientes.")
-
+    st.info("ℹ️ No hay tráficos pendientes por completar.")
+    
 # =====================================
 # 4. FILTRO Y RESUMEN DE VIAJES CONCLUIDOS
 # =====================================
