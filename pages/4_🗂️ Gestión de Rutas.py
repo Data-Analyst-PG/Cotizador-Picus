@@ -75,26 +75,25 @@ if respuesta.data:
     ruta = df[df["ID_Ruta"] == id_editar].iloc[0]
 
     st.markdown("---")
-    st.subheader("⚙️ Datos Generales Aplicados a esta Ruta")
+    with st.expander("⚙️ Editar Datos Generales de esta Ruta"):
+        col1, col2 = st.columns(2)
+        with col1:
+            costo_diesel = st.number_input("Costo Diesel ($/L)", min_value=0.0, value=float(ruta.get("Costo Diesel", valores_por_defecto["Costo Diesel"])))
+            rendimiento_camion = st.number_input("Rendimiento Camión (km/L)", min_value=0.0, value=float(ruta.get("Rendimiento Camion", valores_por_defecto["Rendimiento Camion"])))
+            pago_km = st.number_input("Pago x KM (General)", min_value=0.0, value=float(valores.get("Pago x KM (General)", valores_por_defecto["Pago x KM (General)"])))
+            bono_isr_rl = st.number_input("Bono ISR IMSS RL", min_value=0.0, value=float(valores.get("Bono ISR IMSS RL", valores_por_defecto["Bono ISR IMSS RL"])))
+            bono_isr_tramo = st.number_input("Bono ISR IMSS Tramo", min_value=0.0, value=float(valores.get("Bono ISR IMSS Tramo", valores_por_defecto["Bono ISR IMSS Tramo"])))
+            pago_vacio = st.number_input("Pago Vacio", min_value=0.0, value=float(valores.get("Pago Vacio", valores_por_defecto["Pago Vacio"])))
+        with col2:
+            tipo_cambio_flete = st.number_input("Tipo de cambio USD Flete", min_value=0.0, value=float(ruta.get("Tipo de cambio", valores_por_defecto["Tipo de cambio USD"])))
+            tipo_cambio_cruce = st.number_input("Tipo de cambio USD Cruce", min_value=0.0, value=float(ruta.get("Tipo cambio Cruce", valores_por_defecto["Tipo de cambio USD"])))
+            pago_tramo = st.number_input("Pago Tramo", min_value=0.0, value=float(valores.get("Pago Tramo", valores_por_defecto["Pago Tramo"])))
+            bono_rendimiento = st.number_input("Bono Rendimiento", min_value=0.0, value=float(valores.get("Bono Rendimiento", valores_por_defecto["Bono Rendimiento"])))
+            bono_team = st.number_input("Bono Modo Team", min_value=0.0, value=float(valores.get("Bono Modo Team", valores_por_defecto["Bono Modo Team"])))
 
-    col1, col2 = st.columns(2)
-    with col1:
-        costo_diesel = st.number_input("Costo Diesel ($/L)", min_value=0.0, value=float(ruta.get("Costo Diesel", valores_por_defecto["Costo Diesel"])))
-        rendimiento_camion = st.number_input("Rendimiento Camión (km/L)", min_value=0.0, value=float(ruta.get("Rendimiento Camion", valores_por_defecto["Rendimiento Camion"])))
-        pago_km = st.number_input("Pago x KM (General)", min_value=0.0, value=float(valores.get("Pago x KM (General)", valores_por_defecto["Pago x KM (General)"])))
-        bono_isr_rl = st.number_input("Bono ISR IMSS RL", min_value=0.0, value=float(valores.get("Bono ISR IMSS RL", valores_por_defecto["Bono ISR IMSS RL"])))
-        bono_isr_tramo = st.number_input("Bono ISR IMSS Tramo", min_value=0.0, value=float(valores.get("Bono ISR IMSS Tramo", valores_por_defecto["Bono ISR IMSS Tramo"])))
-        pago_vacio = st.number_input("Pago Vacio", min_value=0.0, value=float(valores.get("Pago Vacio", valores_por_defecto["Pago Vacio"])))
-    with col2:
-        tipo_cambio_flete = st.number_input("Tipo de cambio USD Flete", min_value=0.0, value=float(ruta.get("Tipo de cambio", valores_por_defecto["Tipo de cambio USD"])))
-        tipo_cambio_cruce = st.number_input("Tipo de cambio USD Cruce", min_value=0.0, value=float(ruta.get("Tipo cambio Cruce", valores_por_defecto["Tipo de cambio USD"])))
-        pago_tramo = st.number_input("Pago Tramo", min_value=0.0, value=float(valores.get("Pago Tramo", valores_por_defecto["Pago Tramo"])))
-        bono_rendimiento = st.number_input("Bono Rendimiento", min_value=0.0, value=float(valores.get("Bono Rendimiento", valores_por_defecto["Bono Rendimiento"])))
-        bono_team = st.number_input("Bono Modo Team", min_value=0.0, value=float(valores.get("Bono Modo Team", valores_por_defecto["Bono Modo Team"])))
-
-    if st.button("Guardar Datos Generales"):
-        guardar_datos_generales(valores)
-        st.success("✅ Datos Generales actualizados correctamente.")
+        if st.button("Guardar Datos Generales"):
+            guardar_datos_generales(valores)
+            st.success("✅ Datos Generales actualizados correctamente.")
 
     st.markdown("---")
 
