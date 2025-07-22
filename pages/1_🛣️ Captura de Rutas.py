@@ -27,7 +27,7 @@ RUTA_DATOS = "datos_generales.csv"
 valores_por_defecto = {
     "Rendimiento Camion": 2.5,
     "Costo Diesel": 24.0,
-    "Pago x KM (General)": 1.50,
+    "Pago x KM (General)": 1.63,
     "Bono ISR IMSS RL": 462.66,
     "Bono ISR IMSS Tramo": 185.06,
     "Pago Vacio": 100.0,
@@ -118,6 +118,7 @@ with st.form("captura_ruta"):
         pistas_extra = st.number_input("Pistas Extra (MXP)", min_value=0.0)
         stop = st.number_input("Stop (MXP)", min_value=0.0)
         falso = st.number_input("Falso (MXP)", min_value=0.0)
+        extras_cobrados = st.checkbox("✅ ¿Costos extras fueron cobrados al cliente?")
     with col4:
         gatas = st.number_input("Gatas (MXP)", min_value=0.0)
         accesorios = st.number_input("Accesorios (MXP)", min_value=0.0)
@@ -135,17 +136,16 @@ with st.form("captura_ruta"):
             "movimiento_local": movimiento_local,
             "puntualidad": puntualidad, "pension": pension, "estancia": estancia,
             "fianza": fianza, "casetas": casetas,
-            "pistas_extra": pistas_extra, "stop": stop, "falso": falso,
+            "pistas_extra": pistas_extra, "stop": stop, "falso": falso, "extras_cobrados": extras_cobrados,
             "gatas": gatas, "accesorios": accesorios, "guias": guias
         }
-        ingreso_total = (ingreso_flete * valores["Tipo de cambio USD"] if moneda_ingreso == "USD" else ingreso_flete)
-        ingreso_total += (ingreso_cruce * valores["Tipo de cambio USD"] if moneda_cruce == "USD" else ingreso_cruce)
+        
         costo_cruce_convertido = costo_cruce * (valores["Tipo de cambio USD"] if moneda_costo_cruce == "USD" else 1)
 
         costo_diesel_camion = (km / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
 
         # Pago por KM general
-        pago_km = valores.get("Pago x KM (General)", 1.5)
+        pago_km = valores.get("Pago x KM (General)", 1.63)
         bono = 0.0
 
         # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
@@ -153,7 +153,6 @@ with st.form("captura_ruta"):
             sueldo = valores.get("Pago Tramo", 300.0)
             bono = valores.get("Bono ISR IMSS Tramo", 185.06)
             Modo_de_Viaje = "Operador"  # Forzar
-            costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
         elif tipo in ["IMPORTACION", "EXPORTACION"]:
             sueldo = km * pago_km
             bono_isr = valores.get("Bono ISR IMSS RL", 0)
@@ -174,6 +173,14 @@ with st.form("captura_ruta"):
         extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
         costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
+        
+        tipo_cambio_flete = valores["Tipo de cambio USD"] if moneda_ingreso == "USD" else valores["Tipo de cambio MXP"]
+        tipo_cambio_cruce = valores["Tipo de cambio USD"] if moneda_cruce == "USD" else valores["Tipo de cambio MXP"]
+
+        ingreso_flete_convertido = ingreso_flete * tipo_cambio_flete
+        ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
+        ingreso_extras = extras if extras_cobrados else 0
+        ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
 
         utilidad_bruta = ingreso_total - costo_total
         costos_indirectos = ingreso_total * 0.35
@@ -199,19 +206,9 @@ with st.form("captura_ruta"):
 if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     d = st.session_state.datos_captura
 
-    tipo_cambio_flete = valores["Tipo de cambio USD"] if d["moneda_ingreso"] == "USD" else valores["Tipo de cambio MXP"]
-    tipo_cambio_cruce = valores["Tipo de cambio USD"] if d["moneda_cruce"] == "USD" else valores["Tipo de cambio MXP"]
-    tipo_cambio_costo_cruce = valores["Tipo de cambio USD"] if d["moneda_costo_cruce"] == "USD" else valores["Tipo de cambio MXP"]
-
-    ingreso_flete_convertido = d["ingreso_flete"] * tipo_cambio_flete
-    ingreso_cruce_convertido = d["ingreso_cruce"] * tipo_cambio_cruce
-    costo_cruce_convertido = d["costo_cruce"] * tipo_cambio_costo_cruce
-    ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido
-
-    costo_diesel_camion = (d["km"] / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
-
+    
     # Pago por KM general
-    pago_km = valores.get("Pago x KM (General)", 1.5)
+    pago_km = valores.get("Pago x KM (General)", 1.63)
     bono = 0.0
 
     # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
@@ -219,7 +216,6 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         sueldo = valores.get("Pago Tramo", 300.0)
         bono = valores.get("Bono ISR IMSS Tramo", 185.06)
         Modo_de_Viaje = "Operador"  # Forzar
-        costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
     elif tipo in ["IMPORTACION", "EXPORTACION"]:
         sueldo = km * pago_km
         bono_isr = valores.get("Bono ISR IMSS RL", 0)
@@ -246,24 +242,64 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     ])
 
     costo_total = costo_diesel_camion + sueldo + bono + d["casetas"] + extras + costo_cruce_convertido
+    tipo_cambio_flete = valores["Tipo de cambio USD"] if d["moneda_ingreso"] == "USD" else valores["Tipo de cambio MXP"]
+    tipo_cambio_cruce = valores["Tipo de cambio USD"] if d["moneda_cruce"] == "USD" else valores["Tipo de cambio MXP"]
+    tipo_cambio_costo_cruce = valores["Tipo de cambio USD"] if d["moneda_costo_cruce"] == "USD" else valores["Tipo de cambio MXP"]
+
+    ingreso_flete_convertido = d["ingreso_flete"] * tipo_cambio_flete
+    ingreso_cruce_convertido = d["ingreso_cruce"] * tipo_cambio_cruce
+    ingreso_extras = extras if d["extras_cobrados"] else 0
+
+    ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
+
+    costo_cruce_convertido = costo_cruce * (valores["Tipo de cambio USD"] if moneda_costo_cruce == "USD" else 1)
+
+    costo_diesel_camion = (d["km"] / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
 
     nueva_ruta = {
         "ID_Ruta": generar_nuevo_id(),
-        "Fecha": str(d["fecha"]), "Tipo": d["tipo"], "Ruta_Tipo": d["ruta_tipo"], "Cliente": d["cliente"], "Origen": d["origen"], "Destino": d["destino"], "Modo de Viaje": d["Modo de Viaje"], "KM": d["km"],
-        "Moneda": d["moneda_ingreso"], "Ingreso_Original": d["ingreso_flete"], "Tipo de cambio": tipo_cambio_flete,
-        "Ingreso Flete": ingreso_flete_convertido, "Moneda_Cruce": d["moneda_cruce"], "Cruce_Original": d["ingreso_cruce"],
-        "Tipo cambio Cruce": tipo_cambio_cruce, "Ingreso Cruce": ingreso_cruce_convertido,
-        "Moneda Costo Cruce": d["moneda_costo_cruce"], "Costo Cruce": d["costo_cruce"],
+        "Fecha": str(d["fecha"]), 
+        "Tipo": d["tipo"], 
+        "Ruta_Tipo": d["ruta_tipo"], 
+        "Cliente": d["cliente"], 
+        "Origen": d["origen"], 
+        "Destino": d["destino"], 
+        "Modo de Viaje": d["Modo de Viaje"], 
+        "KM": d["km"],
+        "Moneda": d["moneda_ingreso"], 
+        "Ingreso_Original": d["ingreso_flete"], 
+        "Tipo de cambio": tipo_cambio_flete,
+        "Ingreso Flete": ingreso_flete_convertido,
+        "Moneda_Cruce": d["moneda_cruce"], 
+        "Cruce_Original": d["ingreso_cruce"],
+        "Tipo cambio Cruce": tipo_cambio_cruce, 
+        "Ingreso Cruce": d["ingreso_cruce"],
+        "Moneda Costo Cruce": d["moneda_costo_cruce"], 
+        "Costo Cruce": d["costo_cruce"],
         "Costo Cruce Convertido": costo_cruce_convertido,
         "Ingreso Total": ingreso_total,
-        "Pago por KM": pago_km, "Sueldo_Operador": sueldo, "Bono": bono,
+        "Pago por KM": pago_km, 
+        "Sueldo_Operador": sueldo, 
+        "Bono": bono,
         "Casetas": d["casetas"],
-        "Movimiento_Local": d["movimiento_local"], "Puntualidad": puntualidad, "Pension": d["pension"],
-        "Estancia": d["estancia"], "Fianza": d["fianza"],
-        "Pistas_Extra": d["pistas_extra"], "Stop": d["stop"], "Falso": d["falso"],
-        "Gatas": d["gatas"], "Accesorios": d["accesorios"], "Guias": d["guias"],
+        "Movimiento_Local": d["movimiento_local"], 
+        "Puntualidad": puntualidad, 
+        "Pension": d["pension"],
+        "Estancia": d["estancia"], 
+        "Fianza": d["fianza"],
+        "Pistas_Extra": d["pistas_extra"], 
+        "Stop": d["stop"], 
+        "Falso": d["falso"],
+        "Gatas": d["gatas"], 
+        "Accesorios": d["accesorios"], 
+        "Guias": d["guias"],
         "Costo_Diesel_Camion": costo_diesel_camion,
-        "Costo_Extras": extras, "Costo_Total_Ruta": costo_total, "Costo Diesel": valores["Costo Diesel"], "Rendimiento Camion": valores["Rendimiento Camion"],
+        "Costo_Extras": extras, 
+        "Costo_Total_Ruta": costo_total, 
+        "Costo Diesel": valores["Costo Diesel"], 
+        "Rendimiento Camion": valores["Rendimiento Camion"],
+        "Ingreso_Extras": ingreso_extras,
+        "Extras_Cobrados": extras_cobrados,
     }
 
     # Generar nuevo ID y verificar duplicado
