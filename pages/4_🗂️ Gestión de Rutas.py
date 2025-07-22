@@ -103,7 +103,7 @@ if respuesta.data:
             destino = st.text_input("Destino", value=ruta["Destino"])
             Modo_de_Viaje = st.selectbox("Modo de Viaje", ["Operador", "Team"], index=["Operador", "Team"].index(ruta["Modo de Viaje"]))
             km = st.number_input("Kilómetros", min_value=0.0, value=float(ruta["KM"]))
-            moneda_ingreso = st.selectbox("Moneda Flete", ["MXP", "USD"], index=["MXN", "USD"].index(ruta["Moneda"]))
+            moneda_ingreso = st.selectbox("Moneda Flete", ["MXP", "USD"], index=["MXP", "USD"].index(ruta["Moneda"]))
             ingreso_original = st.number_input("Ingreso Flete Original", min_value=0.0, value=float(ruta["Ingreso_Original"]))
         with col2:
             moneda_cruce = st.selectbox("Moneda Cruce", ["MXP", "USD"], index=["MXP", "USD"].index(ruta["Moneda_Cruce"]))
