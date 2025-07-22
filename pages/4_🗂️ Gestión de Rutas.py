@@ -169,8 +169,8 @@ if respuesta.data:
 
              ingreso_flete_convertido = ingreso_original * tipo_cambio_flete
              ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
-             ingreso_extras = extras if extras_cobrados else 0
-             ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
+             ingresos_extras = extras if extras_cobrados else 0
+             ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingresos_extras
              costo_cruce_convertido = costo_cruce * tipo_cambio_costo_cruce
             
              costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
@@ -216,7 +216,7 @@ if respuesta.data:
                  "Costo_Total_Ruta": costo_total,
                  "Costo Diesel": costo_diesel,
                  "Rendimiento Camion": rendimiento_camion,
-                 "Ingreso_Extras": ingreso_extras,
+                 "Ingresos_Extras": ingresos_extras,
                  "Extras_Cobrados": extras_cobrados,
 
              }
