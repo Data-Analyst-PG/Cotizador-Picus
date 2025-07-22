@@ -179,8 +179,8 @@ with st.form("captura_ruta"):
 
         ingreso_flete_convertido = ingreso_flete * tipo_cambio_flete
         ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
-        ingreso_extras = extras if extras_cobrados else 0
-        ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
+        ingresos_extras = extras if extras_cobrados else 0
+        ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingresos_extras
 
         utilidad_bruta = ingreso_total - costo_total
         costos_indirectos = ingreso_total * 0.35
@@ -221,8 +221,8 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         safe_number(d["pistas_extra"]), safe_number(d["stop"]), safe_number(d["falso"]),
         safe_number(d["gatas"]), safe_number(d["accesorios"]), safe_number(d["guias"])
     ])
-    ingreso_extras = extras if d["extras_cobrados"] else 0
-    ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
+    ingresos_extras = extras if d["extras_cobrados"] else 0
+    ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingresos_extras
 
     costo_diesel_camion = (d["km"] / valores["Rendimiento Camion"]) * valores["Costo Diesel"]
 
@@ -287,7 +287,7 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
         "Costo_Total_Ruta": costo_total,
         "Costo Diesel": valores["Costo Diesel"],
         "Rendimiento Camion": valores["Rendimiento Camion"],
-        "Ingreso_Extras": ingreso_extras,
+        "Ingresos_Extras": ingresos_extras,
         "Extras_Cobrados": d["extras_cobrados"],
     }
 
