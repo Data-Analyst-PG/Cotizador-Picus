@@ -74,13 +74,23 @@ if respuesta.data:
     id_editar = st.selectbox("Selecciona el ID de Ruta a editar", ids_disponibles)
     ruta = df[df["ID_Ruta"] == id_editar].iloc[0]
 
-    # Datos Generales (fuera del formulario)
-    st.markdown("### ⚙️ Configurar Datos Generales")
-    with st.expander("Editar Datos Generales"):
-        col1, col2 = st.columns(2)
-        for i, key in enumerate(valores_por_defecto.keys()):
-            col = col1 if i % 2 == 0 else col2
-            valores[key] = col.number_input(f"{key}", value=float(valores.get(key, valores_por_defecto[key])), step=0.1)
+    st.markdown("---")
+    st.subheader("⚙️ Datos Generales Aplicados a esta Ruta")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        costo_diesel = st.number_input("Costo Diesel ($/L)", min_value=0.0, value=float(ruta.get("Costo Diesel", valores_por_defecto["Costo Diesel"])))
+        rendimiento_camion = st.number_input("Rendimiento Camión (km/L)", min_value=0.0, value=float(ruta.get("Rendimiento Camion", valores_por_defecto["Rendimiento Camion"])))
+        pago_km = st.number_input("Pago x KM (General)", min_value=0.0, value=float(valores.get("Pago x KM (General)", valores_por_defecto["Pago x KM (General)"])))
+        bono_isr_rl = st.number_input("Bono ISR IMSS RL", min_value=0.0, value=float(valores.get("Bono ISR IMSS RL", valores_por_defecto["Bono ISR IMSS RL"])))
+        bono_isr_tramo = st.number_input("Bono ISR IMSS Tramo", min_value=0.0, value=float(valores.get("Bono ISR IMSS Tramo", valores_por_defecto["Bono ISR IMSS Tramo"])))
+        pago_vacio = st.number_input("Pago Vacio", min_value=0.0, value=float(valores.get("Pago Vacio", valores_por_defecto["Pago Vacio"])))
+    with col2:
+        tipo_cambio_flete = st.number_input("Tipo de cambio USD Flete", min_value=0.0, value=float(ruta.get("Tipo de cambio", valores_por_defecto["Tipo de cambio USD"])))
+        tipo_cambio_cruce = st.number_input("Tipo de cambio USD Cruce", min_value=0.0, value=float(ruta.get("Tipo cambio Cruce", valores_por_defecto["Tipo de cambio USD"])))
+        pago_tramo = st.number_input("Pago Tramo", min_value=0.0, value=float(valores.get("Pago Tramo", valores_por_defecto["Pago Tramo"])))
+        bono_rendimiento = st.number_input("Bono Rendimiento", min_value=0.0, value=float(valores.get("Bono Rendimiento", valores_por_defecto["Bono Rendimiento"])))
+        bono_team = st.number_input("Bono Modo Team", min_value=0.0, value=float(valores.get("Bono Modo Team", valores_por_defecto["Bono Modo Team"])))
 
     if st.button("Guardar Datos Generales"):
         guardar_datos_generales(valores)
@@ -114,12 +124,13 @@ if respuesta.data:
             casetas = st.number_input("Casetas (MXP)", min_value=0.0, value=float(ruta["Casetas"]))
             
         st.markdown("---")
-        st.subheader("🧾 Costos Extras Adicionales")
+        st.subheader("🧾 Costos Extras")
         col3, col4 = st.columns(2)
         with col3:
             pistas_extra = st.number_input("Pistas Extra (MXP)", min_value=0.0, value=float(ruta["Pistas_Extra"]))
             stop = st.number_input("Stop (MXP)", min_value=0.0, value=float(ruta["Stop"]))
             falso = st.number_input("Falso (MXP)", min_value=0.0, value=float(ruta["Falso"]))
+            extras_cobrados = st.checkbox("✅ ¿Costos Extras fueron cobrados al cliente?", value=bool(ruta.get("Extras_Cobrados", False)))
         with col4:
             gatas = st.number_input("Gatas (MXP)", min_value=0.0, value=float(ruta["Gatas"]))
             accesorios = st.number_input("Accesorios (MXP)", min_value=0.0, value=float(ruta["Accesorios"]))
@@ -134,17 +145,12 @@ if respuesta.data:
              tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxp
              tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxp
 
-             ingreso_flete_convertido = ingreso_original * tipo_cambio_flete
-             ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
-             ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido
-             costo_cruce_convertido = costo_cruce * tipo_cambio_costo_cruce
-
              rendimiento_camion = valores.get("Rendimiento Camion", 1)
              costo_diesel = valores.get("Costo Diesel", 1)
              costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
 
              # Pago por KM general
-             pago_km = valores.get("Pago x KM (General)", 1.5)
+             pago_km = valores.get("Pago x KM (General)", 1.63)
              bono = 0.0
 
              # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
@@ -152,7 +158,6 @@ if respuesta.data:
                  sueldo = valores.get("Pago Tramo", 300.0)
                  bono = valores.get("Bono ISR IMSS Tramo", 185.06)
                  Modo_de_Viaje = "Operador"  # Forzar
-                 costo_diesel_camion = 0.0   # Si decides no considerar diesel en tramos
              elif tipo in ["IMPORTACION", "EXPORTACION"]:
                  sueldo = km * pago_km
                  bono_isr = valores.get("Bono ISR IMSS RL", 0)
@@ -167,8 +172,15 @@ if respuesta.data:
 
              extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
-             costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
 
+             ingreso_flete_convertido = ingreso_original * tipo_cambio_flete
+             ingreso_cruce_convertido = ingreso_cruce * tipo_cambio_cruce
+             ingreso_extras = extras if extras_cobrados else 0
+             ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingreso_extras
+             costo_cruce_convertido = costo_cruce * tipo_cambio_costo_cruce
+            
+             costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
+            
              ruta_actualizada = {
                  "Modo de Viaje": Modo_de_Viaje,
                  "Fecha": fecha.isoformat(),
@@ -210,6 +222,9 @@ if respuesta.data:
                  "Costo_Total_Ruta": costo_total,
                  "Costo Diesel": costo_diesel,
                  "Rendimiento Camion": rendimiento_camion,
+                 "Ingreso_Extras": ingreso_extras,
+                 "Extras_Cobrados": extras_cobrados,
+
              }
 
              try:
