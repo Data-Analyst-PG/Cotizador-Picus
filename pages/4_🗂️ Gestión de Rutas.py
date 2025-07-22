@@ -74,7 +74,6 @@ if respuesta.data:
     id_editar = st.selectbox("Selecciona el ID de Ruta a editar", ids_disponibles)
     ruta = df[df["ID_Ruta"] == id_editar].iloc[0]
 
-    st.markdown("---")
     with st.expander("⚙️ Editar Datos Generales de esta Ruta"):
         col1, col2 = st.columns(2)
         with col1:
@@ -90,10 +89,6 @@ if respuesta.data:
             pago_tramo = st.number_input("Pago Tramo", min_value=0.0, value=float(valores.get("Pago Tramo", valores_por_defecto["Pago Tramo"])))
             bono_rendimiento = st.number_input("Bono Rendimiento", min_value=0.0, value=float(valores.get("Bono Rendimiento", valores_por_defecto["Bono Rendimiento"])))
             bono_team = st.number_input("Bono Modo Team", min_value=0.0, value=float(valores.get("Bono Modo Team", valores_por_defecto["Bono Modo Team"])))
-
-        if st.button("Guardar Datos Generales"):
-            guardar_datos_generales(valores)
-            st.success("✅ Datos Generales actualizados correctamente.")
 
     st.markdown("---")
 
