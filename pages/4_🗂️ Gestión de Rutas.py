@@ -133,36 +133,28 @@ if respuesta.data:
         guardar = st.form_submit_button("💾 Guardar cambios")
 
         if guardar:
-             tc_usd = valores.get("Tipo de cambio USD", 17.5)
-             tc_mxp = valores.get("Tipo de cambio MXP", 1.0)
-             tipo_cambio_flete = tc_usd if moneda_ingreso == "USD" else tc_mxp
-             tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxp
-             tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxp
-
-             rendimiento_camion = valores.get("Rendimiento Camion", 1)
-             costo_diesel = valores.get("Costo Diesel", 1)
              costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
-
-             # Pago por KM general
-             pago_km = valores.get("Pago x KM (General)", 1.63)
+             tipo_cambio_costo_cruce = tipo_cambio_cruce
              bono = 0.0
 
              # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
+             costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
+             sueldo = 0.0
+             bono = 0.0
+
              if ruta_tipo == "Tramo":
-                 sueldo = valores.get("Pago Tramo", 300.0)
-                 bono = valores.get("Bono ISR IMSS Tramo", 185.06)
-                 Modo_de_Viaje = "Operador"  # Forzar
+                 sueldo = pago_tramo
+                 bono = bono_isr_tramo
+                 Modo_de_Viaje = "Operador"
              elif tipo in ["IMPORTACION", "EXPORTACION"]:
                  sueldo = km * pago_km
-                 bono_isr = valores.get("Bono ISR IMSS RL", 0)
-                 bono_rendimiento = valores.get("Bono Rendimiento", 0)
-                 bono = bono_isr + bono_rendimiento
+                 bono = bono_isr_rl + bono_rendimiento
              elif tipo == "VACIO":
-                 if km <= 100:
-                     sueldo = valores.get("Pago Vacio", 100.0)
-                 else:
-                     sueldo = km * pago_km
+                 sueldo = pago_vacio if km <= 100 else km * pago_km
                  bono = 0.0
+
+             if ruta_tipo != "Tramo" and Modo_de_Viaje == "Team":
+                 sueldo += bono_team
 
              extras = sum(map(safe_number, [movimiento_local, puntualidad, pension, estancia, fianza, pistas_extra, stop, falso, gatas, accesorios, guias]))
 
@@ -172,9 +164,9 @@ if respuesta.data:
              ingresos_extras = extras if extras_cobrados else 0
              ingreso_total = ingreso_flete_convertido + ingreso_cruce_convertido + ingresos_extras
              costo_cruce_convertido = costo_cruce * tipo_cambio_costo_cruce
-            
+
              costo_total = costo_diesel_camion + sueldo + bono + casetas + extras + costo_cruce_convertido
-            
+
              ruta_actualizada = {
                  "Modo de Viaje": Modo_de_Viaje,
                  "Fecha": fecha.isoformat(),
