@@ -112,7 +112,7 @@ with st.form("captura_ruta"):
         casetas = st.number_input("Casetas (MXP)", min_value=0.0)
 
     st.markdown("---")
-    st.subheader("🧾 Costos Extras Adicionales")
+    st.subheader("🧾 Costos Extras")
     col3, col4 = st.columns(2)
     with col3:
         pistas_extra = st.number_input("Pistas Extra (MXP)", min_value=0.0)
