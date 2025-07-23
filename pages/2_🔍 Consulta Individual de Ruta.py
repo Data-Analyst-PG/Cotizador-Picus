@@ -251,10 +251,6 @@ pdf = FPDF()
 pdf.add_page()
 pdf.set_auto_page_break(auto=True, margin=15)
 
-pdf.set_font("Arial", "B", 16)
-pdf.cell(0, 10, safe_text("Consulta Individual de Ruta"), ln=True)
-pdf.ln(10)
-
 # Encabezado
 pdf.set_font("Arial", "B", 16)
 pdf.cell(0, 10, "Consulta Individual de Ruta", ln=True)
