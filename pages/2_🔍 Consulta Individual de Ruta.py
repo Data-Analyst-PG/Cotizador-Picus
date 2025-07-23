@@ -258,7 +258,7 @@ if st.button("📥 Generar PDF de esta Ruta"):
         pdf.cell(0, 10, f"Tipo: {tipo}", ln=True)
         pdf.cell(0, 10, f"Modo: {modo}", ln=True)
         pdf.cell(0, 10, f"Cliente: {cliente}", ln=True)
-        pdf.cell(0, 10, f"Origen → Destino: {origen} → {destino}", ln=True)
+        pdf.cell(0, 10, f"Origen → Destino: {origen} - {destino}", ln=True)
         pdf.cell(0, 10, f"KM: {km:,.2f}", ln=True)
         pdf.ln(5)
 
