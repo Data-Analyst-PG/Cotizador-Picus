@@ -240,7 +240,7 @@ if respuesta.data:
              try:
                  supabase.table("Rutas").update(ruta_actualizada).eq("ID_Ruta", id_editar).execute()
                  st.success("✅ Ruta actualizada exitosamente.")
-                 st.stop()
+                 st.rerun()
              except Exception as e:
                  st.error(f"❌ Error al actualizar ruta: {e}")
 else:
