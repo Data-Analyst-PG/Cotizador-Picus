@@ -4,6 +4,7 @@ from supabase import create_client
 import os
 import tempfile
 from fpdf import FPDF
+import base64
 
 # ✅ Verificación de sesión y rol
 if "usuario" not in st.session_state:
@@ -158,7 +159,7 @@ else:
 st.markdown("---")
 st.subheader("📋 Detalles y Costos de la Ruta")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown(f"**Fecha:** {ruta['Fecha']}")
@@ -169,6 +170,8 @@ with col1:
     st.markdown(f"**Origen → Destino:** {ruta['Origen']} → {ruta['Destino']}")
     st.markdown(f"**KM:** {ruta['KM']:,}")
     st.markdown(f"**Rendimiento Camión:** {ruta['Rendimiento Camion']} km/L")
+
+with col2:
     st.markdown(f"**Moneda Flete:** {ruta['Moneda']}")
     st.markdown(f"**Ingreso Flete Original:** ${ruta['Ingreso_Original']:,}")
     st.markdown(f"**Tipo de cambio:** {ruta['Tipo de cambio']}")
@@ -180,80 +183,105 @@ with col1:
     st.markdown(f"**Moneda Costo Cruce:** {ruta['Moneda Costo Cruce']}")
     st.markdown(f"**Costo Cruce Original:** ${ruta['Costo Cruce']:,}")
     st.markdown(f"**Costo Cruce Convertido:** ${ruta['Costo Cruce Convertido']:,}")
-    st.markdown(f"**Costo Diesel:** ${ruta['Costo Diesel']:,}")
 
-with col2:
-    st.markdown(f"**Pago por KM:** {ruta['Pago por KM']}")
+with col3:
+    st.markdown("**🔧 Extras:**")
+    st.markdown(f"- Movimiento Local: ${ruta['Movimiento_Local']:,}")
+    st.markdown(f"- Puntualidad: ${ruta['Puntualidad']:,}")
+    st.markdown(f"- Pensión: ${ruta['Pension']:,}")
+    st.markdown(f"- Estancia: ${ruta['Estancia']:,}")
+    st.markdown(f"- Fianza: ${ruta['Fianza']:,}")
+    st.markdown(f"- Pistas Extra: ${ruta['Pistas_Extra']:,}")
+    st.markdown(f"- Stop: ${ruta['Stop']:,}")
+    st.markdown(f"- Falso: ${ruta['Falso']:,}")
+    st.markdown(f"- Gatas: ${ruta['Gatas']:,}")
+    st.markdown(f"- Accesorios: ${ruta['Accesorios']:,}")
+    st.markdown(f"- Guías: ${ruta['Guias']:,}")
+    st.markdown("---")
+    st.markdown(f"**Casetas:** ${ruta['Casetas']:,}")
+    st.markdown(f"**Diesel Camión:** ${ruta['Costo_Diesel_Camion']:,}")
     st.markdown(f"**Sueldo Operador:** ${ruta['Sueldo_Operador']:,}")
     st.markdown(f"**Bono:** ${ruta['Bono']:,}")
-    st.markdown(f"**Casetas:** ${ruta['Casetas']:,}")
-    st.markdown(f"**Costo Diesel Camión:** ${ruta['Costo_Diesel_Camion']:,}")
-    st.markdown(f"**Ruta Tipo:** {ruta['Ruta_Tipo']}")
+    st.markdown(f"**Ingreso Total:** ${ruta['Ingreso Total']:,}")
     st.markdown(f"**Costo Total Ruta:** ${ruta['Costo_Total_Ruta']:,}")
-    st.markdown(f"**Ingresos Extras:** ${ruta.get('Ingresos_Extras', 0):,}")
-    st.markdown(f"**Extras Cobrados:** {'✅' if ruta.get('Extras_Cobrados') else '❌'}")
-
-    st.markdown("### Extras:")
-    extras = {
-        "Movimiento Local": ruta["Movimiento_Local"],
-        "Puntualidad": ruta["Puntualidad"],
-        "Pensión": ruta["Pension"],
-        "Estancia": ruta["Estancia"],
-        "Fianza": ruta["Fianza"],
-        "Pistas Extra": ruta["Pistas_Extra"],
-        "Stop": ruta["Stop"],
-        "Falso": ruta["Falso"],
-        "Gatas": ruta["Gatas"],
-        "Accesorios": ruta["Accesorios"],
-        "Guías": ruta["Guias"]
-    }
-    for k, v in extras.items():
-        st.markdown(f"- **{k}:** ${v:,}")
 
 st.markdown("---")
-st.subheader("📥 Descargar PDF de la Consulta")
+if st.button("📥 Generar PDF de esta Ruta"):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
 
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size=12)
-pdf.cell(0, 10, safe_pdf_text("Consulta Individual de Ruta"), ln=True, align="C")
-pdf.ln(10)
+        # Encabezado
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(0, 10, "Consulta Individual de Ruta", ln=True)
+        pdf.ln(5)
 
-pdf.set_font("Arial", size=10)
-pdf.cell(0, 10, safe_pdf_text(f"ID de Ruta: {ruta['ID_Ruta']}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Fecha: {ruta['Fecha']}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Tipo: {ruta['Tipo']}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Modo: {ruta.get('Modo de Viaje', 'Operado')}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Cliente: {ruta['Cliente']}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Origen → Destino: {ruta['Origen']} → {ruta['Destino']}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"KM: {safe_number(ruta['KM']):,.2f}"), ln=True)
+        # Datos principales
+        pdf.set_font("Arial", "", 12)
+        pdf.cell(0, 10, f"ID de Ruta: {id_ruta}", ln=True)
+        pdf.cell(0, 10, f"Fecha: {fecha}", ln=True)
+        pdf.cell(0, 10, f"Tipo: {tipo}", ln=True)
+        pdf.cell(0, 10, f"Modo: {modo}", ln=True)
+        pdf.cell(0, 10, f"Cliente: {cliente}", ln=True)
+        pdf.cell(0, 10, f"Origen → Destino: {origen} → {destino}", ln=True)
+        pdf.cell(0, 10, f"KM: {km:,.2f}", ln=True)
+        pdf.ln(5)
 
-pdf.ln(5)
-pdf.cell(0, 10, safe_pdf_text("Resultados de Utilidad:"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Costo Total: ${costo_total:,.2f}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Utilidad Bruta: ${utilidad_bruta:,.2f}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"% Utilidad Bruta: {porcentaje_bruta:.2f}%"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Costos Indirectos (35%): ${costos_indirectos:,.2f}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"Utilidad Neta: ${utilidad_neta:,.2f}"), ln=True)
-pdf.cell(0, 10, safe_pdf_text(f"% Utilidad Neta: {porcentaje_neta:.2f}%"), ln=True)
+        # Resultados de utilidad
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(0, 10, "Resultados de Utilidad:", ln=True)
+        pdf.set_font("Arial", "", 12)
+        pdf.cell(0, 10, f"Ingreso Total: ${ingreso_total:,.2f}", ln=True)
+        pdf.cell(0, 10, f"Costo Total: ${costo_total:,.2f}", ln=True)
+        pdf.cell(0, 10, f"Utilidad Bruta: ${utilidad_bruta:,.2f}", ln=True)
+        pdf.cell(0, 10, f"% Utilidad Bruta: {porc_utilidad_bruta:.2f}%", ln=True)
+        pdf.cell(0, 10, f"Costos Indirectos (35%): ${costo_indirecto:,.2f}", ln=True)
+        pdf.cell(0, 10, f"Utilidad Neta: ${utilidad_neta:,.2f}", ln=True)
+        pdf.cell(0, 10, f"% Utilidad Neta: {porc_utilidad_neta:.2f}%", ln=True)
+        pdf.ln(5)
 
-pdf.ln(5)
-pdf.cell(0, 10, safe_pdf_text("Detalle de Costos y Extras:"), ln=True)
-extras = ["Lavado_Termo", "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
-          "Fianza_Termo", "Renta_Termo", "Pistas_Extra", "Stop", "Falso", "Gatas",
-          "Accesorios", "Guias"]
-for extra in extras:
-    label = extra.replace("_", " ").title()
-    pdf.cell(0, 10, safe_pdf_text(f"{label}: ${safe_number(ruta.get(extra, 0)):,.2f}"), ln=True)
+        # Detalle de Costos y Extras
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(0, 10, "Detalle de Costos y Extras:", ln=True)
+        pdf.set_font("Arial", "", 12)
+        campos_detalle = {
+            "Ingreso Flete": ingreso_flete,
+            "Ingreso Cruce": ingreso_cruce,
+            "Costo Cruce": costo_cruce,
+            "Diesel Camión": diesel_camion,
+            "Diesel Termo": diesel_termo,
+            "Sueldo Operador": sueldo,
+            "Bono": bono,
+            "Casetas": casetas,
+            "Extras": extras,
+        }
+        for k, v in campos_detalle.items():
+            pdf.cell(0, 10, f"{k}: ${v:,.2f}", ln=True)
+        pdf.ln(5)
 
-temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-pdf.output(temp_file.name)
+        # Costos Detallados de Extras
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(0, 10, "Costos Detallados de Extras:", ln=True)
+        pdf.set_font("Arial", "", 12)
+        extras_detalle = {
+            "Movimiento Local": movimiento_local,
+            "Puntualidad": puntualidad,
+            "Pension": pension,
+            "Estancia": estancia,
+            "Fianza": fianza_termo,
+            "Pistas Extra": pistas_extra,
+            "Stop": stop,
+            "Falso": falso,
+            "Gatas": gatas,
+            "Accesorios": accesorios,
+            "Guias": guias,
+        }
+        for k, v in extras_detalle.items():
+            pdf.cell(0, 10, f"{k}: ${v:,.2f}", ln=True)
 
-with open(temp_file.name, "rb") as file:
-    st.download_button(
-        label="Descargar PDF",
-        data=file,
-        file_name=f"Consulta_{ruta['Cliente']}_{ruta['Origen']}_{ruta['Destino']}.pdf",
-        mime="application/pdf"
-    )
+        pdf.output(tmp_file.name)
+        with open(tmp_file.name, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+            href = f'<a href="data:application/octet-stream;base64,{b64}" download="Consulta_Ruta_{id_ruta}.pdf">📄 Descargar PDF</a>'
+            st.markdown(href, unsafe_allow_html=True)
