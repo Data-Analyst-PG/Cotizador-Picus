@@ -160,7 +160,6 @@ st.subheader("📋 Detalles y Costos de la Ruta")
 
 # Separar las columnas en dos listas (pares e impares) para mostrarlas en dos columnas
 col_keys = list(ruta.keys())
-col_keys.sort()
 col1_keys = col_keys[::2]
 col2_keys = col_keys[1::2]
 
