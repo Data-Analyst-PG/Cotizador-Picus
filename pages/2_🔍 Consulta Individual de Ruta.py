@@ -314,7 +314,7 @@ if st.button("📥 Generar PDF de esta Ruta"):
 
         pdf.ln(5)
         pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "🔧 Extras:", ln=True)
+        pdf.cell(0, 10, "Extras:", ln=True)
         pdf.set_font("Arial", "", 12)
 
         pdf.cell(0, 10, safe_text(f"Movimiento Local: ${movimiento_local:,.2f}"), ln=True)
