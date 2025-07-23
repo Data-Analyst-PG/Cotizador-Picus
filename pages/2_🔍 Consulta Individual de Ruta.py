@@ -204,11 +204,11 @@ with col3:
     st.markdown(f"- Accesorios: ${ruta['Accesorios']:,}")
     st.markdown(f"- Guías: ${ruta['Guias']:,}")
     
-
-st.markdown("---")
-if st.button("📥 Generar PDF de esta Ruta"):
 def safe_text(texto):
     return str(texto).encode("latin-1", "replace").decode("latin-1")
+    
+st.markdown("---")
+if st.button("📥 Generar PDF de esta Ruta"):
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
         # 🔽 Extraer valores desde `ruta`
