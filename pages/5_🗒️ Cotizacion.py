@@ -49,6 +49,7 @@ if respuesta.data:
         cliente_direccion = st.text_input("Dirección del Cliente")
         cliente_mail = st.text_input("Email del Cliente")
         cliente_telefono = st.text_input("Teléfono del Cliente")
+        cliente_ext=st.tex_imput("Ext")
 
     with col2:
         st.subheader("Datos de la Empresa")
@@ -56,6 +57,7 @@ if respuesta.data:
         empresa_direccion = st.text_input("Dirección de la Empresa")
         empresa_mail = st.text_input("Email de la Empresa")
         empresa_telefono = st.text_input("Teléfono de la Empresa")
+        empresa_ext=st.tex_imput("Ext")
 
     # ---------------------------
     # SELECCIÓN DE RUTAS SIN FILTRO
@@ -123,16 +125,32 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # DATOS EN PLANTILLA ALINEADOS
     # ---------------------------
-    pdf.set_xy(25, 60)
-    texto_cliente = f"Nombre: {cliente_nombre}\nDirección: {cliente_direccion}\nMail: {cliente_mail}\nTeléfono: {cliente_telefono}"
-    pdf.multi_cell(80, 5, safe_text(texto_cliente), align='L')
+    # Cliente (izquierda)
+    pdf.set_font("Arial", "B", 13)
+    pdf.set_xy(0.85 * 25.4, 2.29 * 25.4)
+    pdf.cell(0, 6, safe_text(f"Nombre: {cliente_nombre}"), ln=True)
 
-    pdf.set_xy(120, 60)
-    texto_empresa = f"Nombre: {empresa_nombre}\nDirección: {empresa_direccion}\nMail: {empresa_mail}\nTeléfono: {empresa_telefono}"
-    pdf.multi_cell(80, 5, safe_text(texto_empresa), align='L')
+    pdf.set_xy(0.85 * 25.4, 2.93 * 25.4)
+    pdf.cell(0, 6, safe_text(f"Dirección: {cliente_direccion}"), ln=True)
 
-    pdf.set_xy(25, 85)
-    pdf.cell(0, 10, safe_text(f"Fecha: {fecha.strftime('%d/%m/%Y')}"), ln=True)
+    pdf.set_xy(0.85 * 25.4, 3.48 * 25.4)
+    pdf.cell(0, 6, safe_text(f"Mail: {cliente_mail}"), ln=True)
+
+    pdf.set_xy(0.85 * 25.4, 3.9 * 25.4)
+    pdf.cell(0, 6, safe_text(f"Teléfono: {cliente_telefono} Ext: ________"), ln=True)
+
+    # Empresa (derecha)
+    pdf.set_xy(4.78 * 25.4, 2.29 * 25.4)
+    pdf.cell(0, 6, safe_text(f"{empresa_nombre}"), ln=True, align="R")
+
+    pdf.set_xy(4.78 * 25.4, 2.93 * 25.4)
+    pdf.cell(0, 6, safe_text(f"{empresa_direccion}"), ln=True, align="R")
+    
+    pdf.set_xy(4.78 * 25.4, 3.48 * 25.4)
+    pdf.cell(0, 6, safe_text(f"{empresa_mail}"), ln=True, align="R")
+
+    pdf.set_xy(5.23 * 25.4, 3.9 * 25.4)
+    pdf.cell(0, 6, safe_text(f"{empresa_telefono} Ext: ________"), ln=True, align="R")
 
     # ---------------------------
     # DETALLE DE CONCEPTOS
@@ -193,6 +211,11 @@ if st.button("Generar Cotización PDF"):
 
     pdf.set_font("Arial", "B", 12)
     pdf.cell(30, 10, f"${total_global:,.2f}", 0, 1, "L")  # Columna Precio
+    
+    # Leyenda de validez
+    pdf.set_font("Arial", "", 8)
+    pdf.set_xy(0.86 * 25.4, 9.69 * 25.4)
+    pdf.multi_cell(90, 5, safe_text("Esta cotización es válida por 15 días."), align="C")
 
     # ---------------------------
     # GUARDAR PDF
