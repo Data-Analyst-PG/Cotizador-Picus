@@ -278,43 +278,46 @@ if st.button("📥 Generar PDF de esta Ruta"):
         pdf.cell(0, 10, safe_text(f"% Utilidad Neta: {porc_utilidad_neta:.2f}%"), ln=True)
         pdf.ln(5)
 
-        # Detalle de Costos y Extras
+        # Detalles completos de Costos e Ingresos
         pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, safe_text("Detalle de Costos y Extras:"), ln=True)
+        pdf.cell(0, 10, "Detalles de Costos e Ingresos:", ln=True)
         pdf.set_font("Arial", "", 12)
-        campos_detalle = {
-            "Ingreso Flete": ingreso_flete,
-            "Ingreso Cruce": ingreso_cruce,
-            "Costo Cruce": costo_cruce,
-            "Diesel Camión": diesel_camion,
-            "Sueldo Operador": sueldo,
-            "Bono": bono,
-            "Casetas": casetas,
-            "Extras": extras,
-        }
-        for k, v in campos_detalle.items():
-            pdf.cell(0, 10, safe_text(f"{k}: ${v:,.2f}"), ln=True)
-        pdf.ln(5)
 
-        # Costos Detallados de Extras
+        pdf.cell(0, 10, safe_text(f"Rendimiento Camión: {rendimiento_camion} km/L"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Moneda Flete: {moneda_ingreso}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Flete Original: ${ingreso_original:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Tipo de cambio: {tipo_cambio_flete}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Flete Convertido: ${ingreso_flete:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Moneda Cruce: {moneda_cruce}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Cruce Original: ${ingreso_cruce:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Tipo cambio Cruce: {tipo_cambio_cruce}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Cruce Convertido: ${ingreso_cruce:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Moneda Costo Cruce: {moneda_costo_cruce}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Cruce Original: ${costo_cruce:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Cruce Convertido: ${costo_cruce:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Casetas: ${casetas:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Diesel Camión: ${diesel_camion:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Sueldo Operador: ${sueldo:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Bono: ${bono:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Total Ruta: ${costo_total:,.2f}"), ln=True)
+
+        pdf.ln(5)
         pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, safe_text("Costos Detallados de Extras:"), ln=True)
+        pdf.cell(0, 10, "🔧 Extras:", ln=True)
         pdf.set_font("Arial", "", 12)
-        extras_detalle = {
-            "Movimiento Local": movimiento_local,
-            "Puntualidad": puntualidad,
-            "Pension": pension,
-            "Estancia": estancia,
-            "Fianza": fianza_termo,
-            "Pistas Extra": pistas_extra,
-            "Stop": stop,
-            "Falso": falso,
-            "Gatas": gatas,
-            "Accesorios": accesorios,
-            "Guias": guias,
-        }
-        for k, v in extras_detalle.items():
-            pdf.cell(0, 10, safe_text(f"{k}: ${v:,.2f}"), ln=True)
+
+        pdf.cell(0, 10, safe_text(f"Movimiento Local: ${movimiento_local:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Puntualidad: ${puntualidad:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Pensión: ${pension:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Estancia: ${estancia:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Fianza: ${fianza_termo:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Pistas Extra: ${pistas_extra:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Stop: ${stop:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Falso: ${falso:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Gatas: ${gatas:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Accesorios: ${accesorios:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Guías: ${guias:,.2f}"), ln=True)
 
         pdf.output(tmp_file.name)
         with open(tmp_file.name, "rb") as f:
