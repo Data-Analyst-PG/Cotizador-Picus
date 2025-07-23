@@ -170,12 +170,12 @@ with col1:
     st.markdown(f"**Origen → Destino:** {ruta['Origen']} → {ruta['Destino']}")
     st.markdown(f"**KM:** {ruta['KM']:,}")
     st.markdown(f"**Rendimiento Camión:** {ruta['Rendimiento Camion']} km/L")
-
-with col2:
     st.markdown(f"**Moneda Flete:** {ruta['Moneda']}")
     st.markdown(f"**Ingreso Flete Original:** ${ruta['Ingreso_Original']:,}")
     st.markdown(f"**Tipo de cambio:** {ruta['Tipo de cambio']}")
     st.markdown(f"**Ingreso Flete Convertido:** ${ruta['Ingreso Flete']:,}")
+
+with col2:
     st.markdown(f"**Moneda Cruce:** {ruta['Moneda_Cruce']}")
     st.markdown(f"**Ingreso Cruce Original:** ${ruta['Cruce_Original']:,}")
     st.markdown(f"**Tipo cambio Cruce:** {ruta['Tipo cambio Cruce']}")
@@ -183,6 +183,12 @@ with col2:
     st.markdown(f"**Moneda Costo Cruce:** {ruta['Moneda Costo Cruce']}")
     st.markdown(f"**Costo Cruce Original:** ${ruta['Costo Cruce']:,}")
     st.markdown(f"**Costo Cruce Convertido:** ${ruta['Costo Cruce Convertido']:,}")
+    st.markdown(f"**Casetas:** ${ruta['Casetas']:,}")
+    st.markdown(f"**Diesel Camión:** ${ruta['Costo_Diesel_Camion']:,}")
+    st.markdown(f"**Sueldo Operador:** ${ruta['Sueldo_Operador']:,}")
+    st.markdown(f"**Bono:** ${ruta['Bono']:,}")
+    st.markdown(f"**Ingreso Total:** ${ruta['Ingreso Total']:,}")
+    st.markdown(f"**Costo Total Ruta:** ${ruta['Costo_Total_Ruta']:,}")
 
 with col3:
     st.markdown("**🔧 Extras:**")
@@ -197,17 +203,45 @@ with col3:
     st.markdown(f"- Gatas: ${ruta['Gatas']:,}")
     st.markdown(f"- Accesorios: ${ruta['Accesorios']:,}")
     st.markdown(f"- Guías: ${ruta['Guias']:,}")
-    st.markdown("---")
-    st.markdown(f"**Casetas:** ${ruta['Casetas']:,}")
-    st.markdown(f"**Diesel Camión:** ${ruta['Costo_Diesel_Camion']:,}")
-    st.markdown(f"**Sueldo Operador:** ${ruta['Sueldo_Operador']:,}")
-    st.markdown(f"**Bono:** ${ruta['Bono']:,}")
-    st.markdown(f"**Ingreso Total:** ${ruta['Ingreso Total']:,}")
-    st.markdown(f"**Costo Total Ruta:** ${ruta['Costo_Total_Ruta']:,}")
+    
 
 st.markdown("---")
 if st.button("📥 Generar PDF de esta Ruta"):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+        # 🔽 Extraer valores desde `ruta`
+        id_ruta = ruta["ID_Ruta"]
+        fecha = ruta["Fecha"]
+        tipo = ruta["Tipo"]
+        modo = ruta["Modo de Viaje"]
+        cliente = ruta["Cliente"]
+        origen = ruta["Origen"]
+        destino = ruta["Destino"]
+        km = ruta["KM"]
+        ingreso_flete = ruta["Ingreso Flete"]
+        ingreso_cruce = ruta["Ingreso Cruce"]
+        costo_cruce = ruta["Costo Cruce Convertido"]
+        diesel_camion = ruta["Costo_Diesel_Camion"]
+        sueldo = ruta["Sueldo_Operador"]
+        bono = ruta["Bono"]
+        casetas = ruta["Casetas"]
+        extras = ruta["Costo_Extras"]
+
+        movimiento_local = ruta["Movimiento_Local"]
+        puntualidad = ruta["Puntualidad"]
+        pension = ruta["Pension"]
+        estancia = ruta["Estancia"]
+        fianza_termo = ruta["Fianza"]
+        pistas_extra = ruta["Pistas_Extra"]
+        stop = ruta["Stop"]
+        falso = ruta["Falso"]
+        gatas = ruta["Gatas"]
+        accesorios = ruta["Accesorios"]
+        guias = ruta["Guias"]
+
+        porc_utilidad_bruta = porcentaje_bruta
+        porc_utilidad_neta = porcentaje_neta
+        costo_indirecto = costos_indirectos
+
         pdf = FPDF()
         pdf.add_page()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -250,7 +284,6 @@ if st.button("📥 Generar PDF de esta Ruta"):
             "Ingreso Cruce": ingreso_cruce,
             "Costo Cruce": costo_cruce,
             "Diesel Camión": diesel_camion,
-            "Diesel Termo": diesel_termo,
             "Sueldo Operador": sueldo,
             "Bono": bono,
             "Casetas": casetas,
