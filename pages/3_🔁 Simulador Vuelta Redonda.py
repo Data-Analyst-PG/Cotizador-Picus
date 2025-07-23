@@ -168,6 +168,7 @@ if st.button("🚛 Simular Vuelta Redonda"):
     st.markdown("## 📄 Detalle de Rutas")
     for r in rutas_seleccionadas:
         st.markdown(f"**{r['Tipo']} — {r.get('Cliente', 'nan')}**")
+        st.markdown(f"**ID Ruta:** {r.get('ID_Ruta', 'N/A')}")
         st.markdown(f"- Fecha: {r.get('Fecha', 'N/A')}")
         st.markdown(f"- {r['Origen']} → {r['Destino']}")
         st.markdown(f"- Ingreso Original: ${safe_number(r.get('Ingreso_Original')):,.2f}")
@@ -241,3 +242,46 @@ if st.button("🚛 Simular Vuelta Redonda"):
                     st.write(line)
             else:
                 st.write("No aplica")
+
+st.subheader("📥 Generar PDF de la Simulación")
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+
+pdf.cell(0, 10, "Detalle de Rutas - Vuelta Redonda", ln=True, align="C")
+pdf.ln(10)
+
+for r in st.session_state.rutas_seleccionadas:
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(0, 10, f"{r['Tipo']} - {r.get('Cliente', 'N/A')}", ln=True)
+    pdf.set_font("Arial", size=10)
+    pdf.cell(0, 10, f"ID Ruta: {r.get('ID_Ruta', 'N/A')}", ln=True)
+    pdf.cell(0, 10, f"Fecha: {r.get('Fecha', 'N/A')}", ln=True)
+    pdf.cell(0, 10, f"{r.get('Origen')} -> {r.get('Destino')}", ln=True)
+    pdf.cell(0, 10, f"Ingreso Original: ${safe_number(r.get('Ingreso_Original')):,.2f}", ln=True)
+    pdf.cell(0, 10, f"Ingreso Total: ${safe_number(r.get('Ingreso Total')):,.2f}", ln=True)
+    pdf.cell(0, 10, f"Costo Total Ruta: ${safe_number(r.get('Costo_Total_Ruta')):,.2f}", ln=True)
+    pdf.cell(0, 10, "-----------------------------", ln=True)
+
+pdf.ln(5)
+pdf.set_font("Arial", style='B', size=12)
+pdf.cell(0, 10, "Resumen General", ln=True)
+pdf.set_font("Arial", size=10)
+pdf.cell(0, 10, f"Ingreso Total: ${st.session_state.ingreso_total:,.2f}", ln=True)
+pdf.cell(0, 10, f"Costo Total: ${st.session_state.costo_total_general:,.2f}", ln=True)
+pdf.cell(0, 10, f"Utilidad Bruta: ${st.session_state.utilidad_bruta:,.2f}", ln=True)
+pdf.cell(0, 10, f"% Utilidad Bruta: {st.session_state.pct_bruta:.2f}%", ln=True)
+pdf.cell(0, 10, f"Costos Indirectos (35%): ${st.session_state.costos_indirectos:,.2f}", ln=True)
+pdf.cell(0, 10, f"Utilidad Neta: ${st.session_state.utilidad_neta:,.2f}", ln=True)
+pdf.cell(0, 10, f"% Utilidad Neta: {st.session_state.pct_neta:.2f}%", ln=True)
+
+temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+pdf.output(temp_file.name)
+
+with open(temp_file.name, "rb") as file:
+    st.download_button(
+        label="Descargar PDF",
+        data=file,
+        file_name=f"Simulacion_{st.session_state.rutas_seleccionadas[0]['Tipo']}_{st.session_state.rutas_seleccionadas[0].get('ID_Ruta', 'SinID')}.pdf",
+        mime="application/pdf"
+    )
