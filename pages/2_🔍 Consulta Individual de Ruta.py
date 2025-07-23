@@ -222,7 +222,8 @@ if st.button("📥 Generar PDF de esta Ruta"):
         km = ruta["KM"]
         ingreso_flete = ruta["Ingreso Flete"]
         ingreso_cruce = ruta["Ingreso Cruce"]
-        costo_cruce = ruta["Costo Cruce Convertido"]
+        costo_cruce_original = ruta["Costo Cruce"]
+        costo_cruce_convertido = ruta["Costo Cruce Convertido"]
         diesel_camion = ruta["Costo_Diesel_Camion"]
         sueldo = ruta["Sueldo_Operador"]
         bono = ruta["Bono"]
@@ -240,6 +241,15 @@ if st.button("📥 Generar PDF de esta Ruta"):
         gatas = ruta["Gatas"]
         accesorios = ruta["Accesorios"]
         guias = ruta["Guias"]
+
+        rendimiento_camion = ruta["Rendimiento Camion"]
+        moneda_ingreso = ruta["Moneda"]
+        ingreso_original = ruta["Ingreso_Original"]
+        tipo_cambio_flete = ruta["Tipo de cambio"]
+        moneda_cruce = ruta["Moneda_Cruce"]
+        tipo_cambio_cruce = ruta["Tipo cambio Cruce"]
+        moneda_costo_cruce = ruta["Moneda Costo Cruce"]
+
 
         porc_utilidad_bruta = porcentaje_bruta
         porc_utilidad_neta = porcentaje_neta
@@ -293,8 +303,8 @@ if st.button("📥 Generar PDF de esta Ruta"):
         pdf.cell(0, 10, safe_text(f"Tipo cambio Cruce: {tipo_cambio_cruce}"), ln=True)
         pdf.cell(0, 10, safe_text(f"Ingreso Cruce Convertido: ${ingreso_cruce:,.2f}"), ln=True)
         pdf.cell(0, 10, safe_text(f"Moneda Costo Cruce: {moneda_costo_cruce}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Cruce Original: ${costo_cruce:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Cruce Convertido: ${costo_cruce:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Cruce Original: ${costo_cruce_original:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Cruce Convertido: ${costo_cruce_convertido:,.2f}"), ln=True)
         pdf.cell(0, 10, safe_text(f"Casetas: ${casetas:,.2f}"), ln=True)
         pdf.cell(0, 10, safe_text(f"Diesel Camión: ${diesel_camion:,.2f}"), ln=True)
         pdf.cell(0, 10, safe_text(f"Sueldo Operador: ${sueldo:,.2f}"), ln=True)
