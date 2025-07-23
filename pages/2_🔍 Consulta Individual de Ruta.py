@@ -158,23 +158,57 @@ else:
 st.markdown("---")
 st.subheader("📋 Detalles y Costos de la Ruta")
 
-# Separar las columnas en dos listas (pares e impares) para mostrarlas en dos columnas
-col_keys = list(ruta.keys())
-col1_keys = col_keys[::2]
-col2_keys = col_keys[1::2]
-
 col1, col2 = st.columns(2)
-with col1:
-    for k in col1_keys:
-        valor = ruta.get(k, "")
-        st.write(f"**{k}:** {valor}")
-with col2:
-    for k in col2_keys:
-        valor = ruta.get(k, "")
-        st.write(f"**{k}:** {valor}")
 
-def safe_pdf_text(text):
-    return str(text).encode('latin1', 'replace').decode('latin1')
+with col1:
+    st.markdown(f"**Fecha:** {ruta['Fecha']}")
+    st.markdown(f"**ID de Ruta:** {ruta['ID_Ruta']}")
+    st.markdown(f"**Tipo:** {ruta['Tipo']}")
+    st.markdown(f"**Modo:** {ruta['Modo de Viaje']}")
+    st.markdown(f"**Cliente:** {ruta['Cliente']}")
+    st.markdown(f"**Origen → Destino:** {ruta['Origen']} → {ruta['Destino']}")
+    st.markdown(f"**KM:** {ruta['KM']:,}")
+    st.markdown(f"**Rendimiento Camión:** {ruta['Rendimiento Camion']} km/L")
+    st.markdown(f"**Moneda Flete:** {ruta['Moneda']}")
+    st.markdown(f"**Ingreso Flete Original:** ${ruta['Ingreso_Original']:,}")
+    st.markdown(f"**Tipo de cambio:** {ruta['Tipo de cambio']}")
+    st.markdown(f"**Ingreso Flete Convertido:** ${ruta['Ingreso Flete']:,}")
+    st.markdown(f"**Moneda Cruce:** {ruta['Moneda_Cruce']}")
+    st.markdown(f"**Ingreso Cruce Original:** ${ruta['Cruce_Original']:,}")
+    st.markdown(f"**Tipo cambio Cruce:** {ruta['Tipo cambio Cruce']}")
+    st.markdown(f"**Ingreso Cruce Convertido:** ${ruta['Ingreso Cruce']:,}")
+    st.markdown(f"**Moneda Costo Cruce:** {ruta['Moneda Costo Cruce']}")
+    st.markdown(f"**Costo Cruce Original:** ${ruta['Costo Cruce']:,}")
+    st.markdown(f"**Costo Cruce Convertido:** ${ruta['Costo Cruce Convertido']:,}")
+    st.markdown(f"**Costo Diesel:** ${ruta['Costo Diesel']:,}")
+
+with col2:
+    st.markdown(f"**Pago por KM:** {ruta['Pago por KM']}")
+    st.markdown(f"**Sueldo Operador:** ${ruta['Sueldo_Operador']:,}")
+    st.markdown(f"**Bono:** ${ruta['Bono']:,}")
+    st.markdown(f"**Casetas:** ${ruta['Casetas']:,}")
+    st.markdown(f"**Costo Diesel Camión:** ${ruta['Costo_Diesel_Camion']:,}")
+    st.markdown(f"**Ruta Tipo:** {ruta['Ruta_Tipo']}")
+    st.markdown(f"**Costo Total Ruta:** ${ruta['Costo_Total_Ruta']:,}")
+    st.markdown(f"**Ingresos Extras:** ${ruta.get('Ingresos_Extras', 0):,}")
+    st.markdown(f"**Extras Cobrados:** {'✅' if ruta.get('Extras_Cobrados') else '❌'}")
+
+    st.markdown("### Extras:")
+    extras = {
+        "Movimiento Local": ruta["Movimiento_Local"],
+        "Puntualidad": ruta["Puntualidad"],
+        "Pensión": ruta["Pension"],
+        "Estancia": ruta["Estancia"],
+        "Fianza": ruta["Fianza"],
+        "Pistas Extra": ruta["Pistas_Extra"],
+        "Stop": ruta["Stop"],
+        "Falso": ruta["Falso"],
+        "Gatas": ruta["Gatas"],
+        "Accesorios": ruta["Accesorios"],
+        "Guías": ruta["Guias"]
+    }
+    for k, v in extras.items():
+        st.markdown(f"- **{k}:** ${v:,}")
 
 st.markdown("---")
 st.subheader("📥 Descargar PDF de la Consulta")
