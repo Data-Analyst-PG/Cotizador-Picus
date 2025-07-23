@@ -209,6 +209,43 @@ def safe_text(texto):
     
 st.markdown("---")
 st.subheader("📥 Generar PDF de esta Ruta")
+# Extraer desde el diccionario
+id_ruta = ruta["ID_Ruta"]
+fecha = ruta["Fecha"]
+tipo = ruta["Tipo"]
+modo = ruta["Modo de Viaje"]
+cliente = ruta["Cliente"]
+origen = ruta["Origen"]
+destino = ruta["Destino"]
+km = ruta["KM"]
+
+rendimiento_camion = ruta["Rendimiento Camion"]
+moneda_ingreso = ruta["Moneda"]
+ingreso_original = ruta["Ingreso_Original"]
+tipo_cambio_flete = ruta["Tipo de cambio"]
+ingreso_flete = ruta["Ingreso Flete"]
+moneda_cruce = ruta["Moneda_Cruce"]
+ingreso_cruce = ruta["Ingreso Cruce"]
+tipo_cambio_cruce = ruta["Tipo cambio Cruce"]
+moneda_costo_cruce = ruta["Moneda Costo Cruce"]
+costo_cruce_original = ruta["Costo Cruce"]
+costo_cruce_convertido = ruta["Costo Cruce Convertido"]
+casetas = ruta["Casetas"]
+diesel_camion = ruta["Costo_Diesel_Camion"]
+sueldo = ruta["Sueldo_Operador"]
+bono = ruta["Bono"]
+
+movimiento_local = ruta["Movimiento_Local"]
+puntualidad = ruta["Puntualidad"]
+pension = ruta["Pension"]
+estancia = ruta["Estancia"]
+fianza_termo = ruta["Fianza"]
+pistas_extra = ruta["Pistas_Extra"]
+stop = ruta["Stop"]
+falso = ruta["Falso"]
+gatas = ruta["Gatas"]
+accesorios = ruta["Accesorios"]
+guias = ruta["Guias"]
     
 pdf = FPDF()
 pdf.add_page()
