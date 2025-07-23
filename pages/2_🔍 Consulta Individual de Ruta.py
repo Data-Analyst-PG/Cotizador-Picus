@@ -208,7 +208,7 @@ def safe_text(texto):
     return str(texto).encode("latin-1", "replace").decode("latin-1")
     
 st.markdown("---")
-st.subheader("📥 Generar PDF de esta Ruta"):
+st.subheader("📥 Generar PDF de esta Ruta")
     
 pdf = FPDF()
 pdf.add_page()
@@ -293,7 +293,7 @@ pdf.output(temp_file.name)
 
 with open(temp_file.name, "rb") as file:
     st.download_button(
-        label="Descargar PDF",
+        label=" 📄Descargar PDF",
         data=file,
         file_name=f"Consulta_{ruta['Cliente']}_{ruta['Origen']}_{ruta['Destino']}.pdf",
         mime="application/pdf"
