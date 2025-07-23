@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 import os
+from fpdf import FPDF
+import tempfile
 
 # ✅ Verificación de sesión y rol
 if "usuario" not in st.session_state:
