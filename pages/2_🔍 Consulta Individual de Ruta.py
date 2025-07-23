@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 import os
+import tempfile
+from fpdf import FPDF
 
 # ✅ Verificación de sesión y rol
 if "usuario" not in st.session_state:
@@ -155,49 +157,70 @@ else:
 # =====================
 st.markdown("---")
 st.subheader("📋 Detalles y Costos de la Ruta")
-    
-col1, col2, col3 = st.columns(3)
-    
+
+# Separar las columnas en dos listas (pares e impares) para mostrarlas en dos columnas
+col_keys = list(ruta.keys())
+col_keys.sort()
+col1_keys = col_keys[::2]
+col2_keys = col_keys[1::2]
+
+col1, col2 = st.columns(2)
 with col1:
-    st.write(f"Fecha: {ruta['Fecha']}")
-    st.write(f"Tipo: {ruta['Tipo']}")
-    st.write(f"Modo: {ruta.get('Modo de Viaje', 'Operado')}")
-    st.write(f"Cliente: {ruta['Cliente']}")
-    st.write(f"Origen → Destino: {ruta['Origen']} → {ruta['Destino']}")
-    st.write(f"KM: {safe_number(ruta['KM']):,.2f}")
-    st.write(f"Rendimiento Camión: {rendimiento_input:.2f}")
-        
+    for k in col1_keys:
+        valor = ruta.get(k, "")
+        st.write(f"**{k}:** {valor}")
 with col2:
-    st.write(f"Moneda Flete: {ruta['Moneda']}")
-    st.write(f"Ingreso Flete Original: ${safe_number(ruta['Ingreso_Original']):,.2f}")
-    st.write(f"Tipo de cambio: {safe_number(ruta['Tipo de cambio']):,.2f}")
-    st.write(f"Ingreso Flete Convertido: ${safe_number(ruta['Ingreso Flete']):,.2f}")
-    st.write(f"Moneda Cruce: {ruta['Moneda_Cruce']}")
-    st.write(f"Ingreso Cruce Original: ${safe_number(ruta['Cruce_Original']):,.2f}")
-    st.write(f"Tipo cambio Cruce: {safe_number(ruta['Tipo cambio Cruce']):,.2f}")
-    st.write(f"Ingreso Cruce Convertido: ${safe_number(ruta['Ingreso Cruce']):,.2f}")
-    st.write(f"Moneda Costo Cruce: {ruta['Moneda Costo Cruce']}")
-    st.write(f"Costo Cruce Original: ${safe_number(ruta['Costo Cruce']):,.2f}")
-    st.write(f"Costo Cruce Convertido: ${safe_number(ruta['Costo Cruce Convertido']):,.2f}")
-    if st.session_state.get("simular", False):
-        costo_diesel_camion = (safe_number(ruta["KM"]) / rendimiento_input) * costo_diesel_input
-        st.write(f"Diesel Camión (Simulado): ${costo_diesel_camion:,.2f}")
-    else:
-        st.write(f"Diesel Camión: ${safe_number(ruta['Costo_Diesel_Camion']):,.2f}")
-    st.write(f"Sueldo Operador: ${safe_number(ruta['Sueldo_Operador']):,.2f}")
-    st.write(f"Bono: ${safe_number(ruta['Bono']):,.2f}")
-    st.write(f"Casetas: ${safe_number(ruta['Casetas']):,.2f}")
-        
-with col3:
-    st.write("**Extras:**")
-    st.write(f"- Movimiento Local: ${safe_number(ruta['Movimiento_Local']):,.2f}")
-    st.write(f"- Puntualidad: ${safe_number(ruta['Puntualidad']):,.2f}")
-    st.write(f"- Pensión: ${safe_number(ruta['Pension']):,.2f}")
-    st.write(f"- Estancia: ${safe_number(ruta['Estancia']):,.2f}")
-    st.write(f"- Fianza: ${safe_number(ruta['Fianza']):,.2f}")
-    st.write(f"- Pistas Extra: ${safe_number(ruta.get('Pistas_Extra', 0)):,.2f}")
-    st.write(f"- Stop: ${safe_number(ruta.get('Stop', 0)):,.2f}")
-    st.write(f"- Falso: ${safe_number(ruta.get('Falso', 0)):,.2f}")
-    st.write(f"- Gatas: ${safe_number(ruta.get('Gatas', 0)):,.2f}")
-    st.write(f"- Accesorios: ${safe_number(ruta.get('Accesorios', 0)):,.2f}")
-    st.write(f"- Guías: ${safe_number(ruta.get('Guias', 0)):,.2f}")
+    for k in col2_keys:
+        valor = ruta.get(k, "")
+        st.write(f"**{k}:** {valor}")
+
+def safe_pdf_text(text):
+    return str(text).encode('latin1', 'replace').decode('latin1')
+
+st.markdown("---")
+st.subheader("📥 Descargar PDF de la Consulta")
+
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+pdf.cell(0, 10, safe_pdf_text("Consulta Individual de Ruta"), ln=True, align="C")
+pdf.ln(10)
+
+pdf.set_font("Arial", size=10)
+pdf.cell(0, 10, safe_pdf_text(f"ID de Ruta: {ruta['ID_Ruta']}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Fecha: {ruta['Fecha']}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Tipo: {ruta['Tipo']}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Modo: {ruta.get('Modo de Viaje', 'Operado')}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Cliente: {ruta['Cliente']}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Origen → Destino: {ruta['Origen']} → {ruta['Destino']}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"KM: {safe_number(ruta['KM']):,.2f}"), ln=True)
+
+pdf.ln(5)
+pdf.cell(0, 10, safe_pdf_text("Resultados de Utilidad:"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Costo Total: ${costo_total:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Utilidad Bruta: ${utilidad_bruta:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"% Utilidad Bruta: {porcentaje_bruta:.2f}%"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Costos Indirectos (35%): ${costos_indirectos:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"Utilidad Neta: ${utilidad_neta:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_pdf_text(f"% Utilidad Neta: {porcentaje_neta:.2f}%"), ln=True)
+
+pdf.ln(5)
+pdf.cell(0, 10, safe_pdf_text("Detalle de Costos y Extras:"), ln=True)
+extras = ["Lavado_Termo", "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
+          "Fianza_Termo", "Renta_Termo", "Pistas_Extra", "Stop", "Falso", "Gatas",
+          "Accesorios", "Guias"]
+for extra in extras:
+    label = extra.replace("_", " ").title()
+    pdf.cell(0, 10, safe_pdf_text(f"{label}: ${safe_number(ruta.get(extra, 0)):,.2f}"), ln=True)
+
+temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+pdf.output(temp_file.name)
+
+with open(temp_file.name, "rb") as file:
+    st.download_button(
+        label="Descargar PDF",
+        data=file,
+        file_name=f"Consulta_{ruta['Cliente']}_{ruta['Origen']}_{ruta['Destino']}.pdf",
+        mime="application/pdf"
+    )
