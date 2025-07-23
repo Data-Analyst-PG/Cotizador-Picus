@@ -244,7 +244,8 @@ if st.button("🚛 Simular Vuelta Redonda"):
                     st.write(line)
             else:
                 st.write("No aplica")
-
+    st.session_state.simulacion_realizada = True
+    
 st.subheader("📥 Generar PDF de la Simulación")
 pdf = FPDF()
 pdf.add_page()
