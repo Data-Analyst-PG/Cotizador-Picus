@@ -331,6 +331,12 @@ if st.button("📥 Generar PDF de esta Ruta"):
 
         pdf.output(tmp_file.name)
         with open(tmp_file.name, "rb") as f:
-            b64 = base64.b64encode(f.read()).decode()
-            href = f'<a href="data:application/octet-stream;base64,{b64}" download="Consulta_Ruta_{id_ruta}.pdf">📄 Descargar PDF</a>'
-            st.markdown(href, unsafe_allow_html=True)
+            pdf_bytes = f.read()
+
+        st.download_button(
+            label="📄 Descargar PDF",
+            data=pdf_bytes,
+            file_name=f"Consulta_Ruta_{id_ruta}.pdf",
+            mime="application/pdf"
+        )
+
