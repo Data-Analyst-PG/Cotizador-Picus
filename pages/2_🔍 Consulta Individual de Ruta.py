@@ -209,134 +209,92 @@ def safe_text(texto):
     
 st.markdown("---")
 if st.button("📥 Generar PDF de esta Ruta"):
+    
+pdf = FPDF()
+pdf.add_page()
+pdf.set_auto_page_break(auto=True, margin=15)
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-        # 🔽 Extraer valores desde `ruta`
-        id_ruta = ruta["ID_Ruta"]
-        fecha = ruta["Fecha"]
-        tipo = ruta["Tipo"]
-        modo = ruta["Modo de Viaje"]
-        cliente = ruta["Cliente"]
-        origen = ruta["Origen"]
-        destino = ruta["Destino"]
-        km = ruta["KM"]
-        ingreso_flete = ruta["Ingreso Flete"]
-        ingreso_cruce = ruta["Ingreso Cruce"]
-        costo_cruce_original = ruta["Costo Cruce"]
-        costo_cruce_convertido = ruta["Costo Cruce Convertido"]
-        diesel_camion = ruta["Costo_Diesel_Camion"]
-        sueldo = ruta["Sueldo_Operador"]
-        bono = ruta["Bono"]
-        casetas = ruta["Casetas"]
-        extras = ruta["Costo_Extras"]
+pdf.set_font("Arial", "B", 16)
+pdf.cell(0, 10, safe_text("Consulta Individual de Ruta"), ln=True)
+pdf.ln(10)
 
-        movimiento_local = ruta["Movimiento_Local"]
-        puntualidad = ruta["Puntualidad"]
-        pension = ruta["Pension"]
-        estancia = ruta["Estancia"]
-        fianza_termo = ruta["Fianza"]
-        pistas_extra = ruta["Pistas_Extra"]
-        stop = ruta["Stop"]
-        falso = ruta["Falso"]
-        gatas = ruta["Gatas"]
-        accesorios = ruta["Accesorios"]
-        guias = ruta["Guias"]
+# Encabezado
+pdf.set_font("Arial", "B", 16)
+pdf.cell(0, 10, "Consulta Individual de Ruta", ln=True)
+pdf.ln(5)
 
-        rendimiento_camion = ruta["Rendimiento Camion"]
-        moneda_ingreso = ruta["Moneda"]
-        ingreso_original = ruta["Ingreso_Original"]
-        tipo_cambio_flete = ruta["Tipo de cambio"]
-        moneda_cruce = ruta["Moneda_Cruce"]
-        tipo_cambio_cruce = ruta["Tipo cambio Cruce"]
-        moneda_costo_cruce = ruta["Moneda Costo Cruce"]
+# Datos principales
+pdf.set_font("Arial", "", 12)
+pdf.cell(0, 10, safe_text(f"ID de Ruta: {id_ruta}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Fecha: {fecha}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Tipo: {tipo}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Modo: {modo}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Cliente: {cliente}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Origen → Destino: {origen} - {destino}"), ln=True)
+pdf.cell(0, 10, safe_text(f"KM: {km:,.2f}"), ln=True)
+pdf.ln(5)
 
+# Resultados de utilidad
+pdf.set_font("Arial", "B", 12)
+pdf.cell(0, 10, "Resultados de Utilidad:", ln=True)
+pdf.set_font("Arial", "", 12)
+pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Costo Total: ${costo_total:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Utilidad Bruta: ${utilidad_bruta:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"% Utilidad Bruta: {porc_utilidad_bruta:.2f}%"), ln=True)
+pdf.cell(0, 10, safe_text(f"Costos Indirectos (35%): ${costo_indirecto:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Utilidad Neta: ${utilidad_neta:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"% Utilidad Neta: {porc_utilidad_neta:.2f}%"), ln=True)
+pdf.ln(5)
 
-        porc_utilidad_bruta = porcentaje_bruta
-        porc_utilidad_neta = porcentaje_neta
-        costo_indirecto = costos_indirectos
+# Detalles completos de Costos e Ingresos
+pdf.set_font("Arial", "B", 12)
+pdf.cell(0, 10, "Detalles de Costos e Ingresos:", ln=True)
+pdf.set_font("Arial", "", 12)
 
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_auto_page_break(auto=True, margin=15)
+pdf.cell(0, 10, safe_text(f"Rendimiento Camión: {rendimiento_camion} km/L"), ln=True)
+pdf.cell(0, 10, safe_text(f"Moneda Flete: {moneda_ingreso}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Ingreso Flete Original: ${ingreso_original:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Tipo de cambio: {tipo_cambio_flete}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Ingreso Flete Convertido: ${ingreso_flete:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Moneda Cruce: {moneda_cruce}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Ingreso Cruce Original: ${ingreso_cruce:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Tipo cambio Cruce: {tipo_cambio_cruce}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Ingreso Cruce Convertido: ${ingreso_cruce:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Moneda Costo Cruce: {moneda_costo_cruce}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Costo Cruce Original: ${costo_cruce_original:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Costo Cruce Convertido: ${costo_cruce_convertido:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Casetas: ${casetas:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Diesel Camión: ${diesel_camion:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Sueldo Operador: ${sueldo:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Bono: ${bono:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Costo Total Ruta: ${costo_total:,.2f}"), ln=True)
 
-        # Encabezado
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(0, 10, "Consulta Individual de Ruta", ln=True)
-        pdf.ln(5)
+pdf.ln(5)
+pdf.set_font("Arial", "B", 12)
+pdf.cell(0, 10, "Extras:", ln=True)
+pdf.set_font("Arial", "", 12)
 
-        # Datos principales
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, safe_text(f"ID de Ruta: {id_ruta}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Fecha: {fecha}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Tipo: {tipo}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Modo: {modo}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Cliente: {cliente}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Origen → Destino: {origen} - {destino}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"KM: {km:,.2f}"), ln=True)
-        pdf.ln(5)
+pdf.cell(0, 10, safe_text(f"Movimiento Local: ${movimiento_local:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Puntualidad: ${puntualidad:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Pensión: ${pension:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Estancia: ${estancia:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Fianza: ${fianza_termo:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Pistas Extra: ${pistas_extra:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Stop: ${stop:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Falso: ${falso:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Gatas: ${gatas:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Accesorios: ${accesorios:,.2f}"), ln=True)
+pdf.cell(0, 10, safe_text(f"Guías: ${guias:,.2f}"), ln=True)
 
-        # Resultados de utilidad
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Resultados de Utilidad:", ln=True)
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Total: ${costo_total:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Utilidad Bruta: ${utilidad_bruta:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"% Utilidad Bruta: {porc_utilidad_bruta:.2f}%"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costos Indirectos (35%): ${costo_indirecto:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Utilidad Neta: ${utilidad_neta:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"% Utilidad Neta: {porc_utilidad_neta:.2f}%"), ln=True)
-        pdf.ln(5)
+temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+pdf.output(temp_file.name)
 
-        # Detalles completos de Costos e Ingresos
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Detalles de Costos e Ingresos:", ln=True)
-        pdf.set_font("Arial", "", 12)
-
-        pdf.cell(0, 10, safe_text(f"Rendimiento Camión: {rendimiento_camion} km/L"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Moneda Flete: {moneda_ingreso}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Ingreso Flete Original: ${ingreso_original:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Tipo de cambio: {tipo_cambio_flete}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Ingreso Flete Convertido: ${ingreso_flete:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Moneda Cruce: {moneda_cruce}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Ingreso Cruce Original: ${ingreso_cruce:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Tipo cambio Cruce: {tipo_cambio_cruce}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Ingreso Cruce Convertido: ${ingreso_cruce:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Moneda Costo Cruce: {moneda_costo_cruce}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Cruce Original: ${costo_cruce_original:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Cruce Convertido: ${costo_cruce_convertido:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Casetas: ${casetas:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Diesel Camión: ${diesel_camion:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Sueldo Operador: ${sueldo:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Bono: ${bono:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Costo Total Ruta: ${costo_total:,.2f}"), ln=True)
-
-        pdf.ln(5)
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Extras:", ln=True)
-        pdf.set_font("Arial", "", 12)
-
-        pdf.cell(0, 10, safe_text(f"Movimiento Local: ${movimiento_local:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Puntualidad: ${puntualidad:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Pensión: ${pension:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Estancia: ${estancia:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Fianza: ${fianza_termo:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Pistas Extra: ${pistas_extra:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Stop: ${stop:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Falso: ${falso:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Gatas: ${gatas:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Accesorios: ${accesorios:,.2f}"), ln=True)
-        pdf.cell(0, 10, safe_text(f"Guías: ${guias:,.2f}"), ln=True)
-
-        pdf.output(tmp_file.name)
-        with open(tmp_file.name, "rb") as f:
-            pdf_bytes = f.read()
-
-        st.download_button(
-            label="📄 Descargar PDF",
-            data=pdf_bytes,
-            file_name=f"Consulta_Ruta_{id_ruta}.pdf",
-            mime="application/pdf"
-        )
-
+with open(temp_file.name, "rb") as file:
+    st.download_button(
+        label="Descargar PDF",
+        data=file,
+        file_name=f"Consulta_{ruta['Cliente']}_{ruta['Origen']}_{ruta['Destino']}.pdf",
+        mime="application/pdf"
+    )
