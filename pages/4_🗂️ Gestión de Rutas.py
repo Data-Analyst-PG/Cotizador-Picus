@@ -155,20 +155,20 @@ if respuesta.data:
              tipo_cambio_flete = tc_usd if moneda_ingreso == "USD" else tc_mxp
              tipo_cambio_cruce = tc_usd if moneda_cruce == "USD" else tc_mxp
              tipo_cambio_costo_cruce = tc_usd if moneda_costo_cruce == "USD" else tc_mxp
-
+             costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
              costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
              tipo_cambio_costo_cruce = tipo_cambio_cruce
              bono = 0.0
 
              # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
-             costo_diesel_camion = (km / rendimiento_camion) * costo_diesel
-             sueldo = 0.0
+             pago_km = valores.get("Pago x KM (General)", 1.63)
              bono = 0.0
 
+             # 🧩 Cálculo condicional por tipo de ruta (larga vs tramo)
              if ruta_tipo == "Tramo":
                  sueldo = pago_tramo
                  bono = bono_isr_tramo
-                 Modo_de_Viaje = "Operador"
+                 Modo_de_Viaje = "Operador"  # Forzar
              elif tipo in ["IMPORTACION", "EXPORTACION"]:
                  sueldo = km * pago_km
                  bono = bono_isr_rl + bono_rendimiento
@@ -176,6 +176,7 @@ if respuesta.data:
                  sueldo = pago_vacio if km <= 100 else km * pago_km
                  bono = 0.0
 
+             # Bono Team (solo si no es Tramo)
              if ruta_tipo != "Tramo" and Modo_de_Viaje == "Team":
                  sueldo += bono_team
 
