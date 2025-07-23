@@ -198,6 +198,15 @@ if st.button("🚛 Simular Vuelta Redonda"):
     color_porcentaje_neta = "green" if pct_neta >= 15 else "red"
     st.markdown(f"<strong>% Utilidad Neta:</strong> <span style='color:{color_porcentaje_neta}; font-weight:bold'>{pct_neta:.2f}%</span>", unsafe_allow_html=True)
 
+    st.session_state.ingreso_total = ingreso_total
+    st.session_state.costo_total_general = costo_total_general
+    st.session_state.utilidad_bruta = utilidad_bruta
+    st.session_state.costos_indirectos = costos_indirectos
+    st.session_state.utilidad_neta = utilidad_neta
+    st.session_state.pct_bruta = pct_bruta
+    st.session_state.pct_neta = pct_neta
+    st.session_state.rutas_seleccionadas = rutas_seleccionadas
+
     st.markdown("---")
     st.subheader("📋 Resumen de Rutas")
 
@@ -207,26 +216,30 @@ if st.button("🚛 Simular Vuelta Redonda"):
     def resumen_ruta(r):
         return [
             f"Fecha: {r.get('Fecha', 'N/A')}",
+            f"Cliente: {r.get('Cliente', 'N/A')}",
+            f"Ruta: {r.get('Origen', 'N/A')} → {r.get('Destino', 'N/A')}",
             f"KM: {safe_number(r.get('KM')):,.2f}",
-            f"Costo Diesel: ${safe_number(r.get('Costo Diesel')):,.2f}",
-            f"Rendimiento Camión: {safe_number(r.get('Rendimiento Camion')):,.2f} km/l",
-            f"Diesel Camión: ${safe_number(r.get('Costo_Diesel_Camion')):,.2f}",
-            f"Rendimiento Termo: {safe_number(r.get('Rendimiento Termo')):,.2f} l/hr",
-            f"Diesel Termo: ${safe_number(r.get('Costo_Diesel_Termo')):,.2f}",
-            f"Sueldo: ${safe_number(r.get('Sueldo_Operador')):,.2f}",
-            f"Casetas: ${safe_number(r.get('Casetas')):,.2f}",
-            f"Costo Cruce Convertido: ${safe_number(r.get('Costo Cruce Convertido')):,.2f}",
             f"Ingreso Original: ${safe_number(r.get('Ingreso_Original')):,.2f}",
             f"Moneda: {r.get('Moneda', 'N/A')}",
             f"Tipo de cambio: {safe_number(r.get('Tipo de cambio')):,.2f}",
+            f"<span style='color:#007bff;font-weight:bold'>Ingreso Flete: ${safe_number(r.get('Ingreso Flete')):,.2f}</span>",
+            f"Cruce Original: ${safe_number(r.get('Cruce_Original')):,.2f}",
+            f"Moneda Cruce: {r.get('Moneda_Cruce', 'N/A')}",
+            f"Tipo de cambio: {safe_number(r.get('Tipo de cambio')):,.2f}",
+            f"<span style='color:#007bff;font-weight:bold'>Ingreso Cruce: ${safe_number(r.get('Ingreso Cruce')):,.2f}</span>",
+            f"<span style='color:#007bff;font-weight:bold'>Ingreso Total: ${safe_number(r.get('Ingreso Total')):,.2f}</span>",
+            f"Costo Diesel: ${safe_number(r.get('Costo Diesel')):,.2f}",
+            f"Rendimiento Camión: {safe_number(r.get('Rendimiento Camion')):,.2f} km/l",
+            f"Diesel Camión: ${safe_number(r.get('Costo_Diesel_Camion')):,.2f}",
+            f"Sueldo: ${safe_number(r.get('Sueldo_Operador')):,.2f}",
+            f"Casetas: ${safe_number(r.get('Casetas')):,.2f}",
+            f"Costo Cruce Convertido: ${safe_number(r.get('Costo Cruce Convertido')):,.2f}",
             "**Extras detallados:**",
-            f"Lavado Termo: ${safe_number(r.get('Lavado_Termo')):,.2f}",
             f"Movimiento Local: ${safe_number(r.get('Movimiento_Local')):,.2f}",
             f"Puntualidad: ${safe_number(r.get('Puntualidad')):,.2f}",
             f"Pensión: ${safe_number(r.get('Pension')):,.2f}",
             f"Estancia: ${safe_number(r.get('Estancia')):,.2f}",
-            f"Fianza Termo: ${safe_number(r.get('Fianza_Termo')):,.2f}",
-            f"Renta Termo: ${safe_number(r.get('Renta_Termo')):,.2f}",
+            f"Fianza: ${safe_number(r.get('Fianza')):,.2f}",
             f"Pistas Extra: ${safe_number(r.get('Pistas_Extra')):,.2f}",
             f"Stop: ${safe_number(r.get('Stop')):,.2f}",
             f"Falso: ${safe_number(r.get('Falso')):,.2f}",
