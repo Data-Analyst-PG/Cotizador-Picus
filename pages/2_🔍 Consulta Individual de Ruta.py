@@ -208,7 +208,7 @@ def safe_text(texto):
     return str(texto).encode("latin-1", "replace").decode("latin-1")
     
 st.markdown("---")
-if st.button("📥 Generar PDF de esta Ruta"):
+st.subheader("📥 Generar PDF de esta Ruta"):
     
 pdf = FPDF()
 pdf.add_page()
