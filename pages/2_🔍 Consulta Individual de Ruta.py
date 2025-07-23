@@ -207,6 +207,9 @@ with col3:
 
 st.markdown("---")
 if st.button("📥 Generar PDF de esta Ruta"):
+def safe_text(texto):
+    return str(texto).encode("latin-1", "replace").decode("latin-1")
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
         # 🔽 Extraer valores desde `ruta`
         id_ruta = ruta["ID_Ruta"]
@@ -253,31 +256,31 @@ if st.button("📥 Generar PDF de esta Ruta"):
 
         # Datos principales
         pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, f"ID de Ruta: {id_ruta}", ln=True)
-        pdf.cell(0, 10, f"Fecha: {fecha}", ln=True)
-        pdf.cell(0, 10, f"Tipo: {tipo}", ln=True)
-        pdf.cell(0, 10, f"Modo: {modo}", ln=True)
-        pdf.cell(0, 10, f"Cliente: {cliente}", ln=True)
-        pdf.cell(0, 10, f"Origen → Destino: {origen} - {destino}", ln=True)
-        pdf.cell(0, 10, f"KM: {km:,.2f}", ln=True)
+        pdf.cell(0, 10, safe_text(f"ID de Ruta: {id_ruta}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Fecha: {fecha}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Tipo: {tipo}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Modo: {modo}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Cliente: {cliente}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Origen → Destino: {origen} - {destino}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"KM: {km:,.2f}"), ln=True)
         pdf.ln(5)
 
         # Resultados de utilidad
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "Resultados de Utilidad:", ln=True)
         pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, f"Ingreso Total: ${ingreso_total:,.2f}", ln=True)
-        pdf.cell(0, 10, f"Costo Total: ${costo_total:,.2f}", ln=True)
-        pdf.cell(0, 10, f"Utilidad Bruta: ${utilidad_bruta:,.2f}", ln=True)
-        pdf.cell(0, 10, f"% Utilidad Bruta: {porc_utilidad_bruta:.2f}%", ln=True)
-        pdf.cell(0, 10, f"Costos Indirectos (35%): ${costo_indirecto:,.2f}", ln=True)
-        pdf.cell(0, 10, f"Utilidad Neta: ${utilidad_neta:,.2f}", ln=True)
-        pdf.cell(0, 10, f"% Utilidad Neta: {porc_utilidad_neta:.2f}%", ln=True)
+        pdf.cell(0, 10, safe_text(f"Ingreso Total: ${ingreso_total:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costo Total: ${costo_total:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Utilidad Bruta: ${utilidad_bruta:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"% Utilidad Bruta: {porc_utilidad_bruta:.2f}%"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Costos Indirectos (35%): ${costo_indirecto:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"Utilidad Neta: ${utilidad_neta:,.2f}"), ln=True)
+        pdf.cell(0, 10, safe_text(f"% Utilidad Neta: {porc_utilidad_neta:.2f}%"), ln=True)
         pdf.ln(5)
 
         # Detalle de Costos y Extras
         pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Detalle de Costos y Extras:", ln=True)
+        pdf.cell(0, 10, safe_text("Detalle de Costos y Extras:"), ln=True)
         pdf.set_font("Arial", "", 12)
         campos_detalle = {
             "Ingreso Flete": ingreso_flete,
@@ -290,12 +293,12 @@ if st.button("📥 Generar PDF de esta Ruta"):
             "Extras": extras,
         }
         for k, v in campos_detalle.items():
-            pdf.cell(0, 10, f"{k}: ${v:,.2f}", ln=True)
+            pdf.cell(0, 10, safe_text(f"{k}: ${v:,.2f}"), ln=True)
         pdf.ln(5)
 
         # Costos Detallados de Extras
         pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Costos Detallados de Extras:", ln=True)
+        pdf.cell(0, 10, safe_text("Costos Detallados de Extras:"), ln=True)
         pdf.set_font("Arial", "", 12)
         extras_detalle = {
             "Movimiento Local": movimiento_local,
@@ -311,7 +314,7 @@ if st.button("📥 Generar PDF de esta Ruta"):
             "Guias": guias,
         }
         for k, v in extras_detalle.items():
-            pdf.cell(0, 10, f"{k}: ${v:,.2f}", ln=True)
+            pdf.cell(0, 10, safe_text(f"{k}: ${v:,.2f}"), ln=True)
 
         pdf.output(tmp_file.name)
         with open(tmp_file.name, "rb") as f:
