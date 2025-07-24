@@ -115,7 +115,7 @@ if st.button("Generar Cotización PDF"):
 
     class PDF(FPDF):
         def header(self):
-            self.image('Cotización Picus.jpg', x=0, y=0, w=215.9, h=279.4)
+            self.image('Cotización Picus.png', x=0, y=0, w=215.9, h=279.4)
 
     pdf = PDF(orientation='P', unit='in', format='Letter')
     pdf.alias_nb_pages()
