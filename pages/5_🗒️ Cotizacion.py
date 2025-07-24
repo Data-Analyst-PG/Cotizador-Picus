@@ -129,29 +129,29 @@ if st.button("Generar Cotización PDF"):
     # Cliente (izquierda)
     pdf.set_font("Arial", "B", 13)
     pdf.set_xy(0.85, 2.29)
-    pdf.cell(0, 6, safe_text(f"Nombre: {cliente_nombre}"), ln=True)
+    pdf.cell(0, 0.22, safe_text(f"Nombre: {cliente_nombre}"), ln=True)
 
     pdf.set_xy(0.85, 2.93)
-    pdf.cell(0, 6, safe_text(f"Dirección: {cliente_direccion}"), ln=True)
+    pdf.cell(0, 0.22, safe_text(f"Dirección: {cliente_direccion}"), ln=True)
 
     pdf.set_xy(0.85, 3.48)
-    pdf.cell(0, 6, safe_text(f"Mail: {cliente_mail}"), ln=True)
+    pdf.cell(0, 0.22, safe_text(f"Mail: {cliente_mail}"), ln=True)
 
     pdf.set_xy(0.85, 3.9)
-    pdf.cell(0, 6, safe_text(f"Teléfono: {cliente_telefono} Ext: {cliente_ext}"), ln=True)
+    pdf.cell(0, 0.22, safe_text(f"Teléfono: {cliente_telefono} Ext: {cliente_ext}"), ln=True)
 
     # Empresa (derecha)
     pdf.set_xy(4.78, 2.29)
-    pdf.cell(0, 6, safe_text(f"{empresa_nombre}"), ln=True, align="R")
+    pdf.cell(0, 0.22, safe_text(f"{empresa_nombre}"), ln=True, align="R")
 
     pdf.set_xy(4.78, 2.93)
-    pdf.cell(0, 6, safe_text(f"{empresa_direccion}"), ln=True, align="R")
+    pdf.cell(0, 0.22, safe_text(f"{empresa_direccion}"), ln=True, align="R")
     
     pdf.set_xy(4.78, 3.48)
-    pdf.cell(0, 6, safe_text(f"{empresa_mail}"), ln=True, align="R")
+    pdf.cell(0, 0.22, safe_text(f"{empresa_mail}"), ln=True, align="R")
 
     pdf.set_xy(5.23, 3.9)
-    pdf.cell(0, 6, safe_text(f"{empresa_telefono} Ext: {empresa_ext}"), ln=True, align="R")
+    pdf.cell(0, 0.22, safe_text(f"{empresa_telefono} Ext: {empresa_ext}"), ln=True, align="R")
 
     # ---------------------------
     # DETALLE DE CONCEPTOS
