@@ -49,7 +49,7 @@ if respuesta.data:
         cliente_direccion = st.text_input("Dirección del Cliente")
         cliente_mail = st.text_input("Email del Cliente")
         cliente_telefono = st.text_input("Teléfono del Cliente")
-        cliente_ext=st.tex_imput("Ext")
+        cliente_ext=st.tex_imput("Ext Cliente")
 
     with col2:
         st.subheader("Datos de la Empresa")
@@ -57,7 +57,7 @@ if respuesta.data:
         empresa_direccion = st.text_input("Dirección de la Empresa")
         empresa_mail = st.text_input("Email de la Empresa")
         empresa_telefono = st.text_input("Teléfono de la Empresa")
-        empresa_ext=st.tex_imput("Ext")
+        empresa_ext=st.tex_imput("Ext Empresa")
 
     # ---------------------------
     # SELECCIÓN DE RUTAS SIN FILTRO
@@ -137,7 +137,7 @@ if st.button("Generar Cotización PDF"):
     pdf.cell(0, 6, safe_text(f"Mail: {cliente_mail}"), ln=True)
 
     pdf.set_xy(0.85 * 25.4, 3.9 * 25.4)
-    pdf.cell(0, 6, safe_text(f"Teléfono: {cliente_telefono} Ext: ________"), ln=True)
+    pdf.cell(0, 6, safe_text(f"Teléfono: {cliente_telefono} Ext: {cliente_ext}"), ln=True)
 
     # Empresa (derecha)
     pdf.set_xy(4.78 * 25.4, 2.29 * 25.4)
@@ -150,7 +150,7 @@ if st.button("Generar Cotización PDF"):
     pdf.cell(0, 6, safe_text(f"{empresa_mail}"), ln=True, align="R")
 
     pdf.set_xy(5.23 * 25.4, 3.9 * 25.4)
-    pdf.cell(0, 6, safe_text(f"{empresa_telefono} Ext: ________"), ln=True, align="R")
+    pdf.cell(0, 6, safe_text(f"{empresa_telefono} Ext: {empresa_ext}"), ln=True, align="R")
 
     # ---------------------------
     # DETALLE DE CONCEPTOS
