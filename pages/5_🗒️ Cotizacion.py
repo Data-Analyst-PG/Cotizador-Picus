@@ -198,11 +198,11 @@ if st.button("Generar Cotización PDF"):
                 pdf.cell(0.88, 0.15, f"${valor_convertido:,.2f}", align="C")
 
                 total_global += valor_convertido
-                y += 0.25
+                y += 0.18
 
                 if y > 9:  # para evitar desbordar página
                     pdf.add_page()
-                    y = 1
+                    y = 5.84
 
     # ---------------------------
     # TOTAL Y LEYENDA ALINEADOS
