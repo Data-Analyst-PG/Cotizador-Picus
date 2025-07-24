@@ -156,53 +156,34 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # DETALLE DE CONCEPTOS
     # ---------------------------
-    pdf.set_font("Arial", "", 10)
-    y = 5.84  # en pulgadas
-    total_global = 0
+    pdf.set_font("Arial", "", 8)
+    for campo in conceptos:
+        valor = ruta_data[campo]
+        if pd.notnull(valor) and valor != 0:
+            # Moneda
+            if campo == "Ingreso_Original":
+                moneda_original = ruta_data["Moneda"]
+            elif campo == "Cruce_Original":
+                moneda_original = ruta_data["Moneda_Cruce"]
+            else:
+                moneda_original = "MXP"
 
-    for ruta in ids_seleccionados:
-        id_ruta = ruta.split(" | ")[0]
-        ruta_data = df[df["ID_Ruta"] == id_ruta].iloc[0]
+            valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
 
-        descripcion_ruta = f"{ruta_data['Tipo']} | {ruta_data['Origen']} - {ruta_data['Destino']}"
-        pdf.set_xy(0.85, y)
-        pdf.set_font("Arial", "B", 10)
-        pdf.cell(0, 0.2, safe_text(descripcion_ruta), ln=True)
-        y += 0.3
+            pdf.set_xy(0.85, y)
+            pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="R")
 
-        conceptos = rutas_conceptos[ruta]
+            pdf.set_xy(4.69, y)
+            pdf.cell(0.61, 0.15, "1", align="C")
 
-        pdf.set_font("Arial", "", 8)
-        for campo in conceptos:
-            valor = ruta_data[campo]
-            if pd.notnull(valor) and valor != 0:
-                if campo == "Ingreso_Original":
-                    moneda_original = ruta_data["Moneda"]
-                elif campo == "Cruce_Original":
-                    moneda_original = ruta_data["Moneda_Cruce"]
-                else:
-                    moneda_original = "MXP"
+            pdf.set_xy(5.79, y)
+            pdf.cell(0.61, 0.15, moneda_cotizacion, align="C")
 
-                valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
+            pdf.set_xy(6.77, y)
+            pdf.cell(0.88, 0.15, f"${valor_convertido:,.2f}", align="C")
 
-                pdf.set_xy(0.85, y)
-                pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="R")
-
-                pdf.set_xy(4.69, y)
-                pdf.cell(0.61, 0.15, "1", align="C")
-
-                pdf.set_xy(5.79, y)
-                pdf.cell(0.61, 0.15, moneda_cotizacion, align="C")
-
-                pdf.set_xy(6.77, y)
-                pdf.cell(0.88, 0.15, f"${valor_convertido:,.2f}", align="C")
-
-                total_global += valor_convertido
-                y += 0.18
-
-                if y > 9:  # para evitar desbordar página
-                    pdf.add_page()
-                    y = 5.84
+            total_global += valor_convertido
+            y += 0.25  # ajusta este valor para controlar interlineado (0.15 o 0.2 si quieres más compacto)
 
     # ---------------------------
     # TOTAL Y LEYENDA ALINEADOS
