@@ -173,22 +173,24 @@ if st.button("Generar Cotización PDF"):
         tipo_ruta = ruta_data['Tipo']
         origen = ruta_data['Origen']
         destino = ruta_data['Destino']
-        descripcion = f"{origen} → {destino}"
+        descripcion = f"{origen} , {ruta_data['Estado_Origen']}  - {destino} , {ruta_data['Estado_Destino']}"
         conceptos = rutas_conceptos[ruta]
 
-        # Primera línea: Tipo
+        # Imprimir tipo de ruta (e.g. IMPORTACION)
         pdf.set_font("Arial", "B", 8)
         pdf.set_xy(0.85, y)
-        pdf.multi_cell(3.55, 0.15, safe_text(tipo_ruta), align="L")
-        y += 0.18  # separación
+        pdf.multi_cell(7, 0.15, safe_text(tipo_ruta), align="L")
 
-        # Segunda línea: Ruta
-        pdf.set_font("Arial", "B", 8)
-        pdf.set_xy(0.85, y)
-        pdf.multi_cell(3.55, 0.15, safe_text(descripcion), align="L")
-        y += 0.20
+        # Imprimir la ruta (origen → destino), con ajuste automático de altura
+        y_ruta = pdf.get_y()
+        pdf.set_xy(0.85, y_ruta)
+        pdf.multi_cell(7, 0.15, safe_text(descripcion), align="L")
+
+        # Actualizar y al terminar el texto de la ruta
+        y = pdf.get_y() + 0.05  # pequeña separación con respecto al concepto
 
         # Conceptos (uno por renglón)
+        pdf.set_font("Arial", "", 8)
         for campo in conceptos:
             valor = ruta_data[campo]
             if pd.notnull(valor) and valor != 0:
@@ -198,14 +200,14 @@ if st.button("Generar Cotización PDF"):
                     moneda_original = ruta_data["Moneda_Cruce"]
                 else:
                     moneda_original = "MXP"
-                    
+            
                 valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
-                
-                if y > 9:  # Evita que se salga de la página
+            
+                if y > 9:  # Salto de página si es necesario
                     pdf.add_page()
                     y = 1
 
-                # Ajustes de impresión
+                # Impresión del concepto
                 pdf.set_xy(0.85, y)
                 pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="L")
 
