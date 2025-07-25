@@ -179,7 +179,7 @@ if st.button("Generar Cotización PDF"):
         tipo_ruta = ruta_data['Tipo']
         origen = ruta_data['Origen']
         destino = ruta_data['Destino']
-        descripcion = f"{origen} , {ruta_data['Origen']}  - {destino} , {ruta_data['Destino']}"
+        descripcion = f"{origen} , {ruta_data['Estado_Origen']}  - {destino} , {ruta_data['Estado_Destino']}"
         conceptos = rutas_conceptos[ruta]
 
         # Imprimir tipo de ruta (e.g. IMPORTACION)
