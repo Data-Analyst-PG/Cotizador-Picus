@@ -163,12 +163,15 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # DETALLE DE CONCEPTOS
     # ---------------------------
-    pdf.set_font("Arial", "", 8)
+    pdf.set_font("Arial", "B", 8)
     y = 5.84
+    total_global = 0
+
     for ruta in ids_seleccionados:
         id_ruta = ruta.split(" | ")[0]
         ruta_data = df[df["ID_Ruta"] == id_ruta].iloc[0]
         descripcion = f"{ruta_data['Tipo']} | {ruta_data['Origen']} - {ruta_data['Destino']}"
+        conceptos = rutas_conceptos[ruta]
 
         pdf.set_font("Arial", "B", 8)
         pdf.set_xy(0.85, y)
@@ -176,12 +179,23 @@ if st.button("Generar Cotización PDF"):
         y += 0.25
         pdf.set_font("Arial", "", 8)
 
-        for campo in rutas_conceptos[ruta]:
+        for campo in conceptos:
             valor = ruta_data[campo]
             if pd.notnull(valor) and valor != 0:
-                moneda = ruta_data["Moneda"] if campo == "Ingreso_Original" else "MXP"
-                valor_convertido = convertir_moneda(valor, moneda, moneda_cotizacion, tipo_cambio)
+                if campo == "Ingreso_Original":
+                    moneda_original = ruta_data["Moneda"]
+                elif campo == "Cruce_Original":
+                    moneda_original = ruta_data["Moneda_Cruce"]
+                else:
+                    moneda_original = "MXP"
 
+                valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
+                
+                if y > 9:  # Evita que se salga de la página
+                    pdf.add_page()
+                    y = 1
+
+                # Ajustes de impresión
                 pdf.set_xy(0.85, y)
                 pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="L")
 
@@ -194,14 +208,15 @@ if st.button("Generar Cotización PDF"):
                 pdf.set_xy(6.77, y)
                 pdf.cell(0.88, 0.15, f"${valor_convertido:,.2f}", align="C")
 
-                y += 0.2
+                total_global += valor_convertido
+                y += 0.18
 
     # ---------------------------
     # TOTAL Y LEYENDA ALINEADOS
     # ---------------------------
     pdf.set_font("Arial", "B", 8)
     pdf.set_xy(4.69, 9.34)
-    pdf.cell(0.61, 0.15, "Tarifa total", align="L")
+    pdf.cell(0.61, 0.15, "Tarifa total", align="C")
 
     pdf.set_xy(5.79, 9.34)
     pdf.cell(0.61, 0.15, moneda_cotizacion, align="C")
