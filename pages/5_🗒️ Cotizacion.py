@@ -128,13 +128,13 @@ if st.button("Generar Cotización PDF"):
     # Cliente
     pdf.set_font("Arial", "B", 12)
     pdf.set_xy(0.8, 2.29)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre), align="L"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre), align="L")
 
     pdf.set_xy(0.8, 2.93)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion), align="L"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion), align="L")
 
     pdf.set_xy(0.8, 3.48)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail), align="L"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail), align="L")
 
     pdf.set_xy(0.8, 3.9)
     pdf.cell(1.35, 0.22, safe_text(cliente_telefono), align="L")
