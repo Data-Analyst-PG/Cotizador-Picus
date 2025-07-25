@@ -131,7 +131,7 @@ if st.button("Generar Cotización PDF"):
     # DATOS EN PLANTILLA ALINEADOS
     # ---------------------------
     # Cliente
-    pdf.set_font("Monserrat", "", 10)
+    pdf.set_font("Montserrat", "", 10)
     pdf.set_xy(0.8, 2.29)
     pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre), align="L")
 
@@ -168,7 +168,7 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # DETALLE DE CONCEPTOS
     # ---------------------------
-    pdf.set_font("Monserrat", "", 7)
+    pdf.set_font("Montserrat", "", 7)
     pdf.set_text_color(128, 128, 128)
     y = 5.84
     total_global = 0
@@ -183,7 +183,7 @@ if st.button("Generar Cotización PDF"):
         conceptos = rutas_conceptos[ruta]
 
         # Imprimir tipo de ruta (e.g. IMPORTACION)
-        pdf.set_font("Monserrat", "B", 7)
+        pdf.set_font("Montserrat", "B", 7)
         pdf.set_text_color(128, 128, 128)
         pdf.set_xy(0.85, y)
         pdf.multi_cell(7, 0.15, safe_text(tipo_ruta), align="L")
@@ -197,7 +197,7 @@ if st.button("Generar Cotización PDF"):
         y = pdf.get_y() + 0.05  # pequeña separación con respecto al concepto
 
         # Conceptos (uno por renglón)
-        pdf.set_font("Monserrat", "", 7)
+        pdf.set_font("Montserrat", "", 7)
         for campo in conceptos:
             valor = ruta_data[campo]
             if pd.notnull(valor) and valor != 0:
@@ -233,7 +233,7 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # TOTAL Y LEYENDA ALINEADOS
     # ---------------------------
-    pdf.set_font("Monserrat", "B", 7)
+    pdf.set_font("Montserrat", "B", 7)
     pdf.set_xy(4.69, 9.34)
     pdf.cell(0.61, 0.15, "Tarifa total", align="C")
 
@@ -243,7 +243,7 @@ if st.button("Generar Cotización PDF"):
     pdf.set_xy(6.77, 9.34)
     pdf.cell(0.88, 0.15, f"${total_global:,.2f}", align="C")
 
-    pdf.set_font("Monserrat", "", 7)
+    pdf.set_font("Montserrat", "", 7)
     pdf.set_xy(0.86, 9.69)
     pdf.multi_cell(3.55, 0.15, safe_text("Esta cotización es válida por 15 días, No aplica IVA y Retenciones en el caso de las importaciones y exportacione, Y las exportaciones aplica tasa 0"), align="L")
 
