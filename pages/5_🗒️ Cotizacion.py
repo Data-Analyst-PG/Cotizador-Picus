@@ -126,58 +126,64 @@ if st.button("Generar Cotización PDF"):
     # DATOS EN PLANTILLA ALINEADOS
     # ---------------------------
     # Cliente (izquierda)
-    pdf.set_font("Arial", "B", 13)
+    # Cliente
     pdf.set_xy(0.85, 2.29)
-    pdf.cell(0, 0.22, safe_text(f"Nombre: {cliente_nombre}"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre))
 
     pdf.set_xy(0.85, 2.93)
-    pdf.cell(0, 0.22, safe_text(f"Dirección: {cliente_direccion}"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion))
 
     pdf.set_xy(0.85, 3.48)
-    pdf.cell(0, 0.22, safe_text(f"Mail: {cliente_mail}"))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail))
 
     pdf.set_xy(0.85, 3.9)
-    pdf.cell(0, 0.22, safe_text(f"Teléfono: {cliente_telefono} Ext: {cliente_ext}"))
+    pdf.multi_cell(2.1, 0.22, safe_text(cliente_telefono))
+    pdf.set_xy(2.63, 3.9)
+    pdf.multi_cell(0.76, 0.22, safe_text(cliente_ext))
 
+
+    # Empresa (ajustada al recuadro derecho)
     pdf.set_xy(4.78, 2.29)
-    pdf.cell(0, 0.22, safe_text(f"{empresa_nombre}"), align="R")
+    pdf.multi_cell(2.89, 0.22, safe_text(empresa_nombre), align="R")
 
     pdf.set_xy(4.78, 2.93)
-    pdf.cell(0, 0.22, safe_text(f"{empresa_direccion}"), align="R")
+    pdf.multi_cell(2.89, 0.22, safe_text(empresa_direccion), align="R")
 
     pdf.set_xy(4.78, 3.48)
-    pdf.cell(0, 0.22, safe_text(f"{empresa_mail}"), align="R")
+    pdf.multi_cell(2.89, 0.22, safe_text(empresa_mail), align="R")
 
     pdf.set_xy(5.23, 3.9)
-    pdf.cell(0, 0.22, safe_text(f"{empresa_telefono} Ext: {empresa_ext}"), align="R")
+    pdf.multi_cell(1.35, 0.22, safe_text(empresa_telefono), align="R")
+    pdf.set_xy(6.33, 3.9)
+    pdf.multi_cell(0.76, 0.22, safe_text(empresa_ext), align="R")
+
+    pdf.set_xy(0.85, 4.66)
+    pdf.multi_cell(1.78, 0.22, safe_text(f"{fecha.strftime('%d/%m/%Y')}"))
 
     # ---------------------------
     # DETALLE DE CONCEPTOS
     # ---------------------------
     pdf.set_font("Arial", "", 8)
     y = 5.84
-    total_global = 0
-
     for ruta in ids_seleccionados:
         id_ruta = ruta.split(" | ")[0]
         ruta_data = df[df["ID_Ruta"] == id_ruta].iloc[0]
-        conceptos = rutas_conceptos[ruta]
+        descripcion = f"{ruta_data['Tipo']} | {ruta_data['Origen']} - {ruta_data['Destino']}"
 
-        for campo in conceptos:
+        pdf.set_font("Arial", "B", 8)
+        pdf.set_xy(0.85, y)
+        pdf.cell(7, 0.2, safe_text(descripcion))
+        y += 0.25
+        pdf.set_font("Arial", "", 8)
+
+        for campo in rutas_conceptos[ruta]:
             valor = ruta_data[campo]
             if pd.notnull(valor) and valor != 0:
-                if campo == "Ingreso_Original":
-                    moneda_original = ruta_data["Moneda"]
-                elif campo == "Cruce_Original":
-                    moneda_original = ruta_data["Moneda_Cruce"]
-                else:
-                    moneda_original = "MXP"
+                moneda = ruta_data["Moneda"] if campo == "Ingreso_Original" else "MXP"
+                valor_convertido = convertir_moneda(valor, moneda, moneda_cotizacion, tipo_cambio)
 
-                valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
-
-                # Ajustes de impresión
                 pdf.set_xy(0.85, y)
-                pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="R")
+                pdf.cell(3.55, 0.15, safe_text(campo.replace("_", " ").title()), align="L")
 
                 pdf.set_xy(4.69, y)
                 pdf.cell(0.61, 0.15, "1", align="C")
@@ -188,8 +194,7 @@ if st.button("Generar Cotización PDF"):
                 pdf.set_xy(6.77, y)
                 pdf.cell(0.88, 0.15, f"${valor_convertido:,.2f}", align="C")
 
-                total_global += valor_convertido
-                y += 0.18
+                y += 0.2
 
     # ---------------------------
     # TOTAL Y LEYENDA ALINEADOS
@@ -206,7 +211,7 @@ if st.button("Generar Cotización PDF"):
 
     pdf.set_font("Arial", "", 8)
     pdf.set_xy(0.86, 9.69)
-    pdf.multi_cell(3.55, 0.15, safe_text("Esta cotización es válida por 15 días."), align="C")
+    pdf.multi_cell(3.55, 0.15, safe_text("Esta cotización es válida por 15 días, No aplica IVA y Retenciones en el caso de las importaciones y exportacione, Y las exportaciones aplica tasa 0"), align="L")
 
     # ---------------------------
     # GUARDAR PDF
