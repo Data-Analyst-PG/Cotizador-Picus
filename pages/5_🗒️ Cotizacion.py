@@ -126,7 +126,7 @@ if st.button("Generar Cotización PDF"):
     # DATOS EN PLANTILLA ALINEADOS
     # ---------------------------
     # Cliente
-    pdf.set_font("Arial", "B", 12)
+    pdf.set_font("Arial", "B", 11)
     pdf.set_xy(0.8, 2.29)
     pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre), align="L")
 
