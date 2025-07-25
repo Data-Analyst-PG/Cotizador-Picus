@@ -125,21 +125,21 @@ if st.button("Generar Cotización PDF"):
     # ---------------------------
     # DATOS EN PLANTILLA ALINEADOS
     # ---------------------------
-    # Cliente (izquierda)
     # Cliente
-    pdf.set_xy(0.85, 2.29)
+    pdf.set_font("Arial", "B", 13)
+    pdf.set_xy(0.8, 2.29)
     pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre))
 
-    pdf.set_xy(0.85, 2.93)
+    pdf.set_xy(0.8, 2.93)
     pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion))
 
-    pdf.set_xy(0.85, 3.48)
+    pdf.set_xy(0.8, 3.48)
     pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail))
 
-    pdf.set_xy(0.85, 3.9)
-    pdf.multi_cell(2.1, 0.22, safe_text(cliente_telefono))
+    pdf.set_xy(0.8, 3.9)
+    pdf.cell(1.35, 0.22, safe_text(cliente_telefono), align="L")
     pdf.set_xy(2.63, 3.9)
-    pdf.multi_cell(0.76, 0.22, safe_text(cliente_ext))
+    pdf.cell(0.76, 0.22, safe_text(cliente_ext), align="L")
 
 
     # Empresa (ajustada al recuadro derecho)
@@ -153,9 +153,9 @@ if st.button("Generar Cotización PDF"):
     pdf.multi_cell(2.89, 0.22, safe_text(empresa_mail), align="R")
 
     pdf.set_xy(5.23, 3.9)
-    pdf.multi_cell(1.35, 0.22, safe_text(empresa_telefono), align="R")
-    pdf.set_xy(6.33, 3.9)
-    pdf.multi_cell(0.76, 0.22, safe_text(empresa_ext), align="R")
+    pdf.cell(1.35, 0.22, safe_text(empresa_telefono), align="L")
+    pdf.set_xy(6.38, 3.9)
+    pdf.cell(0.76, 0.22, safe_text(empresa_ext), align="L")
 
     pdf.set_xy(0.85, 4.66)
     pdf.multi_cell(1.78, 0.22, safe_text(f"{fecha.strftime('%d/%m/%Y')}"))
@@ -170,15 +170,25 @@ if st.button("Generar Cotización PDF"):
     for ruta in ids_seleccionados:
         id_ruta = ruta.split(" | ")[0]
         ruta_data = df[df["ID_Ruta"] == id_ruta].iloc[0]
-        descripcion = f"{ruta_data['Tipo']} | {ruta_data['Origen']} - {ruta_data['Destino']}"
+        tipo_ruta = ruta_data['Tipo']
+        origen = ruta_data['Origen']
+        destino = ruta_data['Destino']
+        descripcion = f"{origen} → {destino}"
         conceptos = rutas_conceptos[ruta]
 
+        # Primera línea: Tipo
         pdf.set_font("Arial", "B", 8)
         pdf.set_xy(0.85, y)
-        pdf.cell(7, 0.2, safe_text(descripcion))
-        y += 0.25
-        pdf.set_font("Arial", "", 8)
+        pdf.multi_cell(3.55, 0.15, safe_text(tipo_ruta), align="L")
+        y += 0.18  # separación
 
+        # Segunda línea: Ruta
+        pdf.set_font("Arial", "", 8)
+        pdf.set_xy(0.85, y)
+        pdf.multi_cell(3.55, 0.15, safe_text(descripcion), align="L")
+        y += 0.20
+
+        # Conceptos (uno por renglón)
         for campo in conceptos:
             valor = ruta_data[campo]
             if pd.notnull(valor) and valor != 0:
@@ -188,7 +198,7 @@ if st.button("Generar Cotización PDF"):
                     moneda_original = ruta_data["Moneda_Cruce"]
                 else:
                     moneda_original = "MXP"
-
+                    
                 valor_convertido = convertir_moneda(valor, moneda_original, moneda_cotizacion, tipo_cambio)
                 
                 if y > 9:  # Evita que se salga de la página
