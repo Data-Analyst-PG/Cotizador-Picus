@@ -154,7 +154,7 @@ if st.button("Generar Cotización PDF"):
 
     pdf.set_xy(5.23, 3.9)
     pdf.cell(1.35, 0.22, safe_text(empresa_telefono), align="L")
-    pdf.set_xy(6.68, 3.9)
+    pdf.set_xy(6.98, 3.9)
     pdf.cell(0.76, 0.22, safe_text(empresa_ext), align="L")
 
     pdf.set_xy(0.85, 4.66)
