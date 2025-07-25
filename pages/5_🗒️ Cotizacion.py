@@ -114,14 +114,15 @@ def safe_text(text):
 if st.button("Generar Cotización PDF"):
 
     class PDF(FPDF):
-        def header(self):
-            self.image('Cotización Picus.png', x=0, y=0, w=8.5, h=11)
-
-        def __init__(self):
-            super().__init__()
+        def __init__(self, orientation='P', unit='in', format='Letter'):
+            super().__init__(orientation=orientation, unit=unit, format=format)
             self.add_font('Montserrat', '', 'Montserrat-Regular.ttf', uni=True)
             self.add_font('Montserrat', 'B', 'Montserrat-Bold.ttf', uni=True)
 
+        def header(self):
+            self.image('Cotización Picus.png', x=0, y=0, w=8.5, h=11)
+
+    # Crear PDF con orientación vertical, pulgadas y formato carta
     pdf = PDF(orientation='P', unit='in', format='Letter')
     pdf.set_auto_page_break(auto=False)
     pdf.add_page()
