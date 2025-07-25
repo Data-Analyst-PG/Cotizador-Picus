@@ -128,13 +128,13 @@ if st.button("Generar Cotización PDF"):
     # Cliente
     pdf.set_font("Arial", "B", 12)
     pdf.set_xy(0.8, 2.29)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_nombre), align="L"))
 
     pdf.set_xy(0.8, 2.93)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_direccion), align="L"))
 
     pdf.set_xy(0.8, 3.48)
-    pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail))
+    pdf.multi_cell(2.89, 0.22, safe_text(cliente_mail), align="L"))
 
     pdf.set_xy(0.8, 3.9)
     pdf.cell(1.35, 0.22, safe_text(cliente_telefono), align="L")
@@ -154,8 +154,8 @@ if st.button("Generar Cotización PDF"):
 
     pdf.set_xy(5.23, 3.9)
     pdf.cell(1.35, 0.22, safe_text(empresa_telefono), align="L")
-    pdf.set_xy(6.38, 3.9)
-    pdf.cell(0.9, 0.22, safe_text(empresa_ext), align="L")
+    pdf.set_xy(6.68, 3.9)
+    pdf.cell(0.76, 0.22, safe_text(empresa_ext), align="L")
 
     pdf.set_xy(0.85, 4.66)
     pdf.multi_cell(1.78, 0.22, safe_text(f"{fecha.strftime('%d/%m/%Y')}"))
