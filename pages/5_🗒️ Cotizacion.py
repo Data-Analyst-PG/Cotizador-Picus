@@ -234,6 +234,7 @@ if st.button("Generar Cotización PDF"):
     # TOTAL Y LEYENDA ALINEADOS
     # ---------------------------
     pdf.set_font("Montserrat", "B", 7)
+    pdf.set_text_color(00, 00, 00)
     pdf.set_xy(4.69, 9.34)
     pdf.cell(0.61, 0.15, "Tarifa total", align="C")
 
@@ -244,6 +245,7 @@ if st.button("Generar Cotización PDF"):
     pdf.cell(0.88, 0.15, f"${total_global:,.2f}", align="C")
 
     pdf.set_font("Montserrat", "", 7)
+    pdf.set_text_color(128, 128, 128)
     pdf.set_xy(0.86, 9.69)
     pdf.multi_cell(3.55, 0.15, safe_text("Esta cotización es válida por 15 días, No aplica IVA y Retenciones en el caso de las importaciones y exportacione, Y las exportaciones aplica tasa 0"), align="L")
 
