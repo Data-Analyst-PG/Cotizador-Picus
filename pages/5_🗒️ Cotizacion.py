@@ -100,7 +100,7 @@ if respuesta.data:
         conceptos = st.multiselect(
             f"Conceptos para {ruta}",
             options=["Ingreso_Original", "Cruce_Original", "Movimiento_Local", "Puntualidad", "Pension", "Estancia",
-                     "Pistas_Extra", "Stop", "Falso", "Gatas", "Accesorios", "Casetas", "Fianza", "Guias"],
+                     "Pistas_Extra", "Stop", "Falso", "Gatas", "Accesorios", "Casetas", "Fianza", "Guias", "Costo_Diesel_Camion"],
             default=["Ingreso_Original", "Casetas"]
         )
         rutas_conceptos[ruta] = conceptos
