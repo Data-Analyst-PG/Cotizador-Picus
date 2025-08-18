@@ -33,7 +33,7 @@ def safe_number(x):
 st.title("🗂️ Gestión de Rutas Guardadas")
 
 # Cargar rutas desde Supabase
-respuesta = supabase.table("Rutas").select("*").execute()
+respuesta = supabase.table("Rutas_Picus").select("*").execute()
 valores = cargar_datos_generales()
 valores_por_defecto = {
     "Rendimiento Camion": 2.5,
@@ -64,7 +64,7 @@ if respuesta.data:
 
     if st.button("Eliminar rutas seleccionadas") and ids_a_eliminar:
         for idr in ids_a_eliminar:
-            supabase.table("Rutas").delete().eq("ID_Ruta", idr).execute()
+            supabase.table("Rutas_Picus").delete().eq("ID_Ruta", idr).execute()
         st.success("✅ Rutas eliminadas correctamente.")
         st.rerun()
 
@@ -238,7 +238,7 @@ if respuesta.data:
              }
 
              try:
-                 supabase.table("Rutas").update(ruta_actualizada).eq("ID_Ruta", id_editar).execute()
+                 supabase.table("Rutas_Picus").update(ruta_actualizada).eq("ID_Ruta", id_editar).execute()
                  st.success("✅ Ruta actualizada exitosamente.")
                  st.rerun()
              except Exception as e:
