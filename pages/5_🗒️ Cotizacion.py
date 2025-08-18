@@ -32,7 +32,7 @@ st.title("📝 Generador de Cotización para Clientes")
 # ---------------------------
 # CARGAR RUTAS DE SUPABASE
 # ---------------------------
-respuesta = supabase.table("Rutas").select("*").execute()
+respuesta = supabase.table("Rutas_Picus").select("*").execute()
 
 if respuesta.data:
     df = pd.DataFrame(respuesta.data)
