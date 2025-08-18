@@ -38,7 +38,7 @@ else:
     valores = valores_por_defecto.copy()
 
 # ✅ Cargar rutas desde Supabase
-respuesta = supabase.table("Rutas").select("*").execute()
+respuesta = supabase.table("Rutas_Picus").select("*").execute()
 df = pd.DataFrame(respuesta.data)
 
 # ✅ Asegurar formato correcto
