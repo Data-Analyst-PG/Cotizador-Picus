@@ -25,7 +25,7 @@ def safe_number(x):
     return 0 if (x is None or (isinstance(x, float) and pd.isna(x))) else x
 
 # Cargar rutas desde Supabase
-respuesta = supabase.table("Rutas").select("*").execute()
+respuesta = supabase.table("Rutas_Picus").select("*").execute()
 if not respuesta.data:
     st.warning("⚠️ No hay rutas guardadas en Supabase.")
     st.stop()
