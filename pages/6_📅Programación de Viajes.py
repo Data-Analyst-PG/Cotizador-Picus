@@ -38,7 +38,7 @@ st.success("✅ Conexión establecida correctamente con Supabase.")
 @st.cache_data
 def cargar_rutas():
     try:
-        respuesta = supabase.table("Rutas").select("*").execute()
+        respuesta = supabase.table("Rutas_picus").select("*").execute()
         df = pd.DataFrame(respuesta.data)
         df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0)
         df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0)
