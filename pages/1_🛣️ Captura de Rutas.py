@@ -54,7 +54,7 @@ def safe_number(x):
 # Generador de ID tipo PIC000001
 def generar_nuevo_id():
     try:
-        respuesta = supabase.table("Rutas").select("ID_Ruta").order("ID_Ruta", desc=True).limit(1).execute()
+        respuesta = supabase.table("Rutas_Picus").select("ID_Ruta").order("ID_Ruta", desc=True).limit(1).execute()
         if respuesta.data and respuesta.data[0].get("ID_Ruta"):
             ultimo = respuesta.data[0]["ID_Ruta"]
             numero = int(ultimo[3:]) + 1  # Asumiendo formato 'PIC000001'
@@ -292,14 +292,14 @@ if st.session_state.revisar_ruta and st.button("💾 Guardar Ruta"):
     }
 
     nuevo_id = generar_nuevo_id()
-    existe = supabase.table("Rutas").select("ID_Ruta").eq("ID_Ruta", nuevo_id).execute()
+    existe = supabase.table("Rutas_Picus").select("ID_Ruta").eq("ID_Ruta", nuevo_id).execute()
 
     if existe.data:
         st.error("⚠️ Conflicto al generar ID. Intenta de nuevo.")
     else:
         nueva_ruta["ID_Ruta"] = nuevo_id
         try:
-            supabase.table("Rutas").insert(nueva_ruta).execute()
+            supabase.table("Rutas_Picus").insert(nueva_ruta).execute()
             st.success("✅ Ruta guardada exitosamente.")
             st.session_state.revisar_ruta = False
             del st.session_state["datos_captura"]
