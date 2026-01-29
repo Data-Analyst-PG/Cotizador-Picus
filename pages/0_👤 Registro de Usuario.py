@@ -44,7 +44,7 @@ with st.form("form_registro"):
                 "Password_Hash": hash_password(password)  # Para login
             }
             try:
-                supabase.table("Usuarios").insert(datos).execute()
+                supabase.table("Usuarios_Pic").insert(datos).execute()
                 st.success(f"✅ Usuario {nombre} registrado correctamente.")
             except Exception as e:
                 st.error(f"❌ Error al registrar usuario: {e}")
