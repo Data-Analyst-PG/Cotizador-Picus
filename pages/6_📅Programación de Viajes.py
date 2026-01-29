@@ -38,7 +38,7 @@ st.success("✅ Conexión establecida correctamente con Supabase.")
 @st.cache_data
 def cargar_rutas():
     try:
-        respuesta = supabase.table("Rutas_picus").select("*").execute()
+        respuesta = supabase.table("Rutas_Picus").select("*").execute()
         df = pd.DataFrame(respuesta.data)
         df["Ingreso Total"] = pd.to_numeric(df["Ingreso Total"], errors="coerce").fillna(0)
         df["Costo_Total_Ruta"] = pd.to_numeric(df["Costo_Total_Ruta"], errors="coerce").fillna(0)
@@ -53,7 +53,7 @@ def cargar_rutas():
 @st.cache_data
 def cargar_programaciones_pendientes():
     try:
-        data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+        data = supabase.table("Traficos_Picus").select("*").is_("Fecha_Cierre", None).execute()
         df = pd.DataFrame(data.data)
         if not df.empty:
             df["Fecha"] = pd.to_datetime(df.get("Fecha"), errors="coerce")
@@ -65,7 +65,7 @@ def cargar_programaciones_pendientes():
     
 def guardar_programacion(nuevo_registro):
     try:
-        columnas_base_data = supabase.table("Traficos").select("*").limit(1).execute().data
+        columnas_base_data = supabase.table("Traficos_Picus").select("*").limit(1).execute().data
         columnas_base = columnas_base_data[0].keys() if columnas_base_data else nuevo_registro.columns
 
         nuevo_registro = nuevo_registro.reindex(columns=columnas_base, fill_value=None)
@@ -73,9 +73,9 @@ def guardar_programacion(nuevo_registro):
         registros = nuevo_registro.to_dict(orient="records")
         for fila in registros:
             id_programacion = fila.get("ID_Programacion")
-            existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
+            existe = supabase.table("Traficos_Picus").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
             if not existe.data:
-                supabase.table("Traficos").insert(fila).execute()
+                supabase.table("Traficos_Picus").insert(fila).execute()
             else:
                 st.warning(f"⚠️ El tráfico con ID {id_programacion} ya fue registrado previamente.")
     except Exception as e:
@@ -122,7 +122,7 @@ if mostrar_registro:
     rutas_df = cargar_rutas()
     st.header("📝 Registro de tráfico desde despacho")
 
-    registros_existentes = supabase.table("Traficos").select("ID_Programacion").execute().data
+    registros_existentes = supabase.table("Traficos_Picus").select("ID_Programacion").execute().data
     traficos_registrados = {r["ID_Programacion"] for r in registros_existentes}
 
     viajes_disponibles = df_despacho["Numero_Trafico"].dropna().unique()
@@ -189,7 +189,7 @@ if mostrar_registro:
                 id_programacion = f"{viaje_sel}_{fecha_str}"
 
                 # Verificar si ya existe
-                existe = supabase.table("Traficos").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
+                existe = supabase.table("Traficos_Picus").select("ID_Programacion").eq("ID_Programacion", id_programacion).execute()
                 if existe.data:
                     st.warning("⚠️ Este tráfico ya está registrado.")
                 else:
@@ -228,7 +228,7 @@ st.header("🛠️ Gestión de Tráficos Programados")
 
 def cargar_programaciones_abiertas():
     try:
-        data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+        data = supabase.table("Traficos_Picus").select("*").is_("Fecha_Cierre", None).execute()
         df = pd.DataFrame(data.data)
         if not df.empty:
             df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
@@ -261,7 +261,7 @@ else:
     st.dataframe(df_filtrado)
 
     if st.button("🗑️ Eliminar tráfico completo"):
-        supabase.table("Traficos").delete().eq("ID_Programacion", id_edit).execute()
+        supabase.table("Traficos_Picus").delete().eq("ID_Programacion", id_edit).execute()
         st.success("Tráfico eliminado exitosamente.")
         st.rerun()
 
@@ -318,7 +318,7 @@ else:
                     "Costo_Total_Ruta": total
                 })
 
-                supabase.table("Traficos").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
+                supabase.table("Traficos_Picus").update(columnas).eq("ID_Programacion", id_edit).eq("Tramo", "IDA").execute()
                 st.success("✅ Cambios guardados correctamente.")
     else:
         st.warning("⚠️ No se encontró tramo IDA para editar.")
@@ -330,7 +330,7 @@ st.markdown("---")
 st.header("🔁 Completar y Simular Tráfico Detallado")
 
 def cargar_programaciones_pendientes():
-    data = supabase.table("Traficos").select("*").is_("Fecha_Cierre", None).execute()
+    data = supabase.table("Traficos_Picus").select("*").is_("Fecha_Cierre", None).execute()
     df = pd.DataFrame(data.data)
     if not df.empty:
         df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
@@ -429,7 +429,7 @@ else:
                 nuevos_tramos.append(datos)
 
             guardar_programacion(pd.DataFrame(nuevos_tramos))
-            supabase.table("Traficos").update({"Fecha_Cierre": fecha_cierre}).eq("ID_Programacion", ida["ID_Programacion"]).eq("Tramo", "IDA").execute()
+            supabase.table("Traficos_Picus").update({"Fecha_Cierre": fecha_cierre}).eq("ID_Programacion", ida["ID_Programacion"]).eq("Tramo", "IDA").execute()
 
             st.success("✅ Tráfico cerrado exitosamente.")
     else:
@@ -442,7 +442,7 @@ st.header("✅ Tráficos Concluidos con Filtro de Fechas")
 
 def cargar_concluidos():
     try:
-        data = supabase.table("Traficos").select("*").execute()
+        data = supabase.table("Traficos_Picus").select("*").execute()
         df = pd.DataFrame(data.data)
         df = df[df["Fecha_Cierre"].notna()]
         if not df.empty:
