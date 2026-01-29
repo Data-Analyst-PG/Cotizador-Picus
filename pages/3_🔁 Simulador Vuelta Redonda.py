@@ -267,10 +267,7 @@ pdf.set_font("Arial", size=12)
 pdf.cell(0, 10, "Detalle de Rutas - Vuelta Redonda", ln=True, align="C")
 pdf.ln(10)
 
-if "rutas_seleccionadas" not in st.session_state:
-    st.session_state.rutas_seleccionadas = []
-
-for r in st.session_state.rutas_seleccionadas:
+for r in st.session_state.get("rutas_seleccionadas", []):
     pdf.set_font("Arial", style='B', size=12)
     pdf.cell(0, 10, f"{r['Tipo']} - {r.get('Cliente', 'N/A')}", ln=True)
     pdf.set_font("Arial", size=10)
