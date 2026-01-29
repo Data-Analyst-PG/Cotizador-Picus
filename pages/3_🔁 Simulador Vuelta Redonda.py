@@ -19,6 +19,22 @@ url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 supabase = create_client(url, key)
 
+defaults = {
+    "rutas_seleccionadas": [],
+    "ingreso_total": 0.0,
+    "costo_total_general": 0.0,
+    "utilidad_bruta": 0.0,
+    "costos_indirectos": 0.0,
+    "utilidad_neta": 0.0,
+    "pct_bruta": 0.0,
+    "pct_neta": 0.0,
+    "simulacion_realizada": False,
+}
+
+for k, v in defaults.items():
+    st.session_state.setdefault(k, v)
+
+
 st.title("🔁 Simulador de Vuelta Redonda")
 
 def safe_number(x):
