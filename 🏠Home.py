@@ -25,7 +25,7 @@ if "usuario" not in st.session_state:
 
     def verificar_credenciales(correo, password):
         try:
-            res = supabase.table("Usuarios").select("*").eq("ID_Usuario", correo).execute()
+            res = supabase.table("Usuarios_Pic").select("*").eq("ID_Usuario", correo).execute()
             if res.data:
                 user = res.data[0]
                 if user.get("Password_Hash") == hash_password(password):
