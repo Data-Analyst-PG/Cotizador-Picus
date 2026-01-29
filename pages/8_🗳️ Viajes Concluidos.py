@@ -25,7 +25,7 @@ supabase = create_client(url, key)
 st.title("✅ Tráficos Concluidos con Filtro de Fechas")
 
 def cargar_programaciones():
-    data = supabase.table("Traficos").select("*").execute()
+    data = supabase.table("Traficos_Picus").select("*").execute()
     df = pd.DataFrame(data.data)
     if df.empty:
         return pd.DataFrame()
