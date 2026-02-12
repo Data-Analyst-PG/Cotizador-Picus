@@ -24,15 +24,38 @@ if "usuario" not in st.session_state:
     password = st.text_input("Contraseña", type="password")
 
     def verificar_credenciales(correo, password):
+        def _call():
+            # OJO: asegúrate que el nombre de la tabla sea exacto ("Usuarios")
+            res = supabase.table("Usuarios").select("*").eq("ID_Usuario", correo).execute()
+
+            # supabase-py a veces regresa error en res.error o en res.data vacío
+            if getattr(res, "error", None):
+                raise RuntimeError(res.error)
+
+            return res
+
         try:
-            res = supabase.table("Usuarios_Pic").select("*").eq("ID_Usuario", correo).execute()
+            # Reintenta si hay 52x/5xx/timeouts intermitentes
+            res = retry_with_backoff(_call, tries=5, base_delay=0.6, max_delay=10.0)
+
             if res.data:
                 user = res.data[0]
                 if user.get("Password_Hash") == hash_password(password):
                     return user
+
+            # Si llega aquí, sí fue credencial inválida (no error de red)
+            return None
+
         except Exception as e:
-            st.error(f"❌ Error de conexión: {e}")
-        return None
+            msg = str(e)
+
+            # Mensaje más claro cuando es tema de red/Supabase/Cloudflare
+            if "522" in msg or "timed out" in msg or "Cloudflare" in msg or "Connection timed out" in msg:
+                st.error("❌ Supabase no está respondiendo (timeout 522 / incidente regional). Intenta de nuevo en 1–2 minutos.")
+            else:
+                st.error(f"❌ Error de conexión: {e}")
+
+            return None
 
     if st.button("Ingresar"):
         usuario = verificar_credenciales(correo, password)
