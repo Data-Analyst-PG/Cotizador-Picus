@@ -3,6 +3,7 @@ import hashlib
 import base64
 from supabase import create_client
 from PIL import Image
+from utils.retry import retry_with_backoff
 
 # =========================
 # 🔐 LOGIN Y AUTENTICACIÓN
