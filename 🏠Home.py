@@ -26,7 +26,7 @@ if "usuario" not in st.session_state:
     def verificar_credenciales(correo, password):
         def _call():
             # OJO: asegúrate que el nombre de la tabla sea exacto ("Usuarios")
-            res = supabase.table("Usuarios").select("*").eq("ID_Usuario", correo).execute()
+            res = supabase.table("Usuarios_Pic").select("*").eq("ID_Usuario", correo).execute()
 
             # supabase-py a veces regresa error en res.error o en res.data vacío
             if getattr(res, "error", None):
