@@ -157,7 +157,7 @@ for ruta_sel in ids_seleccionados:
 # UTILIDADES PLANTILLA (antes de clase PDF)
 # ---------------------------
 PLANTILLA_CANDIDATAS = [
-    "Cotización Picus.jpg", "Cotización Picus.png",
+    "ADT PGL GRAL NO TXT.png", "Cotización Picus.jpg", "Cotización Picus.png",
     "/mnt/data/PICUS W.png", "/mnt/data/Picus BG.png",
 ]
 def _find_template():
